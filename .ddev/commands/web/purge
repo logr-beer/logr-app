@@ -1,0 +1,52 @@
+#!/bin/bash
+
+## Description: Purge all user content (beers, checkins, inventory, collections, etc.) while keeping user accounts intact.
+## Usage: purge
+## Example: ddev purge
+
+echo "This will delete ALL beers, breweries, checkins, inventory, collections, tags, and photos."
+echo "User accounts will NOT be affected."
+echo ""
+read -p "Are you sure? (y/N) " -n 1 -r
+echo ""
+
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Aborted."
+    exit 0
+fi
+
+php artisan tinker --execute="
+    use Illuminate\Support\Facades\DB;
+    use Illuminate\Support\Facades\Storage;
+
+    // Delete photos from storage
+    \$photoCount = 0;
+    foreach (App\Models\Beer::whereNotNull('photo_path')->pluck('photo_path') as \$path) {
+        Storage::disk('public')->delete(\$path);
+        \$photoCount++;
+    }
+    foreach (App\Models\CheckinPhoto::pluck('photo_path') as \$path) {
+        Storage::disk('public')->delete(\$path);
+        \$photoCount++;
+    }
+
+    // Truncate all content tables (order matters for foreign keys)
+    DB::statement('PRAGMA foreign_keys = OFF');
+    DB::table('checkin_photos')->truncate();
+    DB::table('checkin_companion')->truncate();
+    DB::table('companions')->truncate();
+    DB::table('checkins')->truncate();
+    DB::table('inventories')->truncate();
+    DB::table('beer_collection')->truncate();
+    DB::table('collections')->truncate();
+    DB::table('taggables')->truncate();
+    DB::table('tags')->truncate();
+    DB::table('beers')->truncate();
+    DB::table('breweries')->truncate();
+    DB::statement('PRAGMA foreign_keys = ON');
+
+    echo \"Purged all content. Deleted {\$photoCount} photo(s) from storage.\n\";
+"
+
+echo ""
+echo "Done! Your account is intact. Ready for a fresh import."

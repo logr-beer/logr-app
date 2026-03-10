@@ -1,0 +1,11 @@
+name: logr
+type: laravel
+docroot: public
+php_version: "8.4"
+webserver_type: nginx-fpm
+omit_containers: [db]
+nodejs_version: "20"
+corepack_enable: true
+hooks:
+  post-start:
+    - exec: nohup php artisan queue:work --sleep=3 --tries=3 --timeout=300 > /dev/null 2>&1 &
