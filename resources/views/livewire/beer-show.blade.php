@@ -525,7 +525,9 @@
                                 <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">{{ $checkin->notes }}</p>
                             @endif
                             <p class="text-xs text-gray-400 mt-1 flex items-center gap-2">
-                                {{ $checkin->created_at->diffForHumans() }}
+                                <a href="{{ route('checkins.edit', $checkin) }}" wire:navigate class="hover:text-amber-500 transition-colors">
+                                    {{ $checkin->created_at->diffForHumans() }}
+                                </a>
                                 @if($checkin->untappd_id && str_starts_with($checkin->untappd_id, 'http'))
                                     <a href="{{ $checkin->untappd_id }}" target="_blank" rel="noopener" class="text-amber-400 hover:text-amber-500" title="View on Untappd">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
