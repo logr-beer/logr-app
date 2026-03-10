@@ -17,12 +17,14 @@ class DemoSeeder extends Seeder
 {
     public function run(): void
     {
-        $user = User::create([
-            'name' => 'Demo User',
-            'email' => 'demo@logr.beer',
-            'email_verified_at' => now(),
-            'password' => bcrypt('password'),
-        ]);
+        $user = auth()->user() ?? User::firstOrCreate(
+            ['email' => 'demo@logr.beer'],
+            [
+                'name' => 'Demo User',
+                'email_verified_at' => now(),
+                'password' => bcrypt('password'),
+            ],
+        );
 
         // Venues
         $venues = collect([

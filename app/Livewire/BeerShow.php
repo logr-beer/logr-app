@@ -276,6 +276,6 @@ class BeerShow extends Component
             'totalQty' => $totalQty,
             'beerCollections' => $beerCollections,
             'availableCollections' => $availableCollections,
-        ])->title($this->beer->name);
+        ])->title($this->beer->name . ' | Beers');
     }
 }

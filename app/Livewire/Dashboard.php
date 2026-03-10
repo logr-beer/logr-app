@@ -6,12 +6,19 @@ use App\Models\Beer;
 use App\Models\Checkin;
 use App\Models\Collection;
 use App\Models\Inventory;
+use Database\Seeders\DemoSeeder;
+use Illuminate\Support\Facades\Artisan;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Title('Home')]
 class Dashboard extends Component
 {
+    public function loadDemoData(): void
+    {
+        Artisan::call('db:seed', ['--class' => DemoSeeder::class, '--force' => true]);
+    }
+
     public function toggleFavorite(int $beerId): void
     {
         $beer = Beer::findOrFail($beerId);

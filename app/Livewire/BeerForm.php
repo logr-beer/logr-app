@@ -351,7 +351,7 @@ class BeerForm extends Component
             'styles' => $this->getStyles(),
             'isEditing' => $isEditing,
             'hasApiKey' => LogrDb::forUser() !== null || (bool) (auth()->user()->untappd_client_id || auth()->user()->catalog_beer_api_key ?? config('services.catalog_beer.key')),
-        ])->title($isEditing ? 'Edit ' . $this->beer->name : 'Add Beer');
+        ])->title($isEditing ? 'Edit ' . $this->beer->name . ' | Beers' : 'Add Beer | Beers');
     }
 
     private function parseApiStyle(string $apiStyle): array

@@ -97,6 +97,6 @@ class CollectionShow extends Component
         return view('livewire.collection-show', [
             'beers' => $this->collection->resolveBeers(),
             'isDynamic' => $this->collection->is_dynamic,
-        ])->title($this->collection->name);
+        ])->title($this->collection->name . ' | Collections');
     }
 }

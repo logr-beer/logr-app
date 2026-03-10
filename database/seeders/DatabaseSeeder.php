@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
         if (User::count() === 0) {
             User::factory()->create([
                 'name' => 'Admin',
-                'email' => 'admin@logr.local',
+                'email' => 'admin@logr.beer',
                 'password' => bcrypt('password'),
             ]);
         }

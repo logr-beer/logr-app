@@ -7,6 +7,8 @@ Route::redirect('/', '/dashboard');
 Route::middleware(['auth'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
     Route::view('profile', 'profile')->name('profile');
+    Route::view('admin/api', 'admin.api')->name('admin.api');
+    Route::view('admin/notifications', 'admin.notifications')->name('admin.notifications');
 
     Route::view('beers', 'beers.index')->name('beers.index');
     Route::view('beers/create', 'beers.create')->name('beers.create');

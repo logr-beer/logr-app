@@ -403,6 +403,6 @@ class CsvImport extends Component
     {
         return view('livewire.csv-import', [
             'availableFields' => $this->getAvailableFields(),
-        ])->title('Import CSV');
+        ])->title('Import');
     }
 }

@@ -52,15 +52,41 @@
     </div>
     @endif
 
-    {{-- Empty state --}}
+    {{-- Empty state / Getting started --}}
     @if($recentBeers->isEmpty() && $favorites->isEmpty())
-    <div class="text-center py-16">
-        <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/></svg>
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Your beer library is empty</h3>
-        <p class="text-gray-500 dark:text-gray-400 mb-4">Start by adding some beers to your collection.</p>
-        <a href="{{ route('beers.create') }}" wire:navigate class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors">
-            Add Your First Beer
-        </a>
+    <div class="max-w-lg mx-auto py-12">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Welcome to Logr</h2>
+        <p class="text-gray-500 dark:text-gray-400 mb-6">A place to keep track of what's in your beer fridge. Here are a few things to get started:</p>
+
+        <ul class="space-y-3 mb-8">
+            <li class="flex items-start gap-3 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <span class="mt-0.5 text-amber-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                </span>
+                <div>
+                    <a href="{{ route('beers.create') }}" wire:navigate class="font-semibold text-gray-900 dark:text-white hover:text-amber-500 transition-colors">Add your first beer</a>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Start building your library by logging a beer.</p>
+                </div>
+            </li>
+            <li class="flex items-start gap-3 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <span class="mt-0.5 text-amber-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
+                </span>
+                <div>
+                    <a href="{{ route('import') }}" wire:navigate class="font-semibold text-gray-900 dark:text-white hover:text-amber-500 transition-colors">Import from CSV</a>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Bring in your data from Untappd or another source.</p>
+                </div>
+            </li>
+            <li class="flex items-start gap-3 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                <span class="mt-0.5 text-amber-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/></svg>
+                </span>
+                <div>
+                    <button wire:click="loadDemoData" wire:confirm="This will populate your account with example beers, check-ins, and collections. Continue?" class="font-semibold text-gray-900 dark:text-white hover:text-amber-500 transition-colors text-left">Load example data</button>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Explore Logr with sample beers, check-ins, and collections.</p>
+                </div>
+            </li>
+        </ul>
     </div>
     @endif
 </div>

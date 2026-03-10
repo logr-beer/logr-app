@@ -81,6 +81,12 @@ new class extends Component
                         <x-dropdown-link :href="route('profile')" wire:navigate>
                             {{ __('Profile') }}
                         </x-dropdown-link>
+                        <x-dropdown-link :href="route('admin.api')" wire:navigate>
+                            {{ __('API Settings') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link :href="route('admin.notifications')" wire:navigate>
+                            {{ __('Notifications') }}
+                        </x-dropdown-link>
 
                         <!-- Authentication -->
                         <button wire:click="logout" class="w-full text-start">
@@ -146,6 +152,12 @@ new class extends Component
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile')" wire:navigate>
                     {{ __('Profile') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.api')" wire:navigate>
+                    {{ __('API Settings') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.notifications')" wire:navigate>
+                    {{ __('Notifications') }}
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->

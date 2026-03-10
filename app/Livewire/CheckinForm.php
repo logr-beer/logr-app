@@ -261,6 +261,6 @@ class CheckinForm extends Component
         return view('livewire.checkin-form', [
             'beerSuggestions' => $beerSuggestions,
             'venueSuggestions' => $venueSuggestions,
-        ])->title($this->checkinId ? 'Edit Check-in' : 'New Check-in');
+        ])->title($this->checkinId ? 'Edit Check-in | Check-ins' : 'New Check-in | Check-ins');
     }
 }

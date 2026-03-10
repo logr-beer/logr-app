@@ -4,7 +4,6 @@ namespace App\Livewire;
 
 use App\Models\Venue;
 use Illuminate\Support\Facades\Http;
-use Livewire\Attributes\Title;
 use Livewire\Component;
 
 class VenueShow extends Component
@@ -163,7 +162,6 @@ class VenueShow extends Component
         $this->redirect(route('venues.index'), navigate: true);
     }
 
-    #[Title('Venue')]
     public function render()
     {
         $checkins = $this->venue->checkins()
@@ -173,6 +171,6 @@ class VenueShow extends Component
 
         return view('livewire.venue-show', [
             'checkins' => $checkins,
-        ]);
+        ])->title($this->venue->name . ' | Venues');
     }
 }
