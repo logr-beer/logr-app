@@ -103,7 +103,6 @@ class LogrDb
         try {
             $response = Http::withToken($this->token)
                 ->accept('application/json')
-                ->withoutVerifying()
                 ->timeout(10)
                 ->get($url, $query);
         } catch (\Exception $e) {
