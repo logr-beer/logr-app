@@ -642,7 +642,7 @@ class UntappdScraper
 
     protected function applyBeerData(Beer $beer, array $data, string $untappdId): array
     {
-        // Store untappd-specific data in the meta blob
+        // Store untappd-specific data in the data blob
         $meta = $beer->data ?? [];
         $meta['untappd'] = array_filter([
             'id' => $untappdId,
@@ -651,7 +651,7 @@ class UntappdScraper
             'synced_at' => now()->toDateString(),
         ], fn ($v) => $v !== null);
 
-        $updates = ['meta' => $meta];
+        $updates = ['data' => $meta];
 
         // Backfill core fields only if currently empty
         if (! $beer->abv && $data['abv']) {

@@ -46,8 +46,10 @@ class EnrichBeersUntappd extends Command
         $query = Beer::with('brewery')->orderBy('id');
 
         if ($missing) {
-            $query->whereNull('untappd_id');
-            $this->info('Enriching beers without an untappd_id (1 per 15s)...');
+            $query->where(function ($q) {
+                $q->whereNull('data')->orWhereRaw("JSON_EXTRACT(data, '$.untappd.id') IS NULL");
+            });
+            $this->info('Enriching beers without Untappd data (1 per 15s)...');
         } else {
             $this->info('Enriching all beers (1 per 15s)...');
         }

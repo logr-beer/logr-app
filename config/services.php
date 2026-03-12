@@ -37,7 +37,7 @@ return [
     ],
 
     'logr' => [
-        'discord_url' => env('LOGR_DISCORD_URL', 'https://hub.logr.beer'),
+        'discord_url' => env('LOGR_DISCORD_URL', 'https://discord.logr.beer'),
     ],
 
     'slack' => [
