@@ -7,6 +7,8 @@ use App\Models\Brewery;
 use App\Models\Checkin;
 use App\Models\Inventory;
 use App\Models\Venue;
+use App\Services\CatalogBeer;
+use App\Services\GeocodingService;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -243,13 +245,45 @@ class CsvImport extends Component
         $brewery = null;
         $breweryName = $getValue('brewery_name');
         if ($breweryName) {
-            $brewery = Brewery::where('name', $breweryName)->first();
+            $breweryCity = $getValue('brewery_city') ?: null;
+            $breweryState = $getValue('brewery_state') ?: null;
+            $breweryCountry = $getValue('brewery_country') ?: null;
+
+            // Try exact match on name + city/state first (disambiguates same-name breweries)
+            $brewery = Brewery::where('name', $breweryName)
+                ->when($breweryCity, fn ($q) => $q->where('city', $breweryCity))
+                ->when($breweryState, fn ($q) => $q->where('state', $breweryState))
+                ->first();
+
+            // Fall back to name-only match if no location-specific match found
             if (! $brewery) {
+                $brewery = Brewery::where('name', $breweryName)->first();
+            }
+
+            if ($brewery) {
+                // Backfill missing location data on existing brewery
+                $breweryUpdates = [];
+                if (! $brewery->city && $breweryCity) $breweryUpdates['city'] = $breweryCity;
+                if (! $brewery->state && $breweryState) $breweryUpdates['state'] = $breweryState;
+                if (! $brewery->country && $breweryCountry) $breweryUpdates['country'] = $breweryCountry;
+                if ($breweryUpdates) $brewery->update($breweryUpdates);
+
+                // Geocode if missing coordinates and we have location data
+                if (! $brewery->latitude && ($brewery->city || $brewery->state || $brewery->country)) {
+                    $coords = GeocodingService::geocode($brewery->city, $brewery->state, $brewery->country);
+                    if ($coords) {
+                        $brewery->update(['latitude' => $coords['lat'], 'longitude' => $coords['lng']]);
+                    }
+                }
+            } else {
+                $coords = GeocodingService::geocode($breweryCity, $breweryState, $breweryCountry);
                 $brewery = Brewery::create([
                     'name' => $breweryName,
-                    'city' => $getValue('brewery_city') ?: null,
-                    'state' => $getValue('brewery_state') ?: null,
-                    'country' => $getValue('brewery_country') ?: null,
+                    'city' => $breweryCity,
+                    'state' => $breweryState,
+                    'country' => $breweryCountry,
+                    'latitude' => $coords['lat'] ?? null,
+                    'longitude' => $coords['lng'] ?? null,
                 ]);
             }
         }
@@ -280,6 +314,16 @@ class CsvImport extends Component
                 'ibu' => ($ibu = $getValue('beer_ibu')) ? (float) $ibu : null,
             ]);
             $this->results['created_beers']++;
+
+            // Submit new beer to catalog.beer
+            $catalogKey = auth()->user()->catalog_beer_api_key;
+            if ($catalogKey) {
+                try {
+                    app(CatalogBeer::class)->submitBeer($beer, $catalogKey);
+                } catch (\Exception $e) {
+                    // Non-critical — don't block import
+                }
+            }
         }
 
         // Import checkin

@@ -117,8 +117,31 @@ Copy `.env.example` to `.env` and configure:
 | `CATALOG_BEER_API_KEY` | API key for Catalog.beer service |
 | `LOGR_DB_URL` | URL for the Logr DB API |
 | `LOGR_HUB_URL` | URL for the Logr Hub (OAuth) |
-| `OPENBREWDB_URL` | URL for the Open Brewery DB API |
+| `LOGRDB_URL` | URL for the LogrDB API |
 | `DEMO_MODE` | Set to `true` to enable demo mode with scheduled data resets |
+
+## Releases
+
+This project uses [semantic versioning](https://semver.org/) and [conventional commits](https://www.conventionalcommits.org/).
+
+To create a release:
+
+```bash
+git tag -a v1.0.0 -m "v1.0.0 - Initial release"
+git push origin v1.0.0
+```
+
+Pushing a `v*` tag triggers the release workflow which:
+
+1. Builds the Docker image
+2. Pushes it to GitHub Container Registry (`ghcr.io/logr-beer/logr-app`)
+3. Creates a GitHub Release with auto-generated release notes
+
+To pull the published image instead of building locally:
+
+```bash
+docker pull ghcr.io/logr-beer/logr-app:latest
+```
 
 ## License
 

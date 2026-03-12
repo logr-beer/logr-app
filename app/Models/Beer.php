@@ -12,11 +12,13 @@ class Beer extends Model
 {
     protected $fillable = [
         'name', 'brewery_id', 'style', 'abv', 'ibu', 'release_year', 'brewer_master', 'description', 'photo_path', 'is_favorite',
+        'catalog_beer_id', 'data',
     ];
 
     protected $casts = [
         'style' => 'array',
         'is_favorite' => 'boolean',
+        'data' => 'array',
     ];
 
     public function brewery(): BelongsTo

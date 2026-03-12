@@ -42,14 +42,11 @@ new class extends Component
                     <x-nav-link :href="route('checkins.index')" :active="request()->routeIs('checkins.*')" wire:navigate>
                         Check-ins
                     </x-nav-link>
-                    <x-nav-link :href="route('venues.index')" :active="request()->routeIs('venues.*')" wire:navigate>
-                        Venues
+                    <x-nav-link :href="route('locations')" :active="request()->routeIs('locations')" wire:navigate>
+                        Locations
                     </x-nav-link>
                     <x-nav-link :href="route('rankings')" :active="request()->routeIs('rankings')" wire:navigate>
                         Rankings
-                    </x-nav-link>
-                    <x-nav-link :href="route('import')" :active="request()->routeIs('import')" wire:navigate>
-                        Import
                     </x-nav-link>
                 </div>
             </div>
@@ -78,6 +75,12 @@ new class extends Component
                     </x-slot>
 
                     <x-slot name="content">
+                        <x-dropdown-link :href="route('import')" wire:navigate>
+                            {{ __('Import') }}
+                        </x-dropdown-link>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
+
                         <x-dropdown-link :href="route('profile')" wire:navigate>
                             {{ __('Profile') }}
                         </x-dropdown-link>
@@ -125,14 +128,11 @@ new class extends Component
             <x-responsive-nav-link :href="route('checkins.index')" :active="request()->routeIs('checkins.*')" wire:navigate>
                 Check-ins
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('venues.index')" :active="request()->routeIs('venues.*')" wire:navigate>
-                Venues
+            <x-responsive-nav-link :href="route('locations')" :active="request()->routeIs('locations')" wire:navigate>
+                Locations
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('rankings')" :active="request()->routeIs('rankings')" wire:navigate>
                 Rankings
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('import')" :active="request()->routeIs('import')" wire:navigate>
-                Import
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('checkins.create')" :active="request()->routeIs('checkins.create')" wire:navigate>
                 + Check In
@@ -146,10 +146,16 @@ new class extends Component
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
             <div class="px-4">
                 <div class="font-medium text-base text-gray-800 dark:text-gray-200" x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
-                <div class="font-medium text-sm text-gray-500">{{ auth()->user()->email }}</div>
+                <div class="font-medium text-sm text-gray-500">{{ auth()->user()->username }}</div>
             </div>
 
             <div class="mt-3 space-y-1">
+                <x-responsive-nav-link :href="route('import')" wire:navigate>
+                    {{ __('Import') }}
+                </x-responsive-nav-link>
+
+                <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
+
                 <x-responsive-nav-link :href="route('profile')" wire:navigate>
                     {{ __('Profile') }}
                 </x-responsive-nav-link>

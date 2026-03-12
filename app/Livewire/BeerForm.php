@@ -336,6 +336,9 @@ class BeerForm extends Component
                     'is_gift' => $this->isGift,
                 ]);
             }
+
+            // Submit to catalog.beer if the user has an API key
+            $this->submitToCatalogBeer($beer);
         }
 
         session()->flash('message', $this->beer ? 'Beer updated successfully.' : 'Beer added successfully.');
@@ -352,6 +355,23 @@ class BeerForm extends Component
             'isEditing' => $isEditing,
             'hasApiKey' => LogrDb::forUser() !== null || (bool) (auth()->user()->untappd_client_id || auth()->user()->catalog_beer_api_key ?? config('services.catalog_beer.key')),
         ])->title($isEditing ? 'Edit ' . $this->beer->name . ' | Beers' : 'Add Beer | Beers');
+    }
+
+    private function submitToCatalogBeer(Beer $beer): void
+    {
+        $apiKey = auth()->user()->catalog_beer_api_key;
+        if (! $apiKey) {
+            return;
+        }
+
+        try {
+            app(CatalogBeer::class)->submitBeer($beer, $apiKey);
+        } catch (\Exception $e) {
+            \Log::warning('Failed to submit beer to catalog.beer', [
+                'beer_id' => $beer->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     private function parseApiStyle(string $apiStyle): array

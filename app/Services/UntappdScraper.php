@@ -507,6 +507,175 @@ class UntappdScraper
         ];
     }
 
+    /**
+     * Search Untappd for a beer and enrich it with public data (rating, untappd_id, etc.).
+     * Returns an array with keys: matched (bool), updated (bool), message (string).
+     */
+    public function enrichBeer(Beer $beer): array
+    {
+        // If we already have an untappd ID in meta, scrape directly
+        $existingUntappdId = $beer->data['untappd']['id'] ?? null;
+        if ($existingUntappdId) {
+            $data = $this->fetchBeerPage($existingUntappdId);
+
+            if (! $data) {
+                return ['matched' => true, 'updated' => false, 'message' => "Could not fetch beer page for ID {$existingUntappdId}"];
+            }
+
+            return $this->applyBeerData($beer, $data, $existingUntappdId);
+        }
+
+        // Otherwise, search by name + brewery
+        $breweryName = $beer->brewery?->name ?? '';
+        $query = trim("{$beer->name} {$breweryName}");
+
+        $untappdId = $this->searchBeerOnUntappd($query, $beer->name, $breweryName);
+
+        if (! $untappdId) {
+            return ['matched' => false, 'updated' => false, 'message' => "No Untappd match found for \"{$query}\""];
+        }
+
+        $data = $this->fetchBeerPage($untappdId);
+
+        if (! $data) {
+            return ['matched' => true, 'updated' => false, 'message' => "Matched ID {$untappdId} but could not fetch beer page"];
+        }
+
+        return $this->applyBeerData($beer, $data, $untappdId);
+    }
+
+    protected function searchBeerOnUntappd(string $query, string $beerName, string $breweryName): ?string
+    {
+        $response = Http::withHeaders(['User-Agent' => $this->userAgent])
+            ->timeout(30)
+            ->get('https://untappd.com/search', [
+                'q' => $query,
+                'type' => 'beer',
+            ]);
+
+        if ($response->failed()) {
+            return null;
+        }
+
+        $html = $response->body();
+        $beerNameLower = mb_strtolower(trim($beerName));
+        $breweryNameLower = mb_strtolower(trim($breweryName));
+
+        // Parse beer-item blocks for name, brewery, and /b/{slug}/{id} links
+        if (preg_match_all('/class="beer-item"(.*?)(?=class="beer-item"|<\/ul>)/si', $html, $blocks)) {
+            foreach ($blocks[1] as $block) {
+                // Extract beer ID from /b/slug/ID
+                if (! preg_match('/href="\/b\/[^"]*\/(\d+)"/', $block, $idMatch)) {
+                    continue;
+                }
+                $beerId = $idMatch[1];
+
+                // Beer name
+                $resultName = '';
+                if (preg_match('/<p[^>]*class="[^"]*name[^"]*"[^>]*>(.*?)<\/p>/si', $block, $nameMatch)) {
+                    $resultName = mb_strtolower(trim(strip_tags($nameMatch[1])));
+                }
+
+                // Brewery name
+                $resultBrewery = '';
+                if (preg_match('/<p[^>]*class="[^"]*brewery[^"]*"[^>]*>(.*?)<\/p>/si', $block, $brewMatch)) {
+                    $resultBrewery = mb_strtolower(trim(strip_tags($brewMatch[1])));
+                }
+
+                // Exact beer name + brewery contains match
+                if ($resultName === $beerNameLower && ($breweryNameLower === '' || str_contains($resultBrewery, $breweryNameLower))) {
+                    return $beerId;
+                }
+
+                // Beer name contains match + brewery match
+                if ($breweryNameLower && str_contains($resultName, $beerNameLower) && str_contains($resultBrewery, $breweryNameLower)) {
+                    return $beerId;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    protected function fetchBeerPage(string $untappdId): ?array
+    {
+        $response = Http::withHeaders(['User-Agent' => $this->userAgent])
+            ->timeout(30)
+            ->get("https://untappd.com/b/beer/{$untappdId}");
+
+        if ($response->failed()) {
+            return null;
+        }
+
+        $html = $response->body();
+
+        // Pull structured data from JSON-LD
+        $data = ['rating' => null, 'url' => null, 'abv' => null, 'ibu' => null, 'description' => null, 'label_url' => null];
+
+        if (preg_match_all('/<script[^>]+type=["\']application\/ld\+json["\'][^>]*>(.*?)<\/script>/si', $html, $scripts)) {
+            foreach ($scripts[1] as $json) {
+                $decoded = json_decode(trim($json), true);
+                if ($decoded && isset($decoded['@type'])) {
+                    $data['rating'] = isset($decoded['aggregateRating']['ratingValue'])
+                        ? round((float) $decoded['aggregateRating']['ratingValue'], 2)
+                        : null;
+                    $data['url'] = $decoded['url'] ?? null;
+                    $data['description'] = $decoded['description'] ?? null;
+                    $data['label_url'] = $decoded['image'] ?? null;
+                    break;
+                }
+            }
+        }
+
+        // ABV from "X% ABV"
+        if (preg_match('/(\d+\.?\d*)\s*%\s*ABV/i', $html, $m)) {
+            $data['abv'] = (float) $m[1];
+        }
+
+        // IBU from "X IBU" (skip "N/A")
+        if (preg_match('/(\d+)\s*IBU/i', $html, $m)) {
+            $data['ibu'] = (int) $m[1];
+        }
+
+        return $data;
+    }
+
+    protected function applyBeerData(Beer $beer, array $data, string $untappdId): array
+    {
+        // Store untappd-specific data in the meta blob
+        $meta = $beer->data ?? [];
+        $meta['untappd'] = array_filter([
+            'id' => $untappdId,
+            'url' => $data['url'],
+            'rating' => $data['rating'],
+            'synced_at' => now()->toDateString(),
+        ], fn ($v) => $v !== null);
+
+        $updates = ['meta' => $meta];
+
+        // Backfill core fields only if currently empty
+        if (! $beer->abv && $data['abv']) {
+            $updates['abv'] = $data['abv'];
+        }
+        if (! $beer->ibu && $data['ibu']) {
+            $updates['ibu'] = $data['ibu'];
+        }
+        if (! $beer->description && $data['description']) {
+            $updates['description'] = $data['description'];
+        }
+
+        $beer->update($updates);
+
+        // Download label if beer has no photo
+        if (! $beer->photo_path && ! empty($data['label_url'])) {
+            $this->downloadLabel($beer, $data['label_url']);
+        }
+
+        $rating = $data['rating'] ?? 'n/a';
+
+        return ['matched' => true, 'updated' => true, 'message' => "Saved — Untappd ID {$untappdId}, rating {$rating}"];
+    }
+
     protected function downloadLabel(Beer $beer, string $url): void
     {
         // Skip placeholder/default Untappd images

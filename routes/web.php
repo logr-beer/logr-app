@@ -27,6 +27,7 @@ Route::middleware(['auth'])->group(function () {
     Route::view('venues', 'venues.index')->name('venues.index');
     Route::view('venues/{venue}', 'venues.show')->name('venues.show');
     Route::view('rankings', 'rankings')->name('rankings');
+    Route::view('locations', 'locations')->name('locations');
     Route::view('import', 'import')->name('import');
 
     Route::get('logr/connect', [\App\Http\Controllers\LogrCallbackController::class, 'redirect'])->name('logr.connect');

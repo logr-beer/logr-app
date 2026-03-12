@@ -18,10 +18,9 @@ class DemoSeeder extends Seeder
     public function run(): void
     {
         $user = auth()->user() ?? User::firstOrCreate(
-            ['email' => 'demo@logr.beer'],
+            ['username' => 'demo'],
             [
                 'name' => 'Demo User',
-                'email_verified_at' => now(),
                 'password' => bcrypt('password'),
             ],
         );
