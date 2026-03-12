@@ -22,6 +22,12 @@
                 </a>
             </div>
 
+            @if(config('app.demo_mode'))
+                <div class="w-full sm:max-w-md mt-4 px-4 py-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg text-center text-sm text-amber-700 dark:text-amber-400">
+                    <strong>Demo Site.</strong> Credentials are <code class="px-1 py-0.5 bg-amber-100 dark:bg-amber-900/40 rounded text-xs font-mono">admin</code> / <code class="px-1 py-0.5 bg-amber-100 dark:bg-amber-900/40 rounded text-xs font-mono">password</code>
+                </div>
+            @endif
+
             <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
                 {{ $slot }}
             </div>
