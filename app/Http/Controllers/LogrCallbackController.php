@@ -9,7 +9,7 @@ class LogrCallbackController extends Controller
 {
     public function redirect()
     {
-        $hubUrl = rtrim(config('services.logr.hub_url'), '/');
+        $hubUrl = rtrim(config('services.logr.discord_url'), '/');
         $callbackUrl = route('logr.callback');
 
         $state = bin2hex(random_bytes(16));
@@ -37,7 +37,7 @@ class LogrCallbackController extends Controller
         session()->forget('logr_state');
 
         $user = Auth::user();
-        $hubUrl = rtrim(config('services.logr.hub_url'), '/');
+        $hubUrl = rtrim(config('services.logr.discord_url'), '/');
         $bots = $user->getData('discord_bots') ?? [];
 
         // Check if this guild is already connected
