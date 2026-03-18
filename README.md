@@ -145,4 +145,6 @@ docker pull ghcr.io/logr-beer/logr-app:latest
 
 ## License
 
-MIT
+Logr is open-source software licensed under the [GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE).
+
+You are free to fork, modify, and self-host Logr. If you distribute a modified version or run it as a network service, you must make your source code available under the same license.
