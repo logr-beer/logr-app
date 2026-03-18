@@ -7,10 +7,19 @@ services:
       - db-data:/var/www/html/database
       - app-storage:/var/www/html/storage/app
     environment:
+      - APP_NAME=${APP_NAME:-Logr}
       - APP_ENV=production
       - APP_DEBUG=false
+      - APP_URL=${APP_URL:-http://localhost:8080}
       - DB_CONNECTION=sqlite
       - DB_DATABASE=/var/www/html/database/database.sqlite
+      - QUEUE_CONNECTION=database
+      - CACHE_STORE=database
+      - SESSION_DRIVER=database
+      - CATALOG_BEER_API_KEY=${CATALOG_BEER_API_KEY:-}
+      - LOGR_DB_URL=${LOGR_DB_URL:-}
+      - LOGR_DISCORD_URL=${LOGR_DISCORD_URL:-}
+      - DEMO_MODE=${DEMO_MODE:-false}
     restart: unless-stopped
 
 volumes:

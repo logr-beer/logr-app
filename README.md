@@ -1,6 +1,6 @@
 # Logr
 
-A self-hosted beer logging app built with Laravel 12, Livewire 3, and Tailwind CSS. Track your beer library, check-ins, inventory, collections, and more.
+A self-hosted beer logging app. Track your beer library, check-ins, inventory, collections, and more. Built with Laravel 12, Livewire 3, and Tailwind CSS.
 
 ## Features
 
@@ -25,38 +25,28 @@ A self-hosted beer logging app built with Laravel 12, Livewire 3, and Tailwind C
 
 ### Prerequisites
 
-- PHP 8.2+
-- Composer
-- Node.js 20+
-- npm
+- [DDEV](https://ddev.com) (includes PHP, Composer, Node.js, and npm)
 
 ### Quick Setup
 
 ```bash
 git clone <repo-url> logr-app
 cd logr-app
-composer setup
+ddev start
+ddev composer setup
 ```
 
-This runs `composer install`, copies `.env.example`, generates an app key, runs migrations, installs npm dependencies, and builds assets.
-
-### Development Server
-
-```bash
-composer dev
-```
-
-Starts the Laravel dev server, queue worker, log tail, and Vite in parallel.
+The site will be available at `https://logr.ddev.site`. DDEV automatically starts a queue worker on launch.
 
 ### Running Tests
 
 ```bash
-composer test
+ddev composer test
 ```
 
-## Docker Compose (Production)
+## Docker Compose
 
-The included `docker-compose.yml` runs Logr as a self-contained production deployment with SQLite.
+The included `docker-compose.yml` runs Logr as a self-contained deployment with SQLite.
 
 ### Quick Start
 
@@ -65,13 +55,6 @@ docker compose up -d
 ```
 
 The app will be available at `http://localhost:8080` (configurable via `APP_PORT`).
-
-### Services
-
-| Service | Description |
-|---------|-------------|
-| `app` | PHP-FPM + Nginx serving the application |
-| `queue` | Background queue worker for async jobs |
 
 ### Volumes
 
@@ -82,13 +65,34 @@ The app will be available at `http://localhost:8080` (configurable via `APP_PORT
 
 ### Configuration
 
-Set environment variables in a `.env` file or pass them directly:
+Optionally create a `.env` file next to `docker-compose.yml` to customize settings:
 
-```bash
-APP_PORT=3000 docker compose up -d
+```env
+# App settings (all optional — sensible defaults are provided)
+APP_NAME=Logr
+APP_URL=http://localhost:8080
+APP_PORT=8080
+
+# Integrations
+CATALOG_BEER_API_KEY=
+LOGR_DB_URL=
+LOGR_DISCORD_URL=
+
+# Set to true to enable demo mode with scheduled data resets
+DEMO_MODE=false
 ```
 
-The Docker image handles migrations automatically on startup via the entrypoint script.
+Then start the app:
+
+```bash
+docker compose up -d
+```
+
+On first boot, the entrypoint automatically:
+- Generates an `APP_KEY` if one isn't set
+- Creates the storage symlink
+- Runs database migrations
+- Seeds default data
 
 ### Rebuilding
 
@@ -96,17 +100,6 @@ The Docker image handles migrations automatically on startup via the entrypoint 
 docker compose build --no-cache
 docker compose up -d
 ```
-
-## DDEV (Local Development)
-
-A `.ddev/` configuration is included for local development with [DDEV](https://ddev.com).
-
-```bash
-ddev start
-ddev exec composer setup
-```
-
-The site will be available at `https://logr.ddev.site`. DDEV automatically starts a queue worker on launch.
 
 ## Environment Variables
 
