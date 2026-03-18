@@ -81,13 +81,23 @@
             <div class="space-y-6">
                 {{-- Catalog.beer --}}
                 <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-3">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Catalog.beer</h3>
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Catalog.beer</h3>
+                        @if(config('services.catalog_beer.key'))
+                            <x-env-badge name="CATALOG_BEER_API_KEY" />
+                        @endif
+                    </div>
                     <div>
                         <label for="catalog_beer_api_key" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">API Key</label>
                         <input wire:model="catalog_beer_api_key" id="catalog_beer_api_key" type="text" autocomplete="off"
                             placeholder="Your catalog.beer API key"
                             class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500" />
-                        <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Used for beer search. Get a free key at catalog.beer.</p>
+                        <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                            Used for beer search. Get a free key at catalog.beer.
+                            @if(config('services.catalog_beer.key'))
+                                Default provided by environment variable.
+                            @endif
+                        </p>
                     </div>
                 </div>
 

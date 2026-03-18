@@ -306,7 +306,10 @@ new class extends Component
         {{-- Logr DB --}}
         @if(config('services.logr_db.url'))
             <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Logr DB</h3>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Logr DB</h3>
+                    <x-env-badge name="LOGR_DB_URL" />
+                </div>
                 <div>
                     <x-input-label for="logr_db_token" value="API Token" />
                     <input wire:model.live="logr_db_token" id="logr_db_token" type="text" autocomplete="off"
@@ -322,12 +325,22 @@ new class extends Component
 
         {{-- Catalog.beer --}}
         <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
-            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Catalog.beer</h3>
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Catalog.beer</h3>
+                @if(config('services.catalog_beer.key'))
+                    <x-env-badge name="CATALOG_BEER_API_KEY" />
+                @endif
+            </div>
             <div>
                 <x-input-label for="catalog_beer_api_key" value="API Key" />
                 <input wire:model.live="catalog_beer_api_key" id="catalog_beer_api_key" type="text" autocomplete="off"
                     class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" />
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Get a free API key at <span class="font-medium">catalog.beer</span>.</p>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Get a free API key at <span class="font-medium">catalog.beer</span>.
+                    @if(config('services.catalog_beer.key'))
+                        Default provided by environment variable.
+                    @endif
+                </p>
             </div>
             <button type="button" wire:click="testCatalogBeer" class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors">
                 <span wire:loading wire:target="testCatalogBeer"><svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
