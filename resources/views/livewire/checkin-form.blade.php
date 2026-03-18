@@ -83,7 +83,7 @@
                         <input
                             wire:model="rating"
                             type="number"
-                            step="0.5"
+                            step="0.01"
                             min="0"
                             max="5"
                             id="rating"

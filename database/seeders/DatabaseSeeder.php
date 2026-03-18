@@ -16,14 +16,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (User::count() === 0) {
-            User::create([
-                'name' => 'Admin',
-                'username' => 'admin',
-                'password' => bcrypt('password'),
-            ]);
-        }
-
         Venue::firstOrCreate(
             ['name' => 'Home'],
         );

@@ -24,10 +24,11 @@ class LogrCallbackController extends Controller
     public function callback(Request $request)
     {
         $request->validate([
-            'api_key' => 'required|string',
-            'guild_id' => 'required|string',
-            'guild_name' => 'required|string',
-            'state' => 'required|string',
+            'api_key' => 'required|string|max:255',
+            'guild_id' => 'required|string|max:50',
+            'guild_name' => 'required|string|max:100',
+            'channel_name' => 'nullable|string|max:100',
+            'state' => 'required|string|max:64',
         ]);
 
         if ($request->state !== session('logr_state')) {

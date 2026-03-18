@@ -42,7 +42,7 @@ new class extends Component
                     <x-nav-link :href="route('checkins.index')" :active="request()->routeIs('checkins.*')" wire:navigate>
                         Check-ins
                     </x-nav-link>
-                    <x-nav-link :href="route('locations')" :active="request()->routeIs('locations')" wire:navigate>
+                    <x-nav-link :href="route('locations')" :active="request()->routeIs('locations') || request()->routeIs('venues.*')" wire:navigate>
                         Locations
                     </x-nav-link>
                     <x-nav-link :href="route('rankings')" :active="request()->routeIs('rankings')" wire:navigate>
@@ -128,7 +128,7 @@ new class extends Component
             <x-responsive-nav-link :href="route('checkins.index')" :active="request()->routeIs('checkins.*')" wire:navigate>
                 Check-ins
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('locations')" :active="request()->routeIs('locations')" wire:navigate>
+            <x-responsive-nav-link :href="route('locations')" :active="request()->routeIs('locations') || request()->routeIs('venues.*')" wire:navigate>
                 Locations
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('rankings')" :active="request()->routeIs('rankings')" wire:navigate>

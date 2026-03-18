@@ -12,6 +12,7 @@ use App\Models\Tag;
 use App\Models\User;
 use App\Models\Venue;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DemoSeeder extends Seeder
 {
@@ -21,7 +22,7 @@ class DemoSeeder extends Seeder
             ['username' => 'demo'],
             [
                 'name' => 'Demo User',
-                'password' => bcrypt('password'),
+                'password' => Hash::make('password'),
             ],
         );
 
