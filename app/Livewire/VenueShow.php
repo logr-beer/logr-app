@@ -157,6 +157,10 @@ class VenueShow extends Component
 
     public function delete(): void
     {
+        if ($this->venue->checkins()->where('user_id', auth()->id())->doesntExist()) {
+            abort(403);
+        }
+
         $this->venue->delete();
 
         $this->redirect(route('venues.index'), navigate: true);
