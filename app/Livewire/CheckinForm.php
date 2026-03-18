@@ -2,12 +2,12 @@
 
 namespace App\Livewire;
 
+use App\Events\CheckinCreated;
 use App\Models\Beer;
 use App\Models\Checkin;
 use App\Models\CheckinPhoto;
 use App\Models\Venue;
-use App\Services\Discord;
-use App\Services\Hub;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -173,48 +173,52 @@ class CheckinForm extends Component
             'notes' => $this->notes ?: null,
         ];
 
-        if ($this->checkinId) {
-            $checkin = Checkin::where('id', $this->checkinId)->where('user_id', auth()->id())->firstOrFail();
-            $checkin->update($data);
+        $checkin = DB::transaction(function () use ($data) {
+            if ($this->checkinId) {
+                $checkin = Checkin::where('id', $this->checkinId)->where('user_id', auth()->id())->firstOrFail();
+                $checkin->update($data);
 
-            if ($this->checkin_date) {
-                $checkin->update([
-                    'created_at' => $this->checkin_date,
-                    'updated_at' => now(),
-                ]);
+                if ($this->checkin_date) {
+                    $checkin->update([
+                        'created_at' => $this->checkin_date,
+                        'updated_at' => now(),
+                    ]);
+                }
+
+                // Delete removed photos
+                foreach ($this->photosToDelete as $photoId) {
+                    $photo = CheckinPhoto::where('id', $photoId)->where('checkin_id', $checkin->id)->first();
+                    if ($photo) {
+                        Storage::disk('public')->delete($photo->photo_path);
+                        $photo->delete();
+                    }
+                }
+            } else {
+                $checkin = Checkin::create($data);
             }
 
-            // Delete removed photos
-            foreach ($this->photosToDelete as $photoId) {
-                $photo = CheckinPhoto::where('id', $photoId)->where('checkin_id', $checkin->id)->first();
-                if ($photo) {
-                    Storage::disk('public')->delete($photo->photo_path);
-                    $photo->delete();
+            // Save new photos
+            if ($this->photos) {
+                foreach ($this->photos as $photo) {
+                    $path = $photo->store('checkin-photos', 'public');
+                    CheckinPhoto::create([
+                        'checkin_id' => $checkin->id,
+                        'photo_path' => $path,
+                    ]);
                 }
             }
 
+            return $checkin;
+        });
+
+        if ($this->checkinId) {
             $message = 'Check-in updated!';
         } else {
-            $checkin = Checkin::create($data);
-
             if ($this->shareCheckinToDiscord) {
-                $currentUser = auth()->user();
-                Discord::sendCheckin($checkin, $currentUser);
-                Hub::sendCheckin($checkin, $currentUser);
+                CheckinCreated::dispatch($checkin, auth()->user());
             }
 
             $message = 'Check-in recorded!';
-        }
-
-        // Save new photos
-        if ($this->photos) {
-            foreach ($this->photos as $photo) {
-                $path = $photo->store('checkin-photos', 'public');
-                CheckinPhoto::create([
-                    'checkin_id' => $checkin->id,
-                    'photo_path' => $path,
-                ]);
-            }
         }
 
         session()->flash('message', $message);
@@ -226,12 +230,6 @@ class CheckinForm extends Component
         if (! $this->checkinId) return;
 
         $checkin = Checkin::where('id', $this->checkinId)->where('user_id', auth()->id())->firstOrFail();
-
-        foreach ($checkin->photos as $photo) {
-            Storage::disk('public')->delete($photo->photo_path);
-            $photo->delete();
-        }
-
         $checkin->delete();
 
         session()->flash('message', 'Check-in deleted.');
