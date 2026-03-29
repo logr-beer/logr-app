@@ -1,6 +1,7 @@
 # Logr
 
-A self-hosted beer logging app. Track your beer library, check-ins, inventory, collections, and more. Built with Laravel 12, Livewire 3, and Tailwind CSS.
+A self-hosted beer logging app. Track your beer library, check-ins, inventory, collections, and more.
+Built with Laravel 12, Livewire 3, and Tailwind CSS.
 
 ## Features
 
@@ -21,11 +22,15 @@ A self-hosted beer logging app. Track your beer library, check-ins, inventory, c
 - SQLite
 - Vite
 
-## Getting Started
+## Local Development
+
+### Why DDEV?
+
+[DDEV](https://ddev.com) provides a consistent, containerized development environment with PHP, Composer, Node.js, and npm out of the box.
 
 ### Prerequisites
 
-- [DDEV](https://ddev.com) (includes PHP, Composer, Node.js, and npm)
+- [DDEV](https://ddev.com)
 
 ### Quick Setup
 
