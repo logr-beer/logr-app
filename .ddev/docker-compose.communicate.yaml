@@ -1,4 +1,7 @@
 services:
   web:
-    external_links:
-      - "ddev-router:logr-db.ddev.site"
+    volumes:
+      - logr-data:/data
+
+volumes:
+  logr-data:
