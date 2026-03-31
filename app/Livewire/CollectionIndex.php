@@ -11,6 +11,9 @@ use Livewire\Component;
 #[Title('Collections')]
 class CollectionIndex extends Component
 {
+    public string $search = '';
+    public string $collectionFilter = 'all'; // all, regular, smart
+
     public string $name = '';
     public string $description = '';
 
@@ -151,13 +154,19 @@ class CollectionIndex extends Component
     {
         $this->ensureBuiltInCollections();
 
-        $collections = Collection::where('user_id', auth()->id())
+        $query = Collection::where('user_id', auth()->id());
+
+        if ($this->search) {
+            $query->where('name', 'like', '%' . $this->search . '%');
+        }
+
+        $collections = (clone $query)
             ->where('is_dynamic', false)
             ->withCount('beers')
             ->latest()
             ->get();
 
-        $dynamicCollections = Collection::where('user_id', auth()->id())
+        $dynamicCollections = (clone $query)
             ->where('is_dynamic', true)
             ->latest()
             ->get()

@@ -12,6 +12,16 @@ use Livewire\Component;
 #[Title('Rankings')]
 class Rankings extends Component
 {
+    public int $topRatedLimit = 5;
+    public int $mostCheckedInLimit = 5;
+    public int $topBreweriesLimit = 5;
+    public int $highestAbvLimit = 5;
+
+    public function expandSection(string $section, int $limit): void
+    {
+        $this->{$section . 'Limit'} = $limit;
+    }
+
     public function render()
     {
         $userId = auth()->id();
@@ -24,7 +34,7 @@ class Rankings extends Component
             ->groupBy('beers.id')
             ->havingRaw('COUNT(checkins.id) >= 2')
             ->orderByRaw('AVG(checkins.rating) DESC')
-            ->limit(10)
+            ->limit($this->topRatedLimit)
             ->with('brewery')
             ->get()
             ->each(function ($beer) use ($userId) {
@@ -43,7 +53,7 @@ class Rankings extends Component
             ->where('checkins.user_id', $userId)
             ->groupBy('beers.id')
             ->orderByDesc('checkin_count')
-            ->limit(10)
+            ->limit($this->mostCheckedInLimit)
             ->with('brewery')
             ->get()
             ->each(function ($beer) use ($userId) {
@@ -62,7 +72,7 @@ class Rankings extends Component
             ->groupBy('breweries.id')
             ->havingRaw('COUNT(checkins.id) >= 3')
             ->orderByRaw('AVG(checkins.rating) DESC')
-            ->limit(10)
+            ->limit($this->topBreweriesLimit)
             ->get()
             ->each(function ($brewery) use ($userId) {
                 $brewery->avg_rating = Checkin::join('beers', 'checkins.beer_id', '=', 'beers.id')
@@ -82,7 +92,7 @@ class Rankings extends Component
             ->where('abv', '>', 0)
             ->whereHas('checkins', fn ($q) => $q->where('user_id', $userId))
             ->orderByDesc('abv')
-            ->limit(10)
+            ->limit($this->highestAbvLimit)
             ->with('brewery')
             ->get();
 

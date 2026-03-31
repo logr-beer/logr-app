@@ -7,6 +7,10 @@
 
         <title>{{ isset($title) ? $title . ' | ' . config('app.name', 'Logr') : config('app.name', 'Logr') }}</title>
 
+        <!-- Favicon -->
+        <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+        <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -17,8 +21,9 @@
     <body class="font-sans text-gray-900 antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-gray-900">
             <div>
-                <a href="/" wire:navigate>
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+                <a href="/" wire:navigate class="flex items-center gap-3">
+                    <x-application-logo class="w-12 h-12 stroke-white text-white" />
+                    <span class="text-3xl font-bold text-white">Logr</span>
                 </a>
             </div>
 

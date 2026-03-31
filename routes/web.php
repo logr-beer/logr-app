@@ -15,6 +15,7 @@ Route::middleware(['auth'])->group(function () {
     Route::view('beers', 'beers.index')->name('beers.index');
     Route::view('beers/create', 'beers.create')->name('beers.create');
     Route::get('beers/export', [\App\Http\Controllers\ExportController::class, 'beers'])->name('beers.export');
+    Route::view('beers/inventory', 'beers.inventory')->name('beers.inventory');
     Route::view('beers/{beer}', 'beers.show')->name('beers.show');
     Route::view('beers/{beer}/edit', 'beers.edit')->name('beers.edit');
 
