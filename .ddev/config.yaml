@@ -8,4 +8,13 @@ nodejs_version: "20"
 corepack_enable: true
 hooks:
   post-start:
+    - exec-host: "docker exec -u root ddev-logr-web bash -c 'mkdir -p /data/database /data/storage && chown -R www-data:www-data /data'"
+    - exec: |
+        # Set up shared database from Docker volume
+        if [ ! -f /data/database/database.sqlite ]; then
+            touch /data/database/database.sqlite
+        fi
+        ln -sf /data/database/database.sqlite /var/www/html/database/database.sqlite
+        # Run migrations
+        php artisan migrate --force
     - exec: nohup php artisan queue:work --sleep=3 --tries=3 --timeout=300 > /dev/null 2>&1 &

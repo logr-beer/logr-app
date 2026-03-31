@@ -1,8 +1,44 @@
 #!/bin/sh
 set -e
 
-# Auto-generate APP_KEY on first boot if not set
-if [ -z "$APP_KEY" ] && ! grep -q '^APP_KEY=base64:' .env 2>/dev/null; then
+# Set up persistent data volume
+# /data is a single mounted volume for all persistent state
+mkdir -p /data/database /data/storage
+chown -R www-data:www-data /data
+
+# Symlink persistent files into the app
+# Only symlink the SQLite file (not the whole database/ dir, which contains migrations/seeders)
+if [ ! -f /data/database/database.sqlite ]; then
+    touch /data/database/database.sqlite
+    chown www-data:www-data /data/database/database.sqlite
+fi
+ln -sf /data/database/database.sqlite /var/www/html/database/database.sqlite
+
+# Symlink storage/app to persistent volume
+rm -rf /var/www/html/storage/app
+ln -sf /data/storage /var/www/html/storage/app
+
+# Set Laravel defaults for Docker (not user-configurable)
+export APP_NAME=Logr
+export APP_ENV=production
+export APP_DEBUG=false
+export APP_URL=${APP_URL:-http://localhost:8080}
+export DB_CONNECTION=sqlite
+export DB_DATABASE=/var/www/html/database/database.sqlite
+export QUEUE_CONNECTION=database
+export CACHE_STORE=database
+export SESSION_DRIVER=database
+
+# Build .env from environment variables so Laravel (php-fpm) can read them.
+env | grep -E '^(APP_|DB_|QUEUE_|CACHE_|SESSION_)' | grep -v '=$' > .env 2>/dev/null || true
+
+# Ensure APP_KEY line exists for key:generate to work with
+if ! grep -q '^APP_KEY=' .env; then
+    echo "APP_KEY=" >> .env
+fi
+
+# Auto-generate APP_KEY if not already set to a valid key
+if ! grep -q '^APP_KEY=base64:' .env; then
     echo "No APP_KEY set, generating one..."
     php artisan key:generate --force
 fi
