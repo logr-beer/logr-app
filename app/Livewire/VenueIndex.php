@@ -2,7 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Jobs\GeocodeVenues;
 use App\Models\Venue;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -14,11 +16,22 @@ class VenueIndex extends Component
 
     public string $search = '';
     public string $sortBy = 'checkins';
-    public string $view = 'list';
+    public bool $geocoding = false;
 
     public function updatedSearch(): void
     {
         $this->resetPage();
+    }
+
+    public function geocodeVenues(): void
+    {
+        if (! auth()->user()->getData('geocoding_enabled')) {
+            return;
+        }
+
+        $this->geocoding = true;
+        Cache::forget('geocoding_venues_dispatched');
+        GeocodeVenues::dispatch();
     }
 
     public function render()
@@ -54,9 +67,19 @@ class VenueIndex extends Component
                 'checkins' => $v->checkins_count,
             ]);
 
+        $ungeocodedCount = Venue::whereNull('latitude')
+            ->where(function ($q) {
+                $q->whereNotNull('city')
+                    ->orWhereNotNull('state')
+                    ->orWhereNotNull('name');
+            })
+            ->count();
+
         return view('livewire.venue-index', [
             'venues' => $query->paginate(24),
             'mapVenues' => $mapVenues,
+            'ungeocodedCount' => $ungeocodedCount,
+            'geocodingEnabled' => (bool) auth()->user()->getData('geocoding_enabled'),
         ]);
     }
 }

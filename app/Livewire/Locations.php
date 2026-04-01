@@ -2,12 +2,10 @@
 
 namespace App\Livewire;
 
+use App\Jobs\GeocodeBreweries;
 use App\Models\Brewery;
-use App\Models\Venue;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Title;
-use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -16,34 +14,53 @@ class Locations extends Component
 {
     use WithPagination;
 
-    #[Url]
-    public string $tab = 'checkins'; // checkins, breweries
-
-    public string $view = 'map';
     public string $search = '';
     public string $sortBy = 'checkins';
 
-    public function updatedTab(): void
-    {
-        $this->resetPage();
-        $this->search = '';
-    }
+    public bool $geocoding = false;
 
     public function updatedSearch(): void
     {
         $this->resetPage();
     }
 
-    public function render()
+    public function geocodeBreweries(): void
     {
-        if ($this->tab === 'breweries') {
-            return $this->renderBreweries();
+        if (! auth()->user()->getData('geocoding_enabled')) {
+            return;
         }
 
-        return $this->renderVenues();
+        $this->geocoding = true;
+        Cache::forget('geocoding_breweries_dispatched');
+        GeocodeBreweries::dispatch();
     }
 
-    protected function renderBreweries()
+    public function mount(): void
+    {
+        $this->autoGeocode();
+    }
+
+    protected function autoGeocode(): void
+    {
+        if (! auth()->user()->getData('geocoding_enabled')) {
+            return;
+        }
+
+        $ungeocodedCount = Brewery::whereNull('latitude')
+            ->where(function ($q) {
+                $q->whereNotNull('city')
+                    ->orWhereNotNull('state')
+                    ->orWhereNotNull('country');
+            })
+            ->count();
+
+        if ($ungeocodedCount > 0 && ! Cache::has('geocoding_breweries_dispatched')) {
+            Cache::put('geocoding_breweries_dispatched', true, now()->addMinutes(10));
+            GeocodeBreweries::dispatch();
+        }
+    }
+
+    public function render()
     {
         $mapPoints = Brewery::whereNotNull('latitude')
             ->whereNotNull('longitude')
@@ -69,71 +86,35 @@ class Locations extends Component
             ]);
 
         $listQuery = Brewery::query()->withCount('beers');
-        $this->applySearch($listQuery, ['name', 'city', 'state', 'country']);
-        $this->applySort($listQuery, 'beers_count');
 
-        $totalBreweries = Brewery::count();
-
-        return view('livewire.locations', [
-            'mapPoints' => $mapPoints,
-            'listItems' => $listQuery->paginate(24),
-            'stats' => [
-                'mapped' => $mapPoints->count(),
-                'unmapped' => $totalBreweries - $mapPoints->count(),
-            ],
-        ]);
-    }
-
-    protected function renderVenues()
-    {
-        $mapPoints = Venue::whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->withCount('checkins')
-            ->get()
-            ->map(fn ($v) => [
-                'id' => $v->id,
-                'name' => $v->name,
-                'lat' => (float) $v->latitude,
-                'lng' => (float) $v->longitude,
-                'location' => $v->displayLocation(),
-                'checkins' => $v->checkins_count,
-            ]);
-
-        $listQuery = Venue::query()->withCount('checkins');
-        $this->applySearch($listQuery, ['name', 'city', 'state']);
-        $this->applySort($listQuery, 'checkins_count');
-
-        $totalVenues = Venue::count();
-
-        return view('livewire.locations', [
-            'mapPoints' => $mapPoints,
-            'listItems' => $listQuery->paginate(24),
-            'stats' => [
-                'mapped' => $mapPoints->count(),
-                'unmapped' => $totalVenues - $mapPoints->count(),
-            ],
-        ]);
-    }
-
-    protected function applySearch(Builder $query, array $columns): void
-    {
-        if (! $this->search) {
-            return;
+        if ($this->search) {
+            $listQuery->where(function ($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('city', 'like', '%' . $this->search . '%')
+                    ->orWhere('state', 'like', '%' . $this->search . '%')
+                    ->orWhere('country', 'like', '%' . $this->search . '%');
+            });
         }
 
-        $query->where(function ($q) use ($columns) {
-            foreach ($columns as $column) {
-                $q->orWhere($column, 'like', '%' . $this->search . '%');
-            }
-        });
-    }
-
-    protected function applySort(Builder $query, string $countColumn): void
-    {
         match ($this->sortBy) {
-            'name' => $query->orderBy('name'),
-            'recent' => $query->orderByDesc('updated_at'),
-            default => $query->orderByDesc($countColumn),
+            'name' => $listQuery->orderBy('name'),
+            'recent' => $listQuery->orderByDesc('updated_at'),
+            default => $listQuery->orderByDesc('beers_count'),
         };
+
+        $ungeocodedCount = Brewery::whereNull('latitude')
+            ->where(function ($q) {
+                $q->whereNotNull('city')
+                    ->orWhereNotNull('state')
+                    ->orWhereNotNull('country');
+            })
+            ->count();
+
+        return view('livewire.locations', [
+            'mapPoints' => $mapPoints,
+            'listItems' => $listQuery->paginate(24),
+            'ungeocodedCount' => $ungeocodedCount,
+            'geocodingEnabled' => (bool) auth()->user()->getData('geocoding_enabled'),
+        ]);
     }
 }

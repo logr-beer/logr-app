@@ -19,7 +19,6 @@ class BeerIndex extends Component
     public string $style = '';
     public string $sort = 'newest';
 
-    public bool $selecting = false;
     public array $selected = [];
 
     // Modal state
@@ -49,12 +48,6 @@ class BeerIndex extends Component
         $this->resetPage();
     }
 
-    public function toggleSelecting(): void
-    {
-        $this->selecting = !$this->selecting;
-        $this->selected = [];
-    }
-
     public function toggleSelected(int $beerId): void
     {
         if (in_array($beerId, $this->selected)) {
@@ -79,7 +72,6 @@ class BeerIndex extends Component
         Beer::whereIn('id', $this->selected)->delete();
         Checkin::whereIn('beer_id', $this->selected)->delete();
         $this->selected = [];
-        $this->selecting = false;
     }
 
     public function openCollectionModal(): void
@@ -102,7 +94,6 @@ class BeerIndex extends Component
 
         $this->showCollectionModal = false;
         $this->selected = [];
-        $this->selecting = false;
     }
 
     public function openInventoryModal(): void
@@ -137,7 +128,6 @@ class BeerIndex extends Component
 
         $this->showInventoryModal = false;
         $this->selected = [];
-        $this->selecting = false;
     }
 
     public function toggleFavorite(int $beerId): void

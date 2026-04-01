@@ -19,6 +19,7 @@ class Setup extends Component
     public string $password = '';
     public string $password_confirmation = '';
     public bool $loadDemoData = false;
+    public bool $geocodingEnabled = true;
 
     // Step 2: API Credentials
     public string $catalog_beer_api_key = '';
@@ -54,6 +55,9 @@ class Setup extends Component
             'username' => $this->username,
             'password' => Hash::make($this->password),
         ]);
+
+        $user->setData('geocoding_enabled', $this->geocodingEnabled);
+        $user->save();
 
         $this->userId = $user->id;
 

@@ -11,6 +11,12 @@ use Livewire\Component;
 #[Title('Collections')]
 class CollectionIndex extends Component
 {
+    public string $search = '';
+    public string $collectionFilter = 'all'; // all, curated, smart
+
+    public bool $showCreateModal = false;
+    public string $createTab = 'collection'; // collection, smart
+
     public string $name = '';
     public string $description = '';
 
@@ -37,6 +43,7 @@ class CollectionIndex extends Component
         ]);
 
         $this->reset('name', 'description');
+        $this->showCreateModal = false;
     }
 
     public function createDynamicCollection(): void
@@ -78,12 +85,13 @@ class CollectionIndex extends Component
 
         auth()->user()->collections()->create([
             'name' => $name,
-            'description' => $description,
+            'description' => $this->description ?: $description,
             'is_dynamic' => true,
             'rules' => $rules,
         ]);
 
-        $this->reset('dynamicType', 'dynamicStyle', 'dynamicMinRating');
+        $this->reset('dynamicType', 'dynamicStyle', 'dynamicMinRating', 'description');
+        $this->showCreateModal = false;
     }
 
     protected function ensureBuiltInCollections(): void
@@ -151,16 +159,17 @@ class CollectionIndex extends Component
     {
         $this->ensureBuiltInCollections();
 
-        $collections = Collection::where('user_id', auth()->id())
-            ->where('is_dynamic', false)
-            ->withCount('beers')
-            ->latest()
-            ->get();
+        $query = Collection::where('user_id', auth()->id());
 
-        $dynamicCollections = Collection::where('user_id', auth()->id())
-            ->where('is_dynamic', true)
-            ->latest()
-            ->get()
+        if ($this->search) {
+            $query->where('name', 'like', '%' . $this->search . '%');
+        }
+
+        $collections = (clone $query)->where('is_dynamic', false)
+            ->withCount('beers')->latest()->get();
+
+        $dynamicCollections = (clone $query)->where('is_dynamic', true)
+            ->latest()->get()
             ->each(function ($collection) {
                 $collection->dynamic_count = $collection->resolveBeersCount();
             });
