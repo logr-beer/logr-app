@@ -116,6 +116,7 @@ class User extends Authenticatable
             'untappd_rss_feeds',
             'discord_webhooks',
             'discord_bots',
+            'geocoding_enabled',
         ];
     }
 

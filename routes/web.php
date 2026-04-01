@@ -27,10 +27,10 @@ Route::middleware(['auth'])->group(function () {
     Route::view('checkins/create', 'checkins.create')->name('checkins.create');
     Route::get('checkins/{checkin}/edit', fn ($checkin) => view('checkins.edit', ['checkin' => $checkin]))->name('checkins.edit');
     Route::get('checkins/export', [\App\Http\Controllers\ExportController::class, 'checkins'])->name('checkins.export');
-    Route::view('venues', 'venues.index')->name('venues.index');
-    Route::view('venues/{venue}', 'venues.show')->name('venues.show');
-    Route::view('rankings', 'rankings')->name('rankings');
-    Route::view('locations', 'locations')->name('locations');
+    Route::view('locations/venues', 'venues.index')->name('locations.venues');
+    Route::view('locations/venues/{venue}', 'venues.show')->name('venues.show');
+    Route::view('locations/breweries', 'locations')->name('locations.breweries');
+    Route::view('stats', 'rankings')->name('stats');
     Route::view('import', 'import')->name('import');
 
     Route::get('logr/connect', [\App\Http\Controllers\LogrCallbackController::class, 'redirect'])->name('logr.connect');

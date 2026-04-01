@@ -1,13 +1,14 @@
-@props(['beer', 'date' => null, 'dateLabel' => null, 'href' => null, 'showFavorite' => true, 'servingType' => null])
+@props(['beer', 'date' => null, 'dateLabel' => null, 'href' => null, 'showFavorite' => true, 'servingType' => null, 'selectable' => false, 'selected' => false, 'selectId' => null])
 
 @php
     $link = $href ?? route('beers.show', $beer);
     $avgRating = $beer->averageRating();
     $displayDate = $date ?? $beer->created_at;
     $displayDateLabel = $dateLabel ?? 'Added';
+    $itemId = $selectId ?? $beer->id;
 @endphp
 
-<div class="group relative rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg hover:scale-[1.025] transition-all duration-150 hover:duration-[250ms]">
+<div class="group relative rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg hover:scale-[1.025] transition-all duration-150 hover:duration-[250ms] {{ $selected ? 'ring-2 ring-amber-500 ring-offset-2 dark:ring-offset-gray-900' : '' }}">
     <a href="{{ $link }}" wire:navigate>
         <div class="aspect-square bg-gray-100 dark:bg-gray-700 overflow-hidden relative">
             @if($beer->photo_path)
@@ -29,11 +30,35 @@
         </div>
     </a>
 
-    {{-- Favorite toggle --}}
-    @if($showFavorite)
-        <div class="absolute top-2 right-2">
+    {{-- Select circle (top-left, visible on hover or when selected) --}}
+    @if($selectable)
+        <button
+            wire:click.prevent.stop="toggleSelected({{ $itemId }})"
+            class="absolute top-2 left-2 z-20 {{ $selected ? '' : 'opacity-0 group-hover:opacity-100' }} transition-opacity"
+        >
+            @if($selected)
+                <div class="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center shadow-lg">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                </div>
+            @else
+                <div class="w-7 h-7 rounded-full border-[3px] border-white dark:border-gray-300 bg-black/20 dark:bg-white/20 shadow-lg backdrop-blur-sm"></div>
+            @endif
+        </button>
+    @endif
+
+    {{-- Top-right: Rating + Favorite --}}
+    <div class="absolute top-2 right-2 flex flex-col items-end gap-1.5 z-10">
+        {{-- Rating badge --}}
+        @if($avgRating > 0)
+            <div class="bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-full">
+                {{ number_format($avgRating, 1) }} ★
+            </div>
+        @endif
+
+        {{-- Favorite toggle --}}
+        @if($showFavorite)
             <button
-                wire:click="toggleFavorite({{ $beer->id }})"
+                wire:click.prevent.stop="toggleFavorite({{ $beer->id }})"
                 class="group/fav p-1.5 rounded-full {{ $beer->is_favorite ? 'bg-black/50' : 'bg-black/50 opacity-0 group-hover:opacity-100' }} text-white transition-all"
             >
                 @if($beer->is_favorite)
@@ -42,15 +67,8 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path class="transition-[fill] duration-150 group-hover/fav:fill-red-400 group-hover/fav:duration-[250ms]" stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
                 @endif
             </button>
-        </div>
-    @endif
-
-    {{-- Rating badge --}}
-    @if($avgRating > 0)
-        <div class="absolute top-2 left-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-full">
-            {{ number_format($avgRating, 1) }} ★
-        </div>
-    @endif
+        @endif
+    </div>
 
     {{-- Info --}}
     <div class="p-3">

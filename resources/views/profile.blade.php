@@ -20,6 +20,10 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+                    <livewire:profile.preferences-form />
+                </div>
+
+                <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
                     <div class="max-w-xl">
                         <header>
                             <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">

@@ -5,13 +5,12 @@
         <div class="flex flex-col sm:flex-row sm:items-center gap-3">
             {{-- Tabs --}}
             <div class="flex items-center gap-1 flex-shrink-0">
-                <a href="{{ route('locations', ['tab' => 'checkins']) }}" wire:navigate class="px-3 py-1.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">Check-ins</a>
-                <a href="{{ route('venues.index') }}" class="px-3 py-1.5 text-sm font-medium rounded-lg bg-amber-500 text-white">Venues</a>
-                <a href="{{ route('locations', ['tab' => 'breweries']) }}" wire:navigate class="px-3 py-1.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">Breweries</a>
+                <a href="{{ route('locations.venues') }}" class="px-3 py-1.5 text-sm font-medium rounded-lg bg-amber-500 text-white">Venues</a>
+                <a href="{{ route('locations.breweries') }}" wire:navigate class="px-3 py-1.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">Breweries</a>
             </div>
 
             {{-- Search & Sort --}}
-            <div class="flex items-center gap-2 flex-1 min-w-0 max-w-[50%]">
+            <div class="flex items-center gap-2 sm:ml-auto">
                 <div class="relative flex-1 min-w-0">
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
                     <input
@@ -29,20 +28,30 @@
                     <option value="name">Name</option>
                     <option value="recent">Recently Visited</option>
                 </select>
+
+                {{-- Geocode button --}}
+                @if($geocodingEnabled && $ungeocodedCount > 0)
+                    <button
+                        wire:click="geocodeVenues"
+                        class="relative p-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-500 hover:text-amber-500 hover:border-amber-500 transition-colors flex-shrink-0"
+                        title="Look up coordinates for {{ $ungeocodedCount }} {{ Str::plural('venue', $ungeocodedCount) }}"
+                    >
+                        <svg class="w-4 h-4 {{ $geocoding ? 'animate-spin' : '' }}" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182M2.985 19.644l3.181-3.182"/></svg>
+                        <span class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-amber-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">{{ $ungeocodedCount }}</span>
+                    </button>
+                @endif
             </div>
         </div>
     </div>
 
-    {{-- Map (always visible) --}}
-    @if($mapVenues->count() > 0)
-        <div
-            x-data="venueMap({{ $mapVenues->toJson() }})"
-            x-init="init()"
-            class="mb-6"
-        >
-            <div id="venue-map" class="w-full h-[400px] rounded-xl shadow-sm border border-gray-200 dark:border-gray-700" wire:ignore></div>
-        </div>
-    @endif
+    {{-- Map --}}
+    <div
+        x-data="venueMap({{ $mapVenues->toJson() }})"
+        x-init="init()"
+        class="mb-6"
+    >
+        <div id="venue-map" class="w-full h-[400px] rounded-xl shadow-sm border border-gray-200 dark:border-gray-700" wire:ignore></div>
+    </div>
 
     {{-- Venue List (always visible) --}}
     @if($venues->count())

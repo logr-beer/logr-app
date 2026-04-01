@@ -163,7 +163,7 @@ class VenueShow extends Component
 
         $this->venue->delete();
 
-        $this->redirect(route('venues.index'), navigate: true);
+        $this->redirect(route('locations.venues'), navigate: true);
     }
 
     public function render()

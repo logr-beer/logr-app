@@ -4,7 +4,9 @@
       "Bash(docker compose:*)",
       "WebFetch(domain:api.github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(php artisan:*)"
+      "Bash(php artisan:*)",
+      "Bash(docker exec:*)",
+      "Bash(ddev exec:*)"
     ]
   }
 }

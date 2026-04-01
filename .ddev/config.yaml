@@ -8,7 +8,7 @@ nodejs_version: "20"
 corepack_enable: true
 hooks:
   post-start:
-    - exec-host: "docker exec -u root ddev-logr-web bash -c 'mkdir -p /data/database /data/storage && touch /data/database/database.sqlite && chown -R www-data:www-data /data'"
+    - exec-host: "docker exec -u root ddev-logr-web bash -c 'mkdir -p /data/database /data/storage && touch /data/database/database.sqlite && chmod 777 /data/database && chmod 666 /data/database/database.sqlite && chown -R www-data:www-data /data'"
     - exec: |
         # Symlink shared database and run migrations
         ln -sf /data/database/database.sqlite /var/www/html/database/database.sqlite

@@ -53,7 +53,15 @@
                         class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500" />
                 </div>
 
-                <div class="pt-2">
+                <div class="pt-2 space-y-3">
+                    <label class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 cursor-pointer">
+                        <input wire:model="geocodingEnabled" type="checkbox"
+                            class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Enable location geocoding</span>
+                        <span></span>
+                        <p class="text-xs text-gray-400 dark:text-gray-500">Automatically look up coordinates for breweries and venues using OpenStreetMap's Nominatim API. This sends city/state data to an external service.</p>
+                    </label>
+
                     <label class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 cursor-pointer">
                         <input wire:model="loadDemoData" type="checkbox"
                             class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />

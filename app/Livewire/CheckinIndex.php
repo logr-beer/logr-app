@@ -12,13 +12,23 @@ class CheckinIndex extends Component
 {
     use WithPagination;
 
-    public bool $selecting = false;
+    public string $search = '';
+    public string $sort = 'newest';
     public array $selected = [];
 
-    public function toggleSelecting(): void
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'sort' => ['except' => 'newest'],
+    ];
+
+    public function updatingSearch(): void
     {
-        $this->selecting = !$this->selecting;
-        $this->selected = [];
+        $this->resetPage();
+    }
+
+    public function updatingSort(): void
+    {
+        $this->resetPage();
     }
 
     public function toggleSelected(int $checkinId): void
@@ -50,16 +60,29 @@ class CheckinIndex extends Component
             ->delete();
 
         $this->selected = [];
-        $this->selecting = false;
     }
 
     public function render()
     {
+        $query = Checkin::where('user_id', auth()->id())
+            ->with(['beer.brewery', 'photos', 'venue']);
+
+        if ($this->search) {
+            $query->whereHas('beer', function ($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhereHas('brewery', fn ($b) => $b->where('name', 'like', '%' . $this->search . '%'));
+            });
+        }
+
+        $query = match ($this->sort) {
+            'oldest' => $query->oldest(),
+            'rating_high' => $query->orderByDesc('rating'),
+            'rating_low' => $query->orderBy('rating'),
+            default => $query->latest(),
+        };
+
         return view('livewire.checkin-index', [
-            'checkins' => Checkin::where('user_id', auth()->id())
-                ->with(['beer.brewery', 'photos', 'venue'])
-                ->latest()
-                ->paginate(20),
+            'checkins' => $query->paginate(20),
         ]);
     }
 }
