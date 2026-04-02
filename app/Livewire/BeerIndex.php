@@ -17,7 +17,8 @@ class BeerIndex extends Component
 
     public string $search = '';
     public string $style = '';
-    public string $sort = 'newest';
+    public string $sortBy = 'newest';
+    public string $sortDirection = 'desc';
 
     public array $selected = [];
 
@@ -30,7 +31,8 @@ class BeerIndex extends Component
     protected $queryString = [
         'search' => ['except' => ''],
         'style' => ['except' => ''],
-        'sort' => ['except' => 'newest'],
+        'sortBy' => ['except' => 'newest'],
+        'sortDirection' => ['except' => 'desc'],
     ];
 
     public function updatingSearch(): void
@@ -43,7 +45,12 @@ class BeerIndex extends Component
         $this->resetPage();
     }
 
-    public function updatingSort(): void
+    public function updatingSortBy(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingSortDirection(): void
     {
         $this->resetPage();
     }
@@ -169,15 +176,13 @@ class BeerIndex extends Component
             ->whereColumn('beer_id', 'beers.id')
             ->whereNotNull('rating');
 
-        return match ($this->sort) {
-            'oldest' => $query->oldest(),
-            'name_asc' => $query->orderBy('name', 'asc'),
-            'name_desc' => $query->orderBy('name', 'desc'),
-            'abv_high' => $query->orderBy('abv', 'desc'),
-            'abv_low' => $query->orderBy('abv', 'asc'),
-            'rating_high' => $query->orderByDesc($avgRatingSub),
-            'rating_low' => $query->orderBy($avgRatingSub),
-            default => $query->latest(),
+        $dir = $this->sortDirection === 'asc' ? 'asc' : 'desc';
+
+        return match ($this->sortBy) {
+            'name' => $query->orderBy('name', $dir),
+            'abv' => $query->orderBy('abv', $dir),
+            'rating' => $dir === 'desc' ? $query->orderByDesc($avgRatingSub) : $query->orderBy($avgRatingSub),
+            default => $dir === 'desc' ? $query->latest() : $query->oldest(),
         };
     }
 

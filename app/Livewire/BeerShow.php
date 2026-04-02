@@ -63,6 +63,18 @@ class BeerShow extends Component
     {
         $location = trim($this->storageLocation) ?: 'Fridge';
 
+        Collection::firstOrCreate(
+            [
+                'user_id' => auth()->id(),
+                'is_dynamic' => true,
+                'rules->storage_location' => $location,
+            ],
+            [
+                'name' => $location,
+                'rules' => ['storage_location' => $location],
+            ]
+        );
+
         $inventory = Inventory::firstOrCreate(
             [
                 'beer_id' => $this->beer->id,
@@ -254,6 +266,12 @@ class BeerShow extends Component
             ->where('user_id', auth()->id())
             ->get();
 
+        $storageLocations = Collection::where('user_id', auth()->id())
+            ->where('is_dynamic', true)
+            ->whereNotNull('rules->storage_location')
+            ->orderBy('name')
+            ->pluck('name');
+
         $availableCollections = Collection::where('user_id', auth()->id())
             ->whereNotIn('id', $beerCollections->pluck('id'))
             ->orderBy('name')
@@ -276,6 +294,7 @@ class BeerShow extends Component
             'totalQty' => $totalQty,
             'beerCollections' => $beerCollections,
             'availableCollections' => $availableCollections,
+            'storageLocations' => $storageLocations,
         ])->title($this->beer->name . ' | Beers');
     }
 }

@@ -16,7 +16,7 @@ new class extends Component
     }
 }; ?>
 
-<nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+<nav x-data="{ open: false }" class="relative z-50 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -54,7 +54,7 @@ new class extends Component
 
             <!-- Add Beer + Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6 gap-4">
-                <a href="{{ route('checkins.create') }}" wire:navigate class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-600 transition">
+                <a href="{{ route('checkins.create') }}" wire:navigate class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-amber-500 hover:bg-amber-600 transition">
                     <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                     Check In
                 </a>
@@ -66,6 +66,7 @@ new class extends Component
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
                             <div x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
+                            <span class="ms-2"><livewire:queue-indicator /></span>
 
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -90,6 +91,10 @@ new class extends Component
                         </x-dropdown-link>
                         <x-dropdown-link :href="route('admin.notifications')" wire:navigate>
                             {{ __('Notifications') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link :href="route('admin.system')" wire:navigate class="flex items-center justify-between">
+                            {{ __('System') }}
+                            <livewire:queue-indicator />
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -165,6 +170,10 @@ new class extends Component
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.notifications')" wire:navigate>
                     {{ __('Notifications') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.system')" wire:navigate class="flex items-center justify-between">
+                    {{ __('System') }}
+                    <livewire:queue-indicator />
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->

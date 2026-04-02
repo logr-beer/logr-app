@@ -2,11 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(docker compose:*)",
-      "WebFetch(domain:api.github.com)",
-      "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(php artisan:*)",
       "Bash(docker exec:*)",
-      "Bash(ddev exec:*)"
+      "Bash(ddev exec:*)",
+      "Bash(php artisan:*)",
+      "Bash(npm run:*)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }

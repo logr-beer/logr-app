@@ -15,6 +15,8 @@
                 <input wire:model.live.debounce.300ms="search" type="text" placeholder="Search collections..." class="w-full pl-9 pr-4 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-amber-500 focus:border-amber-500" />
             </div>
 
+            <x-sort-control :options="['newest' => 'Newest', 'name' => 'Name', 'count' => 'Beers']" />
+
             {{-- + New button --}}
             <button
                 wire:click="$set('showCreateModal', true)"

@@ -20,14 +20,7 @@
                         class="w-full pl-9 pr-4 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-amber-500 focus:border-amber-500"
                     />
                 </div>
-                <select
-                    wire:model.live="sortBy"
-                    class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500 flex-shrink-0"
-                >
-                    <option value="checkins">Most Beers</option>
-                    <option value="name">Name</option>
-                    <option value="recent">Recent</option>
-                </select>
+                <x-sort-control :options="['checkins' => 'Beers', 'name' => 'Name', 'recent' => 'Recent']" />
 
                 {{-- Geocode button --}}
                 @if($geocodingEnabled && $ungeocodedCount > 0)
