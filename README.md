@@ -74,7 +74,7 @@ Create a `docker-compose.yml` file:
 ```yaml
 services:
   app:
-    image: ghcr.io/logr-beer/logr-app:latest
+    image: image: ajpenninga/logr-app:latest
     ports:
       - "8337:8337"
     volumes:
