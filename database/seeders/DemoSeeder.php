@@ -26,7 +26,7 @@ class DemoSeeder extends Seeder
         $csvPath = database_path('seeders/data/cc-demo-data.csv');
 
         if (! file_exists($csvPath)) {
-            $this->command->error("Sample data CSV not found at: {$csvPath}");
+            $this->command?->error("Sample data CSV not found at: {$csvPath}");
 
             return;
         }
@@ -44,12 +44,19 @@ class DemoSeeder extends Seeder
 
             $breweryKey = $data['brewery'];
             if (! isset($breweryCache[$breweryKey])) {
+                $breweryAttrs = [
+                    'city' => $data['city'] ?: null,
+                    'state' => $data['state'] ?: null,
+                ];
+
+                if (! empty($data['brewery_latitude'])) {
+                    $breweryAttrs['latitude'] = $data['brewery_latitude'];
+                    $breweryAttrs['longitude'] = $data['brewery_longitude'];
+                }
+
                 $breweryCache[$breweryKey] = Brewery::firstOrCreate(
                     ['name' => $data['brewery']],
-                    [
-                        'city' => $data['city'] ?: null,
-                        'state' => $data['state'] ?: null,
-                    ],
+                    $breweryAttrs,
                 );
             }
             $brewery = $breweryCache[$breweryKey];
@@ -115,7 +122,7 @@ class DemoSeeder extends Seeder
 
         fclose($handle);
 
-        $this->command->info("Imported {$count} checkins ({$csvPath})");
-        $this->command->info('Breweries: ' . count($breweryCache) . ', Beers: ' . count($beerCache) . ', Venues: ' . count($venueCache));
+        $this->command?->info("Imported {$count} checkins ({$csvPath})");
+        $this->command?->info('Breweries: ' . count($breweryCache) . ', Beers: ' . count($beerCache) . ', Venues: ' . count($venueCache));
     }
 }
