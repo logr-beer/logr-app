@@ -2,6 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Jobs\ScrapeUntappdProfile;
+use App\Jobs\ScrapeUntappdVenues;
+use App\Jobs\SyncUntappdRss;
 use App\Models\User;
 use App\Rules\DiscordWebhookUrl;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +17,6 @@ class Setup extends Component
     public ?int $userId = null;
 
     // Step 1: Account
-    public string $name = '';
     public string $username = '';
     public string $password = '';
     public string $password_confirmation = '';
@@ -29,6 +31,7 @@ class Setup extends Component
     public array $rssFeeds = [];
 
     // Step 3: Notifications
+    public string $name = '';
     public string $newWebhookLabel = '';
     public string $newWebhookUrl = '';
     public bool $newWebhookCheckins = true;
@@ -45,13 +48,12 @@ class Setup extends Component
         }
 
         $this->validate([
-            'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::create([
-            'name' => $this->name,
+            'name' => $this->username,
             'username' => $this->username,
             'password' => Hash::make($this->password),
         ]);
@@ -107,6 +109,15 @@ class Setup extends Component
             $user->setData('untappd_username', trim($this->untappd_username) ?: null);
             $user->setData('untappd_rss_feeds', $this->rssFeeds ?: null);
             $user->save();
+
+            if (trim($this->untappd_username)) {
+                ScrapeUntappdProfile::dispatch($user);
+                ScrapeUntappdVenues::dispatch($user);
+            }
+
+            if (! empty($this->rssFeeds)) {
+                SyncUntappdRss::dispatch($user);
+            }
         }
 
         $this->step = 3;
@@ -154,8 +165,15 @@ class Setup extends Component
     {
         $user = User::find($this->userId);
 
-        if ($user && !empty($this->discordWebhooks)) {
-            $user->setData('discord_webhooks', $this->discordWebhooks);
+        if ($user) {
+            if (trim($this->name)) {
+                $user->name = trim($this->name);
+            }
+
+            if (! empty($this->discordWebhooks)) {
+                $user->setData('discord_webhooks', $this->discordWebhooks);
+            }
+
             $user->save();
         }
 

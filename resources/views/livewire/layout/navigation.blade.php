@@ -16,7 +16,7 @@ new class extends Component
     }
 }; ?>
 
-<nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+<nav x-data="{ open: false }" class="relative z-50 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -66,6 +66,7 @@ new class extends Component
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
                             <div x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
+                            <span class="ms-2"><livewire:queue-indicator /></span>
 
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -90,6 +91,10 @@ new class extends Component
                         </x-dropdown-link>
                         <x-dropdown-link :href="route('admin.notifications')" wire:navigate>
                             {{ __('Notifications') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link :href="route('admin.system')" wire:navigate class="flex items-center justify-between">
+                            {{ __('System') }}
+                            <livewire:queue-indicator />
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -165,6 +170,10 @@ new class extends Component
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.notifications')" wire:navigate>
                     {{ __('Notifications') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.system')" wire:navigate class="flex items-center justify-between">
+                    {{ __('System') }}
+                    <livewire:queue-indicator />
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->

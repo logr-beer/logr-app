@@ -27,15 +27,8 @@
 
             <form wire:submit="createAccount" class="space-y-4">
                 <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Display Name</label>
-                    <input wire:model="name" id="name" type="text" required autofocus
-                        class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500" />
-                    @error('name') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
-                </div>
-
-                <div>
                     <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username</label>
-                    <input wire:model="username" id="username" type="text" required autocomplete="username"
+                    <input wire:model="username" id="username" type="text" required autofocus autocomplete="username"
                         class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500" />
                     @error('username') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                 </div>
@@ -234,6 +227,18 @@
                     </div>
                 </div>
             </div>
+
+            @if(count($discordWebhooks) > 0 || config('services.logr.discord_url'))
+                {{-- Display Name --}}
+                <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-3 mt-6">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Display Name</h3>
+                    <div>
+                        <input wire:model="name" id="name" type="text" placeholder="Your name (shown in Discord posts)"
+                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500" />
+                        <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Used as your name in Discord notifications. Defaults to your username if left blank.</p>
+                    </div>
+                </div>
+            @endif
 
             <div class="flex items-center justify-between mt-6">
                 <button type="button" wire:click="skipNotifications" class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
