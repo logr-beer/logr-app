@@ -3,7 +3,7 @@ services:
     build: .
     image: ajpenninga/logr-app:latest
     ports:
-      - "8080:8080"
+      - "8337:8337"
     volumes:
       - logr-data:/data
     restart: unless-stopped
