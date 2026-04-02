@@ -13,12 +13,14 @@ class CheckinIndex extends Component
     use WithPagination;
 
     public string $search = '';
-    public string $sort = 'newest';
+    public string $sortBy = 'newest';
+    public string $sortDirection = 'desc';
     public array $selected = [];
 
     protected $queryString = [
         'search' => ['except' => ''],
-        'sort' => ['except' => 'newest'],
+        'sortBy' => ['except' => 'newest'],
+        'sortDirection' => ['except' => 'desc'],
     ];
 
     public function updatingSearch(): void
@@ -26,7 +28,12 @@ class CheckinIndex extends Component
         $this->resetPage();
     }
 
-    public function updatingSort(): void
+    public function updatingSortBy(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingSortDirection(): void
     {
         $this->resetPage();
     }
@@ -74,11 +81,11 @@ class CheckinIndex extends Component
             });
         }
 
-        $query = match ($this->sort) {
-            'oldest' => $query->oldest(),
-            'rating_high' => $query->orderByDesc('rating'),
-            'rating_low' => $query->orderBy('rating'),
-            default => $query->latest(),
+        $dir = $this->sortDirection === 'asc' ? 'asc' : 'desc';
+
+        $query = match ($this->sortBy) {
+            'rating' => $query->orderBy('rating', $dir),
+            default => $dir === 'desc' ? $query->latest() : $query->oldest(),
         };
 
         return view('livewire.checkin-index', [

@@ -16,6 +16,7 @@ class Locations extends Component
 
     public string $search = '';
     public string $sortBy = 'checkins';
+    public string $sortDirection = 'desc';
 
     public bool $geocoding = false;
 
@@ -96,10 +97,12 @@ class Locations extends Component
             });
         }
 
+        $dir = $this->sortDirection === 'asc' ? 'asc' : 'desc';
+
         match ($this->sortBy) {
-            'name' => $listQuery->orderBy('name'),
-            'recent' => $listQuery->orderByDesc('updated_at'),
-            default => $listQuery->orderByDesc('beers_count'),
+            'name' => $listQuery->orderBy('name', $dir),
+            'recent' => $listQuery->orderBy('updated_at', $dir),
+            default => $listQuery->orderBy('beers_count', $dir),
         };
 
         $ungeocodedCount = Brewery::whereNull('latitude')

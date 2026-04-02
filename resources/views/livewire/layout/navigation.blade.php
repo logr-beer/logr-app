@@ -54,7 +54,7 @@ new class extends Component
 
             <!-- Add Beer + Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6 gap-4">
-                <a href="{{ route('checkins.create') }}" wire:navigate class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-600 transition">
+                <a href="{{ route('checkins.create') }}" wire:navigate class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-amber-500 hover:bg-amber-600 transition">
                     <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                     Check In
                 </a>

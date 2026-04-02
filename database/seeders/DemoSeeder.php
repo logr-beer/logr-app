@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Beer;
 use App\Models\Brewery;
 use App\Models\Checkin;
+use App\Models\Inventory;
 use App\Models\User;
 use App\Models\Venue;
 use Illuminate\Database\Seeder;
@@ -15,13 +16,11 @@ class DemoSeeder extends Seeder
 {
     public function run(): void
     {
-        $user = auth()->user() ?? User::firstOrCreate(
-            ['username' => 'demo'],
-            [
-                'name' => 'Demo User',
-                'password' => Hash::make('password'),
-            ],
-        );
+        $user = auth()->user() ?? User::first() ?? User::create([
+            'username' => 'demo',
+            'name' => 'Demo User',
+            'password' => Hash::make('password'),
+        ]);
 
         $csvPath = database_path('seeders/data/cc-demo-data.csv');
 
@@ -124,5 +123,31 @@ class DemoSeeder extends Seeder
 
         $this->command?->info("Imported {$count} checkins ({$csvPath})");
         $this->command?->info('Breweries: ' . count($breweryCache) . ', Beers: ' . count($beerCache) . ', Venues: ' . count($venueCache));
+
+        $this->seedInventory($user, $beerCache);
+    }
+
+    private function seedInventory(User $user, array $beerCache): void
+    {
+        $locations = ['Garage Fridge', 'Office Fridge', 'Basement Shelf'];
+
+        $beers = collect($beerCache)->values();
+        $sample = $beers->random((int) ceil($beers->count() * 0.1));
+
+        $inventoryCount = 0;
+
+        foreach ($sample as $beer) {
+            Inventory::firstOrCreate(
+                ['beer_id' => $beer->id, 'user_id' => $user->id],
+                [
+                    'quantity' => rand(1, 6),
+                    'storage_location' => $locations[array_rand($locations)],
+                    'date_acquired' => now()->subDays(rand(1, 90)),
+                ],
+            );
+            $inventoryCount++;
+        }
+
+        $this->command?->info("Inventory: {$inventoryCount} beers across " . count($locations) . ' locations');
     }
 }

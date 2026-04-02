@@ -16,6 +16,7 @@ class VenueIndex extends Component
 
     public string $search = '';
     public string $sortBy = 'checkins';
+    public string $sortDirection = 'desc';
     public bool $geocoding = false;
 
     public function updatedSearch(): void
@@ -47,10 +48,12 @@ class VenueIndex extends Component
             });
         }
 
+        $dir = $this->sortDirection === 'asc' ? 'asc' : 'desc';
+
         $query = match ($this->sortBy) {
-            'name' => $query->orderBy('name'),
-            'recent' => $query->orderByDesc('updated_at'),
-            default => $query->orderByDesc('checkins_count'),
+            'name' => $query->orderBy('name', $dir),
+            'recent' => $query->orderBy('updated_at', $dir),
+            default => $query->orderBy('checkins_count', $dir),
         };
 
         // Get all venues with coordinates for the map (unfiltered)

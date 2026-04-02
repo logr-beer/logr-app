@@ -21,16 +21,7 @@
                         <option value="{{ $s }}">{{ $s }}</option>
                     @endforeach
                 </select>
-                <select wire:model.live="sort" class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500">
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                    <option value="name_asc">Name A-Z</option>
-                    <option value="name_desc">Name Z-A</option>
-                    <option value="rating_high">Rating High-Low</option>
-                    <option value="rating_low">Rating Low-High</option>
-                    <option value="abv_high">ABV High-Low</option>
-                    <option value="abv_low">ABV Low-High</option>
-                </select>
+                <x-sort-control :options="['newest' => 'Newest', 'name' => 'Name', 'rating' => 'Rating', 'abv' => 'ABV']" />
             </div>
         </div>
     </div>

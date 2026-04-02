@@ -12,7 +12,8 @@ class InventoryIndex extends Component
 {
     public string $search = '';
     public string $location = '';
-    public string $sort = 'recent';
+    public string $sortBy = 'recent';
+    public string $sortDirection = 'desc';
 
     public function updatedSearch()
     {
@@ -63,10 +64,14 @@ class InventoryIndex extends Component
             $query->where('storage_location', $this->location);
         }
 
-        $query->when($this->sort === 'recent', fn ($q) => $q->orderByDesc('updated_at'))
-            ->when($this->sort === 'oldest', fn ($q) => $q->orderBy('date_acquired'))
-            ->when($this->sort === 'name', fn ($q) => $q->join('beers', 'inventory.beer_id', '=', 'beers.id')->orderBy('beers.name')->select('inventory.*'))
-            ->when($this->sort === 'quantity', fn ($q) => $q->orderByDesc('quantity'));
+        $dir = $this->sortDirection === 'asc' ? 'asc' : 'desc';
+
+        match ($this->sortBy) {
+            'name' => $query->join('beers', 'inventory.beer_id', '=', 'beers.id')->orderBy('beers.name', $dir)->select('inventory.*'),
+            'quantity' => $query->orderBy('quantity', $dir),
+            'acquired' => $query->orderBy('date_acquired', $dir),
+            default => $query->orderBy('updated_at', $dir),
+        };
 
         $items = $query->get();
 

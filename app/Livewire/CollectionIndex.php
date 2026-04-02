@@ -13,6 +13,8 @@ class CollectionIndex extends Component
 {
     public string $search = '';
     public string $collectionFilter = 'all'; // all, curated, smart
+    public string $sortBy = 'newest'; // newest, name, count
+    public string $sortDirection = 'desc';
 
     public bool $showCreateModal = false;
     public string $createTab = 'collection'; // collection, smart
@@ -166,13 +168,34 @@ class CollectionIndex extends Component
         }
 
         $collections = (clone $query)->where('is_dynamic', false)
-            ->withCount('beers')->latest()->get();
+            ->withCount('beers')->get();
 
         $dynamicCollections = (clone $query)->where('is_dynamic', true)
-            ->latest()->get()
+            ->get()
             ->each(function ($collection) {
                 $collection->dynamic_count = $collection->resolveBeersCount();
             });
+
+        // Apply sorting
+        $asc = $this->sortDirection === 'asc';
+        $sortCollection = function ($items) use ($asc) {
+            $sorted = match ($this->sortBy) {
+                'name' => $asc
+                    ? $items->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)
+                    : $items->sortByDesc('name', SORT_NATURAL | SORT_FLAG_CASE),
+                'count' => $asc
+                    ? $items->sortBy(fn ($c) => $c->dynamic_count ?? $c->beers_count)
+                    : $items->sortByDesc(fn ($c) => $c->dynamic_count ?? $c->beers_count),
+                default => $asc
+                    ? $items->sortBy('created_at')
+                    : $items->sortByDesc('created_at'),
+            };
+
+            return $sorted->values();
+        };
+
+        $collections = $sortCollection($collections);
+        $dynamicCollections = $sortCollection($dynamicCollections);
 
         return view('livewire.collection-index', [
             'collections' => $collections,
