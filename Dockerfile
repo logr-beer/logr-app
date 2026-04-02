@@ -29,6 +29,6 @@ RUN mkdir -p /var/www/html/database && touch /var/www/html/database/database.sql
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-EXPOSE 8080
+EXPOSE 8337
 
 CMD ["/usr/local/bin/entrypoint.sh"]

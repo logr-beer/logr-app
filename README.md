@@ -67,13 +67,31 @@ The fastest way to run Logr. No PHP, Node, or database setup needed.
 
 - [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
 
+### docker-compose.yml
+
+Create a `docker-compose.yml` file:
+
+```yaml
+services:
+  app:
+    image: ghcr.io/logr-beer/logr-app:latest
+    ports:
+      - "8337:8337"
+    volumes:
+      - logr-data:/data
+    restart: unless-stopped
+
+volumes:
+  logr-data:
+```
+
 ### Start the app
 
 ```bash
 docker compose up -d
 ```
 
-The app will be available at **http://localhost:8080**.
+The app will be available at **http://localhost:8337**.
 
 ### What happens on first boot
 
@@ -89,7 +107,7 @@ Optionally create a `.env` file next to `docker-compose.yml` to customize settin
 
 ```env
 # App settings (all optional -- sensible defaults are provided)
-APP_URL=http://localhost:8080
+APP_URL=http://localhost:8337
 
 # Integrations
 CATALOG_BEER_API_KEY=
@@ -117,19 +135,11 @@ All persistent state lives in a single Docker volume:
 
 The volume is named `logr-data` and persists across container restarts and rebuilds.
 
-### Rebuilding
+### Updating
 
 ```bash
-docker compose build --no-cache
+docker compose pull
 docker compose up -d
-```
-
-### Using the published image
-
-Instead of building locally, you can pull the pre-built image from GitHub Container Registry:
-
-```bash
-docker pull ghcr.io/logr-beer/logr-app:latest
 ```
 
 ---

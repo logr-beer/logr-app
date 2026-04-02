@@ -22,7 +22,7 @@ ln -sf /data/storage /var/www/html/storage/app
 export APP_NAME=Logr
 export APP_ENV=production
 export APP_DEBUG=false
-export APP_URL=${APP_URL:-http://localhost:8080}
+export APP_URL=${APP_URL:-http://localhost:8337}
 export DB_CONNECTION=sqlite
 export DB_DATABASE=/var/www/html/database/database.sqlite
 export QUEUE_CONNECTION=database
