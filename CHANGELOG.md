@@ -4,7 +4,7 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.0.1] - 2026-04-01
+## [0.1.0] - 2026-04-01
 
 ### Added
 - Beer library with brewery, style, ABV, IBU tracking
@@ -24,4 +24,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Database purge and reset tools
 - System info page with version and dependency details
 
-[0.0.1]: https://github.com/logr-beer/logr-app/releases/tag/v0.0.1
+[0.1.0]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.0
