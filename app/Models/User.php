@@ -120,6 +120,41 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Parse a comma-separated "Label|URL" env string into an array of items.
+     */
+    public static function parseEnvList(?string $value, array $defaults = []): array
+    {
+        if (! $value) {
+            return [];
+        }
+
+        return collect(explode(',', $value))
+            ->map(function (string $entry) use ($defaults) {
+                $entry = trim($entry);
+                if (! $entry) {
+                    return null;
+                }
+
+                if (str_contains($entry, '|')) {
+                    [$label, $url] = explode('|', $entry, 2);
+                    $label = trim($label);
+                    $url = trim($url);
+                } else {
+                    $label = null;
+                    $url = trim($entry);
+                }
+
+                return array_merge($defaults, [
+                    'label' => $label ?: null,
+                    'url' => $url,
+                ]);
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
     public function checkins(): HasMany
     {
         return $this->hasMany(Checkin::class);

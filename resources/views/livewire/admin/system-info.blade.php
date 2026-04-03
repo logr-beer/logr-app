@@ -1,12 +1,7 @@
 <div>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            System Info
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="py-6">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">System Info</h1>
             @if (session('message'))
                 <div class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-sm text-green-700 dark:text-green-400">
                     {{ session('message') }}
@@ -14,7 +9,7 @@
             @endif
 
             {{-- Queue / Jobs --}}
-            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6" wire:poll.5s>
+            <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6" wire:poll.5s>
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Queue</h3>
                     @if($this->queueStats['pending'] > 0)
@@ -78,7 +73,7 @@
             </div>
 
             {{-- Database Stats --}}
-            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6">
+            <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Database</h3>
                 <dl class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     @foreach($this->stats as $label => $count)
@@ -91,7 +86,7 @@
             </div>
 
             {{-- System Information --}}
-            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6">
+            <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">System</h3>
                 <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
                     @foreach($this->systemInfo as $label => $value)
@@ -104,7 +99,7 @@
             </div>
 
             {{-- Danger Zone --}}
-            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6 border border-red-200 dark:border-red-900/50">
+            <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-red-200 dark:border-red-900/50">
                 <h3 class="text-lg font-semibold text-red-600 dark:text-red-400 mb-1">Danger Zone</h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">These actions are destructive and cannot be undone.</p>
 
@@ -134,7 +129,7 @@
             </div>
 
             {{-- Links --}}
-            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6">
+            <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Resources</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <a href="{{ config('logr.links.github') }}" target="_blank" rel="noopener"

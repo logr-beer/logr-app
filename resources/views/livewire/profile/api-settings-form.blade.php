@@ -292,7 +292,7 @@ new class extends Component
 
 <section @if($syncing || $scraping || $scrapingVenues || $geocoding) wire:poll.3s="pollJobStatus" @endif>
     <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">API Settings</h2>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">API Settings</h2>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Connect external services to enhance your beer library.</p>
     </header>
 
@@ -354,9 +354,15 @@ new class extends Component
 
             {{-- Username --}}
             <div>
-                <x-input-label for="untappd_username" value="Username" />
+                <div class="flex items-center justify-between">
+                    <x-input-label for="untappd_username" value="Username" />
+                    @if(config('services.untappd.username'))
+                        <x-env-badge name="UNTAPPD_USERNAME" />
+                    @endif
+                </div>
                 <input wire:model.live="untappd_username" id="untappd_username" type="text" autocomplete="off" placeholder="e.g. ajp"
-                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" />
+                    {{ config('services.untappd.username') ? 'disabled' : '' }}
+                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ config('services.untappd.username') ? 'opacity-60 cursor-not-allowed' : '' }}" />
             </div>
 
             @if($untappd_username)
@@ -376,8 +382,20 @@ new class extends Component
 
             {{-- RSS Feeds --}}
             <div class="space-y-3">
-                <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">RSS Feeds</h4>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Found at <span class="font-medium">untappd.com &rarr; Account Settings &rarr; RSS Feed</span>.</p>
+                <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">RSS Feeds</h4>
+                    @if(config('services.untappd.rss_feeds'))
+                        <x-env-badge name="UNTAPPD_RSS_FEEDS" />
+                    @endif
+                </div>
+                <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-xs text-blue-700 dark:text-blue-400 space-y-1.5">
+                    <p>To find your RSS feed URL:</p>
+                    <ol class="list-decimal list-inside space-y-0.5 ml-1">
+                        <li>Go to <a href="https://untappd.com/account/settings" target="_blank" rel="noopener" class="font-medium underline hover:text-blue-800 dark:hover:text-blue-300">untappd.com/account/settings</a> and scroll down to "RSS Feed"</li>
+                        <li>Copy the RSS feed URL shown on the page</li>
+                    </ol>
+                    <p class="pt-1">For the <strong>Label</strong>, use something descriptive like your Untappd display name or "Main" if you only have one feed.</p>
+                </div>
 
                 @foreach($rssFeeds as $index => $feed)
                     <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -425,23 +443,35 @@ new class extends Component
             @endif
 
             {{-- API Credentials (collapsible) --}}
-            <details {{ $untappd_client_id ? 'open' : '' }}>
+            <details {{ $untappd_client_id || config('services.untappd.api_key') ? 'open' : '' }}>
                 <summary class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
                     API Credentials
-                    @if(!$untappd_client_id && !$untappd_client_secret)
+                    @if(!$untappd_client_id && !$untappd_client_secret && !config('services.untappd.api_key'))
                         <span class="text-gray-400 dark:text-gray-500 normal-case font-normal">&mdash; optional</span>
                     @endif
                 </summary>
                 <div class="mt-3 space-y-4">
                     <div>
-                        <x-input-label for="untappd_client_id" value="Client ID" />
+                        <div class="flex items-center justify-between">
+                            <x-input-label for="untappd_client_id" value="Client ID" />
+                            @if(config('services.untappd.api_key'))
+                                <x-env-badge name="UNTAPPD_API_KEY" />
+                            @endif
+                        </div>
                         <input wire:model.live="untappd_client_id" id="untappd_client_id" type="text" autocomplete="off"
-                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" />
+                            {{ config('services.untappd.api_key') ? 'disabled' : '' }}
+                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ config('services.untappd.api_key') ? 'opacity-60 cursor-not-allowed' : '' }}" />
                     </div>
                     <div>
-                        <x-input-label for="untappd_client_secret" value="Client Secret" />
+                        <div class="flex items-center justify-between">
+                            <x-input-label for="untappd_client_secret" value="Client Secret" />
+                            @if(config('services.untappd.api_secret'))
+                                <x-env-badge name="UNTAPPD_API_SECRET" />
+                            @endif
+                        </div>
                         <input wire:model.live="untappd_client_secret" id="untappd_client_secret" type="text" autocomplete="off"
-                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" />
+                            {{ config('services.untappd.api_secret') ? 'disabled' : '' }}
+                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ config('services.untappd.api_secret') ? 'opacity-60 cursor-not-allowed' : '' }}" />
                         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Register at <span class="font-medium">untappd.com/api/docs</span>.</p>
                     </div>
                     <button type="button" wire:click="testUntappd" class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors">
