@@ -40,6 +40,17 @@ return [
         'discord_url' => env('LOGR_DISCORD_URL', 'https://discord.logr.beer'),
     ],
 
+    'untappd' => [
+        'username' => env('UNTAPPD_USERNAME'),
+        'rss_feeds' => env('UNTAPPD_RSS_FEEDS'),
+        'api_key' => env('UNTAPPD_API_KEY'),
+        'api_secret' => env('UNTAPPD_API_SECRET'),
+    ],
+
+    'discord' => [
+        'webhooks' => env('DISCORD_WEBHOOKS'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

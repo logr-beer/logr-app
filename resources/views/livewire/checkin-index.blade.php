@@ -3,9 +3,9 @@
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Your Check-ins</h1>
         <div class="flex items-center gap-2 sm:justify-end">
-            <div class="relative">
+            <div class="relative flex-1 sm:flex-none">
                 <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Search beers or breweries..." class="w-56 pl-9 pr-4 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-amber-500 focus:border-amber-500" />
+                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Search beers or breweries..." class="w-full sm:w-56 pl-9 pr-4 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-amber-500 focus:border-amber-500" />
             </div>
             <x-sort-control :options="['newest' => 'Newest', 'rating' => 'Rating']" />
         </div>
