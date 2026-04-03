@@ -311,9 +311,9 @@ tests/            PHPUnit tests
 
 <!-- Add your name here when you contribute! -->
 
-| Name | Role |
-|------|------|
-| [AJ Penninga](https://github.com/ajpenninga) | Creator & maintainer |
+| Name | Github | Role |
+|------|--------|------|
+| AJ Penninga | https://github.com/ajp | Creator & maintainer |
 
 ### Contributing
 
