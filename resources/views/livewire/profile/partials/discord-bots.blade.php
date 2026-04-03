@@ -8,7 +8,15 @@
             </h3>
             <x-env-badge name="LOGR_DISCORD_URL" />
         </div>
-        <p class="text-xs text-gray-500 dark:text-gray-400">Connect your Discord server to post check-ins and inventory updates via the Logr bot.</p>
+        <div class="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-xs text-indigo-700 dark:text-indigo-400 space-y-1.5">
+            <p>To set up the Logr Discord bot:</p>
+            <ol class="list-decimal list-inside space-y-0.5 ml-1">
+                <li>A server admin must first add the bot using the <strong>"Add Bot to Server"</strong> button below</li>
+                <li>Once added, click <strong>"Connect with Discord"</strong> to link your Logr account</li>
+                <li>Select which channel the bot should post to</li>
+            </ol>
+            <p class="pt-1">The bot will automatically post check-ins and inventory updates to your chosen channel.</p>
+        </div>
 
         @foreach($discordBots as $index => $bot)
             <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-2">

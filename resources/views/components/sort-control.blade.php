@@ -3,7 +3,8 @@
 <div class="inline-flex items-stretch flex-shrink-0">
     <select
         wire:model.live="{{ $sortField }}"
-        class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-lg border-r-0 text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
+        class="pl-3 pr-8 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-lg border-r-0 text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500 appearance-none bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat"
+        style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E&quot;)"
     >
         @foreach($options as $value => $label)
             <option value="{{ $value }}">{{ $label }}</option>

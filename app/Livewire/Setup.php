@@ -2,76 +2,87 @@
 
 namespace App\Livewire;
 
-use App\Jobs\ScrapeUntappdProfile;
-use App\Jobs\ScrapeUntappdVenues;
-use App\Jobs\SyncUntappdRss;
 use App\Models\User;
-use App\Rules\DiscordWebhookUrl;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 
 class Setup extends Component
 {
-    public int $step = 1;
-    public ?int $userId = null;
-
-    // Step 1: Account
+    // Account
     public string $username = '';
     public string $password = '';
     public string $password_confirmation = '';
     public bool $loadDemoData = false;
     public bool $geocodingEnabled = true;
 
-    // Step 2: API Credentials
-    public string $catalog_beer_api_key = '';
+    // Integrations (editable when not set via env)
     public string $untappd_username = '';
+    public string $catalog_beer_api_key = '';
+    public string $untappd_api_key = '';
+    public string $untappd_api_secret = '';
     public string $newFeedLabel = '';
     public string $newFeedUrl = '';
     public array $rssFeeds = [];
-
-    // Step 3: Notifications
-    public string $name = '';
     public string $newWebhookLabel = '';
     public string $newWebhookUrl = '';
-    public bool $newWebhookCheckins = true;
-    public bool $newWebhookPurchases = true;
     public array $discordWebhooks = [];
 
-    // -- Step 1: Create Account --
+    // Track which fields are locked by env
+    public array $envLocked = [];
 
-    public function createAccount(): void
+    public function mount(): void
     {
-        if (User::count() > 0) {
-            $this->redirect(route('dashboard'), navigate: true);
-            return;
-        }
-
-        $this->validate([
-            'username' => 'required|string|max:255|unique:users,username',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
-        $user = User::create([
-            'name' => $this->username,
-            'username' => $this->username,
-            'password' => Hash::make($this->password),
-        ]);
-
-        $user->setData('geocoding_enabled', $this->geocodingEnabled);
-        $user->save();
-
-        $this->userId = $user->id;
-
-        if ($this->loadDemoData) {
-            $seeder = new \Database\Seeders\DemoSeeder();
-            $seeder->run();
-        }
-
-        $this->step = 2;
+        $this->detectEnvVars();
     }
 
-    // -- Step 2: API Credentials --
+    private function detectEnvVars(): void
+    {
+        if ($value = config('services.untappd.username')) {
+            $this->untappd_username = $value;
+            $this->envLocked[] = 'untappd_username';
+        }
+
+        if ($value = config('services.catalog_beer.key')) {
+            $this->catalog_beer_api_key = $value;
+            $this->envLocked[] = 'catalog_beer_api_key';
+        }
+
+        if ($value = config('services.untappd.api_key')) {
+            $this->untappd_api_key = $value;
+            $this->envLocked[] = 'untappd_api_key';
+        }
+
+        if ($value = config('services.untappd.api_secret')) {
+            $this->untappd_api_secret = $value;
+            $this->envLocked[] = 'untappd_api_secret';
+        }
+
+        if ($value = config('services.untappd.rss_feeds')) {
+            $this->rssFeeds = User::parseEnvList($value);
+            $this->envLocked[] = 'rss_feeds';
+        }
+
+        if ($value = config('services.discord.webhooks')) {
+            $this->discordWebhooks = User::parseEnvList($value, [
+                'publish_checkins' => true,
+                'publish_purchases' => true,
+            ]);
+            $this->envLocked[] = 'discord_webhooks';
+        }
+    }
+
+    public function isLocked(string $key): bool
+    {
+        return in_array($key, $this->envLocked);
+    }
+
+    public function hasEnvVars(): bool
+    {
+        return ! empty($this->envLocked);
+    }
+
+    // -- RSS Feeds (only when not env-locked) --
 
     public function addFeed(): void
     {
@@ -100,40 +111,12 @@ class Setup extends Component
         $this->rssFeeds = array_values($this->rssFeeds);
     }
 
-    public function saveApiSettings(): void
-    {
-        $user = User::find($this->userId);
-
-        if ($user) {
-            $user->setData('catalog_beer_api_key', trim($this->catalog_beer_api_key) ?: null);
-            $user->setData('untappd_username', trim($this->untappd_username) ?: null);
-            $user->setData('untappd_rss_feeds', $this->rssFeeds ?: null);
-            $user->save();
-
-            if (trim($this->untappd_username)) {
-                ScrapeUntappdProfile::dispatch($user);
-                ScrapeUntappdVenues::dispatch($user);
-            }
-
-            if (! empty($this->rssFeeds)) {
-                SyncUntappdRss::dispatch($user);
-            }
-        }
-
-        $this->step = 3;
-    }
-
-    public function skipApiSettings(): void
-    {
-        $this->step = 3;
-    }
-
-    // -- Step 3: Notifications --
+    // -- Discord Webhooks (only when not env-locked) --
 
     public function addWebhook(): void
     {
         $this->validate([
-            'newWebhookUrl' => ['required', 'url', 'max:500', new DiscordWebhookUrl],
+            'newWebhookUrl' => ['required', 'url', 'max:500', new \App\Rules\DiscordWebhookUrl],
             'newWebhookLabel' => 'nullable|string|max:100',
         ]);
 
@@ -145,14 +128,12 @@ class Setup extends Component
         $this->discordWebhooks[] = [
             'label' => $this->newWebhookLabel ?: null,
             'url' => $this->newWebhookUrl,
-            'publish_checkins' => $this->newWebhookCheckins,
-            'publish_purchases' => $this->newWebhookPurchases,
+            'publish_checkins' => true,
+            'publish_purchases' => true,
         ];
 
         $this->newWebhookLabel = '';
         $this->newWebhookUrl = '';
-        $this->newWebhookCheckins = true;
-        $this->newWebhookPurchases = true;
     }
 
     public function removeWebhook(int $index): void
@@ -161,37 +142,65 @@ class Setup extends Component
         $this->discordWebhooks = array_values($this->discordWebhooks);
     }
 
-    public function finishSetup(): void
+    // -- Create Account --
+
+    public function createAccount(): void
     {
-        $user = User::find($this->userId);
-
-        if ($user) {
-            if (trim($this->name)) {
-                $user->name = trim($this->name);
-            }
-
-            if (! empty($this->discordWebhooks)) {
-                $user->setData('discord_webhooks', $this->discordWebhooks);
-            }
-
-            $user->save();
+        if (User::count() > 0) {
+            $this->redirect(route('dashboard'), navigate: true);
+            return;
         }
 
-        $this->loginAndRedirect();
-    }
+        $this->validate([
+            'username' => 'required|string|max:255|unique:users,username',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
 
-    public function skipNotifications(): void
-    {
-        $this->loginAndRedirect();
-    }
+        $user = User::create([
+            'name' => $this->username,
+            'username' => $this->username,
+            'password' => Hash::make($this->password),
+        ]);
 
-    private function loginAndRedirect(): void
-    {
-        $user = User::find($this->userId);
+        $user->setData('geocoding_enabled', $this->geocodingEnabled);
 
-        if ($user) {
-            Auth::login($user);
+        // Save integrations
+        if (trim($this->untappd_username)) {
+            $user->setData('untappd_username', trim($this->untappd_username));
         }
+        if (trim($this->catalog_beer_api_key)) {
+            $user->setData('catalog_beer_api_key', trim($this->catalog_beer_api_key));
+        }
+        if (trim($this->untappd_api_key)) {
+            $user->setData('untappd_client_id', trim($this->untappd_api_key));
+        }
+        if (trim($this->untappd_api_secret)) {
+            $user->setData('untappd_client_secret', trim($this->untappd_api_secret));
+        }
+        if (! empty($this->rssFeeds)) {
+            $user->setData('untappd_rss_feeds', $this->rssFeeds);
+        }
+        if (! empty($this->discordWebhooks)) {
+            $user->setData('discord_webhooks', $this->discordWebhooks);
+        }
+
+        $user->save();
+
+        if ($this->loadDemoData) {
+            $seeder = new \Database\Seeders\DemoSeeder();
+            $seeder->run();
+        }
+
+        // Dispatch import jobs if configured
+        if ($user->getData('untappd_username')) {
+            \App\Jobs\ScrapeUntappdProfile::dispatch($user);
+            \App\Jobs\ScrapeUntappdVenues::dispatch($user);
+        }
+        if ($user->getData('untappd_rss_feeds')) {
+            \App\Jobs\SyncUntappdRss::dispatch($user);
+        }
+
+        Auth::login($user);
 
         $this->redirect(route('dashboard'), navigate: true);
     }
