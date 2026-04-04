@@ -72,7 +72,14 @@ class User extends Authenticatable
      */
     protected function getDataArray(): array
     {
-        return parent::__get('data') ?? [];
+        try {
+            return parent::__get('data') ?? [];
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            $this->attributes['data'] = null;
+            $this->save();
+
+            return [];
+        }
     }
 
     /**
