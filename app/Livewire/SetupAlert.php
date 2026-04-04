@@ -31,13 +31,16 @@ class SetupAlert extends Component
             $this->missing[] = 'discord';
         }
 
-        $this->dismissed = session('setup_alert_dismissed', false);
+        $this->dismissed = (bool) $user->getData('setup_alert_dismissed');
     }
 
     public function dismiss(): void
     {
         $this->dismissed = true;
-        session(['setup_alert_dismissed' => true]);
+
+        $user = Auth::user();
+        $user->setData('setup_alert_dismissed', true);
+        $user->save();
     }
 
     public function render()
