@@ -98,6 +98,17 @@
                 </dl>
             </div>
 
+            {{-- Updates --}}
+            <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Updates</h3>
+                </div>
+                <livewire:version-notice />
+                <div class="mt-3 text-xs text-gray-400 dark:text-gray-500">
+                    Version checks are cached for 4 hours. Click the refresh icon to check now.
+                </div>
+            </div>
+
             {{-- Danger Zone --}}
             <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-red-200 dark:border-red-900/50">
                 <h3 class="text-lg font-semibold text-red-600 dark:text-red-400 mb-1">Danger Zone</h3>

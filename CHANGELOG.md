@@ -4,6 +4,15 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.5] - 2026-04-03
+
+### Added
+- Manual "Check for Updates" button in footer and System Info page
+- Refresh icon spins while checking for updates
+
+### Changed
+- Version check cache reduced from 12 hours to 4 hours
+
 ## [0.1.4] - 2026-04-03
 
 ### Fixed

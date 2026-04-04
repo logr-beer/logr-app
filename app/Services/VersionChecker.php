@@ -12,7 +12,7 @@ class VersionChecker
 
     public function check(): ?array
     {
-        return Cache::remember('logr_latest_version', now()->addHours(12), function () {
+        return Cache::remember('logr_latest_version', now()->addHours(4), function () {
             try {
                 $response = Http::withHeaders([
                     'Accept' => 'application/vnd.github.v3+json',
@@ -46,6 +46,13 @@ class VersionChecker
         }
 
         return version_compare($latest['version'], config('logr.version'), '>');
+    }
+
+    public function forceCheck(): ?array
+    {
+        Cache::forget('logr_latest_version');
+
+        return $this->check();
     }
 
     public function getLatest(): ?array
