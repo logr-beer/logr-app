@@ -29,27 +29,15 @@ export QUEUE_CONNECTION=database
 export CACHE_STORE=database
 export SESSION_DRIVER=database
 
-# Restore persisted APP_KEY if it exists (before rebuilding .env)
-if [ -f /data/.app_key ]; then
-    export APP_KEY=$(cat /data/.app_key)
+# Generate APP_KEY on first run, persist to data volume
+if [ ! -f /data/.app_key ]; then
+    echo "base64:$(openssl rand -base64 32)" > /data/.app_key
+    echo "Generated new APP_KEY"
 fi
+export APP_KEY=$(cat /data/.app_key)
 
 # Build .env from environment variables so Laravel (php-fpm) can read them.
 env | grep -E '^(APP_|DB_|QUEUE_|CACHE_|SESSION_)' | grep -v '=$' > .env 2>/dev/null || true
-
-# Ensure APP_KEY line exists for key:generate to work with
-if ! grep -q '^APP_KEY=' .env; then
-    echo "APP_KEY=" >> .env
-fi
-
-# Auto-generate APP_KEY if not already set to a valid key
-if ! grep -q '^APP_KEY=base64:' .env; then
-    echo "No APP_KEY set, generating one..."
-    php artisan key:generate --force
-fi
-
-# Persist APP_KEY to the data volume so it survives container rebuilds
-grep '^APP_KEY=base64:' .env | cut -d= -f2- > /data/.app_key
 
 # Create storage symlink
 php artisan storage:link --force 2>/dev/null || true
