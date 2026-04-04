@@ -37,7 +37,7 @@ fi
 export APP_KEY=$(cat /data/.app_key)
 
 # Build .env from environment variables so Laravel (php-fpm) can read them.
-env | grep -E '^(APP_|DB_|QUEUE_|CACHE_|SESSION_)' | grep -v '=$' > .env 2>/dev/null || true
+env | grep -E '^(APP_|DB_|QUEUE_|CACHE_|SESSION_)' | grep -v -E '^[^=]+=$' > .env 2>/dev/null || true
 
 # Create storage symlink
 php artisan storage:link --force 2>/dev/null || true
