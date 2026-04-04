@@ -75,6 +75,7 @@ class User extends Authenticatable
         try {
             return parent::__get('data') ?? [];
         } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            // If the APP_KEY changed, encrypted data is unreadable — clear it
             $this->attributes['data'] = null;
             $this->save();
 
