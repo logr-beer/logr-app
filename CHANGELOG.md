@@ -4,6 +4,12 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.6] - 2026-04-04
+
+### Fixed
+- APP_KEY generated via openssl and persisted to data volume on first run
+- APP_KEY no longer lost on container rebuilds
+
 ## [0.1.5] - 2026-04-03
 
 ### Added
@@ -55,6 +61,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Database purge and reset tools
 - System info page with version and dependency details
 
+[0.1.6]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.6
+[0.1.5]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.5
 [0.1.4]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.4
 [0.1.3]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.3
 [0.1.2]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.2
