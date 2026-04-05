@@ -14,8 +14,10 @@ class SystemInfo extends Component
 {
     public bool $showPurgeModal = false;
     public bool $purgeWithDemo = false;
+    public bool $showPurgeSettingsModal = false;
     public bool $showResetModal = false;
     public string $purgeConfirmation = '';
+    public string $purgeSettingsConfirmation = '';
 
     public function getSystemInfoProperty(): array
     {
@@ -107,6 +109,30 @@ class SystemInfo extends Component
         $this->purgeWithDemo = false;
 
         session()->flash('message', 'All data has been purged.' . ($this->purgeWithDemo ? ' Demo data loaded.' : ''));
+
+        $this->redirect(route('admin.system'), navigate: true);
+    }
+
+    public function confirmPurgeSettings(): void
+    {
+        $this->showPurgeSettingsModal = true;
+        $this->purgeSettingsConfirmation = '';
+    }
+
+    public function purgeSettings(): void
+    {
+        if ($this->purgeSettingsConfirmation !== 'PURGE') {
+            $this->addError('purgeSettingsConfirmation', 'Please type PURGE to confirm.');
+
+            return;
+        }
+
+        Artisan::call('logr:purge-settings', ['--force' => true]);
+
+        $this->showPurgeSettingsModal = false;
+        $this->purgeSettingsConfirmation = '';
+
+        session()->flash('message', 'All user settings have been purged.');
 
         $this->redirect(route('admin.system'), navigate: true);
     }

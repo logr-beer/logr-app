@@ -36,6 +36,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('logr/connect', [\App\Http\Controllers\LogrCallbackController::class, 'redirect'])->name('logr.connect');
     Route::get('logr/callback', [\App\Http\Controllers\LogrCallbackController::class, 'callback'])->name('logr.callback');
+
+    Route::get('discord/link', [\App\Http\Controllers\DiscordOAuthController::class, 'redirect'])->name('discord.link');
+    Route::get('discord/callback', [\App\Http\Controllers\DiscordOAuthController::class, 'callback'])->name('discord.callback');
+    Route::post('discord/unlink', [\App\Http\Controllers\DiscordOAuthController::class, 'unlink'])->name('discord.unlink');
 });
 
 require __DIR__.'/auth.php';

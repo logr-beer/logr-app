@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Setting;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Component;
 
@@ -12,10 +13,14 @@ new class extends Component
     public bool $newWebhookCheckins = true;
     public bool $newWebhookPurchases = true;
 
-    // Discord Bots (via Logr hub)
+    // Discord Bots (global config, multiple servers)
     public array $discordBots = [];
+    public array $botPrefs = [];
     public array $botChannels = [];
     public ?int $loadingChannelsFor = null;
+
+    // Discord identity
+    public ?string $discordUsername = null;
 
     // Test results
     public string $testResult = '';
@@ -25,7 +30,9 @@ new class extends Component
     {
         $user = Auth::user();
         $this->discordWebhooks = $user->getData('discord_webhooks') ?? [];
-        $this->discordBots = $user->getData('discord_bots') ?? [];
+        $this->discordBots = Setting::get('discord_bots', []);
+        $this->botPrefs = $user->getData('discord_bot_prefs') ?? [];
+        $this->discordUsername = $user->getData('discord_username');
     }
 
     // -- Webhooks --
@@ -116,10 +123,19 @@ new class extends Component
 
     // -- Bots (Logr Hub) --
 
+    public function toggleBotPref(string $guildId, string $setting): void
+    {
+        $this->botPrefs[$guildId][$setting] = ! ($this->botPrefs[$guildId][$setting] ?? false);
+
+        $user = Auth::user();
+        $user->setData('discord_bot_prefs', $this->botPrefs);
+        $user->save();
+    }
+
     public function loadChannels(int $index): void
     {
         $bot = $this->discordBots[$index] ?? null;
-        if (!$bot || empty($bot['hub_url']) || empty($bot['hub_api_key']) || empty($bot['guild_id'])) {
+        if (! Auth::user()->is_admin || ! $bot) {
             return;
         }
 
@@ -132,7 +148,7 @@ new class extends Component
     public function changeBotChannel(int $index, string $channelId): void
     {
         $bot = $this->discordBots[$index] ?? null;
-        if (!$bot || empty($bot['hub_url']) || empty($bot['hub_api_key']) || empty($bot['guild_id'])) {
+        if (! Auth::user()->is_admin || ! $bot) {
             return;
         }
 
@@ -141,10 +157,7 @@ new class extends Component
         if ($success) {
             $channel = collect($this->botChannels)->firstWhere('id', $channelId);
             $this->discordBots[$index]['channel_name'] = $channel['name'] ?? null;
-
-            $user = Auth::user();
-            $user->setData('discord_bots', $this->discordBots);
-            $user->save();
+            Setting::set('discord_bots', $this->discordBots);
 
             $this->testResult = 'Channel updated to #' . ($channel['name'] ?? 'unknown');
             $this->testStatus = 'success';
@@ -163,32 +176,22 @@ new class extends Component
         $this->botChannels = [];
     }
 
-    public function removeBot(int $index): void
+    public function disconnectBot(int $index): void
     {
+        if (! Auth::user()->is_admin) {
+            return;
+        }
+
         unset($this->discordBots[$index]);
         $this->discordBots = array_values($this->discordBots);
-
-        $user = Auth::user();
-        $user->setData('discord_bots', $this->discordBots ?: null);
-        $user->save();
-    }
-
-    public function toggleBotSetting(int $index, string $setting): void
-    {
-        if (isset($this->discordBots[$index])) {
-            $this->discordBots[$index][$setting] = !($this->discordBots[$index][$setting] ?? false);
-
-            $user = Auth::user();
-            $user->setData('discord_bots', $this->discordBots);
-            $user->save();
-        }
+        Setting::set('discord_bots', $this->discordBots ?: []);
     }
 
     public function testBot(int $index): void
     {
         $bot = $this->discordBots[$index] ?? null;
-        if (!$bot || empty($bot['hub_url']) || empty($bot['hub_api_key']) || empty($bot['guild_id'])) {
-            $this->testResult = 'Bot configuration incomplete.';
+        if (! $bot) {
+            $this->testResult = 'Bot not configured.';
             $this->testStatus = 'error';
             return;
         }
@@ -207,7 +210,8 @@ new class extends Component
                         'serving' => 'Can',
                         'notes' => 'This is a test notification from Logr!',
                         'user' => Auth::user()->name,
-                        'username' => 'Logr',
+                        'username' => \App\Services\Hub::discordUsername(Auth::user()),
+                        'avatar_url' => \App\Services\Hub::discordAvatarUrl(Auth::user()),
                     ],
                 ]);
 

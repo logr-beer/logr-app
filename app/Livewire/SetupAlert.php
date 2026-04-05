@@ -21,13 +21,13 @@ class SetupAlert extends Component
 
         $rssFeeds = $user->getData('untappd_rss_feeds') ?? [];
         $webhooks = $user->getData('discord_webhooks') ?? [];
-        $bots = $user->getData('discord_bots') ?? [];
+        $hasBot = ! empty(\App\Models\Setting::get('discord_bots', []));
 
         if (empty($rssFeeds)) {
             $this->missing[] = 'untappd';
         }
 
-        if (empty($webhooks) && empty($bots)) {
+        if (empty($webhooks) && ! $hasBot) {
             $this->missing[] = 'discord';
         }
 

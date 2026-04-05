@@ -44,11 +44,10 @@ class BeerShow extends Component
         $this->beer = $beer;
         $user = auth()->user();
         $webhooks = collect($user->getData('discord_webhooks') ?? []);
-        $bots = collect($user->getData('discord_bots') ?? []);
         $this->shareCheckinToDiscord = $webhooks->contains(fn ($w) => !empty($w['publish_checkins']))
-            || $bots->contains(fn ($b) => !empty($b['publish_checkins']));
+            || \App\Services\Hub::hasPublishing($user, 'publish_checkins');
         $this->sharePurchaseToDiscord = $webhooks->contains(fn ($w) => !empty($w['publish_purchases']))
-            || $bots->contains(fn ($b) => !empty($b['publish_purchases']));
+            || \App\Services\Hub::hasPublishing($user, 'publish_purchases');
     }
 
     public function toggleFavorite(): void
