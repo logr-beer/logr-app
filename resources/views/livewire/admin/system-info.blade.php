@@ -126,6 +126,17 @@
                         </button>
                     </div>
 
+                    {{-- Purge Settings --}}
+                    <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Purge Settings</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Clear all user settings (API keys, integrations, webhooks). Beer data is preserved.</p>
+                        </div>
+                        <button wire:click="confirmPurgeSettings" class="shrink-0 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
+                            Purge Settings
+                        </button>
+                    </div>
+
                     {{-- Re-run Setup Wizard --}}
                     <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                         <div>
@@ -207,6 +218,40 @@
                         </button>
                         <button wire:click="purgeData" class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
                             Purge Everything
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Purge Settings Confirmation Modal --}}
+    @if($showPurgeSettingsModal)
+        <div class="fixed inset-0 z-50 overflow-y-auto" aria-modal="true">
+            <div class="flex items-center justify-center min-h-screen px-4">
+                <div class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75 transition-opacity" wire:click="$set('showPurgeSettingsModal', false)"></div>
+
+                <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 z-10">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Purge Settings</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                        This will clear all user settings including API keys, Untappd credentials, Discord webhooks, and other integrations. Your beer data, check-ins, and collections will be preserved.
+                    </p>
+
+                    <div class="mb-4">
+                        <label for="purgeSettingsConfirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Type <strong>PURGE</strong> to confirm
+                        </label>
+                        <input wire:model="purgeSettingsConfirmation" id="purgeSettingsConfirmation" type="text" autocomplete="off"
+                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-red-500 focus:border-red-500" />
+                        @error('purgeSettingsConfirmation') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div class="flex justify-end gap-3">
+                        <button wire:click="$set('showPurgeSettingsModal', false)" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                            Cancel
+                        </button>
+                        <button wire:click="purgeSettings" class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
+                            Purge Settings
                         </button>
                     </div>
                 </div>

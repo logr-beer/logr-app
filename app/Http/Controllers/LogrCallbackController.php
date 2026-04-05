@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -9,6 +10,12 @@ class LogrCallbackController extends Controller
 {
     public function redirect()
     {
+        $user = Auth::user();
+
+        if (! $user->is_admin) {
+            return redirect()->route('admin.notifications')->with('error', 'Only admins can connect the Discord bot.');
+        }
+
         $hubUrl = rtrim(config('services.logr.discord_url'), '/');
         $callbackUrl = route('logr.callback');
 
@@ -32,36 +39,46 @@ class LogrCallbackController extends Controller
         ]);
 
         if ($request->state !== session('logr_state')) {
-            return redirect()->route('profile')->with('error', 'Invalid state. Please try again.');
+            return redirect()->route('admin.notifications')->with('error', 'Invalid state. Please try again.');
         }
 
         session()->forget('logr_state');
 
         $user = Auth::user();
+
+        if (! $user->is_admin) {
+            return redirect()->route('admin.notifications')->with('error', 'Only admins can connect the Discord bot.');
+        }
+
         $hubUrl = rtrim(config('services.logr.discord_url'), '/');
-        $bots = $user->getData('discord_bots') ?? [];
+        $bots = Setting::get('discord_bots', []);
 
         // Check if this guild is already connected
         $exists = collect($bots)->contains(fn ($b) =>
             $b['hub_url'] === $hubUrl && $b['guild_id'] === $request->guild_id
         );
 
-        if (!$exists) {
+        if (! $exists) {
             $bots[] = [
-                'label' => $request->guild_name,
                 'hub_url' => $hubUrl,
                 'hub_api_key' => $request->api_key,
                 'guild_id' => $request->guild_id,
                 'guild_name' => $request->guild_name,
                 'channel_name' => $request->channel_name,
-                'publish_checkins' => true,
-                'publish_purchases' => true,
             ];
 
-            $user->setData('discord_bots', $bots);
-            $user->save();
+            Setting::set('discord_bots', $bots);
         }
 
-        return redirect()->route('profile')->with('message', "Connected to {$request->guild_name}!");
+        // Enable publishing for this server for the connecting admin
+        $prefs = $user->getData('discord_bot_prefs') ?? [];
+        $prefs[$request->guild_id] = [
+            'publish_checkins' => true,
+            'publish_purchases' => true,
+        ];
+        $user->setData('discord_bot_prefs', $prefs);
+        $user->save();
+
+        return redirect()->route('admin.notifications')->with('message', "Connected to {$request->guild_name}!");
     }
 }

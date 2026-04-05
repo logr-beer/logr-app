@@ -20,6 +20,7 @@ class User extends Authenticatable
         'name',
         'username',
         'password',
+        'is_admin',
         'data',
     ];
 
@@ -43,6 +44,7 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'is_admin' => 'boolean',
             'data' => 'encrypted:array',
         ];
     }
@@ -124,6 +126,10 @@ class User extends Authenticatable
             'untappd_rss_feeds',
             'discord_webhooks',
             'discord_bots',
+            'discord_bot_prefs',
+            'discord_user_id',
+            'discord_username',
+            'discord_avatar',
             'geocoding_enabled',
         ];
     }
@@ -161,6 +167,15 @@ class User extends Authenticatable
             ->filter()
             ->values()
             ->all();
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (User $user) {
+            if (static::count() === 0) {
+                $user->is_admin = true;
+            }
+        });
     }
 
     public function checkins(): HasMany

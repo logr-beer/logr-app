@@ -53,9 +53,8 @@ class CheckinForm extends Component
 
         $user = auth()->user();
         $webhooks = collect($user->getData('discord_webhooks') ?? []);
-        $bots = collect($user->getData('discord_bots') ?? []);
         $this->shareCheckinToDiscord = $webhooks->contains(fn ($w) => !empty($w['publish_checkins']))
-            || $bots->contains(fn ($b) => !empty($b['publish_checkins']));
+            || \App\Services\Hub::hasPublishing($user, 'publish_checkins');
     }
 
     protected function loadCheckin(int $id): void

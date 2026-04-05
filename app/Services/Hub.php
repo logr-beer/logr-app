@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Checkin;
 use App\Models\Inventory;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -13,10 +14,9 @@ class Hub
 {
     public static function sendCheckin(Checkin $checkin, User $user): bool
     {
-        $bots = collect($user->getData('discord_bots') ?? [])
-            ->filter(fn ($b) => !empty($b['hub_url']) && !empty($b['hub_api_key']) && !empty($b['guild_id']) && !empty($b['publish_checkins']));
+        $bots = static::botsForUser($user, 'publish_checkins');
 
-        if ($bots->isEmpty()) {
+        if (empty($bots)) {
             return false;
         }
 
@@ -34,8 +34,8 @@ class Hub
             'abv' => $beer->abv,
             'user' => $user->name,
             'beer_image' => $beer->photo_path ? url(Storage::url($beer->photo_path)) : null,
-            'username' => 'Logr',
-            'avatar_url' => null,
+            'username' => static::discordUsername($user),
+            'avatar_url' => static::discordAvatarUrl($user),
         ];
 
         $sent = false;
@@ -50,10 +50,9 @@ class Hub
 
     public static function sendPurchase(Inventory $inventory, User $user): bool
     {
-        $bots = collect($user->getData('discord_bots') ?? [])
-            ->filter(fn ($b) => !empty($b['hub_url']) && !empty($b['hub_api_key']) && !empty($b['guild_id']) && !empty($b['publish_purchases']));
+        $bots = static::botsForUser($user, 'publish_purchases');
 
-        if ($bots->isEmpty()) {
+        if (empty($bots)) {
             return false;
         }
 
@@ -71,8 +70,8 @@ class Hub
             'abv' => $beer->abv,
             'user' => $user->name,
             'beer_image' => $beer->photo_path ? url(Storage::url($beer->photo_path)) : null,
-            'username' => 'Logr',
-            'avatar_url' => null,
+            'username' => static::discordUsername($user),
+            'avatar_url' => static::discordAvatarUrl($user),
         ];
 
         $sent = false;
@@ -83,6 +82,36 @@ class Hub
         }
 
         return $sent;
+    }
+
+    /**
+     * Get bots the user has enabled for a given publish type.
+     */
+    protected static function botsForUser(User $user, string $publishKey): array
+    {
+        $allBots = Setting::get('discord_bots', []);
+
+        if (empty($allBots)) {
+            return [];
+        }
+
+        $prefs = $user->getData('discord_bot_prefs') ?? [];
+
+        return collect($allBots)
+            ->filter(fn ($bot) =>
+                ! empty($bot['hub_url']) && ! empty($bot['hub_api_key']) && ! empty($bot['guild_id'])
+                && ! empty($prefs[$bot['guild_id']][$publishKey])
+            )
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Check if user has any bot publishing enabled.
+     */
+    public static function hasPublishing(User $user, string $publishKey): bool
+    {
+        return ! empty(static::botsForUser($user, $publishKey));
     }
 
     /**
@@ -142,6 +171,23 @@ class Hub
             Log::warning('Hub updateChannel error', ['error' => $e->getMessage()]);
             return false;
         }
+    }
+
+    public static function discordUsername(User $user): string
+    {
+        return $user->getData('discord_username') ?? $user->name;
+    }
+
+    public static function discordAvatarUrl(User $user): ?string
+    {
+        $userId = $user->getData('discord_user_id');
+        $avatar = $user->getData('discord_avatar');
+
+        if ($userId && $avatar) {
+            return "https://cdn.discordapp.com/avatars/{$userId}/{$avatar}.png";
+        }
+
+        return null;
     }
 
     protected static function post(array $bot, string $type, array $payload): bool
