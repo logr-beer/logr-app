@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -11,87 +12,76 @@ class DiscordOAuthController extends Controller
 {
     public function redirect()
     {
-        $clientId = config('services.discord.client_id');
+        $bot = $this->firstBot();
 
-        if (! $clientId) {
-            return redirect()->route('admin.notifications')->with('error', 'Discord OAuth is not configured.');
+        if (! $bot) {
+            return redirect()->route('admin.notifications')->with('error', 'No Discord bot configured.');
         }
 
-        $state = bin2hex(random_bytes(16));
-        session(['discord_oauth_state' => $state]);
+        $response = Http::withToken($bot['hub_api_key'])
+            ->accept('application/json')
+            ->timeout(15)
+            ->post(rtrim($bot['hub_url'], '/').'/api/users/link-token', [
+                'user_identifier' => Auth::user()->name,
+                'callback_url' => route('discord.callback'),
+            ]);
 
-        $params = http_build_query([
-            'client_id' => $clientId,
-            'redirect_uri' => route('discord.callback'),
-            'response_type' => 'code',
-            'scope' => 'identify',
-            'state' => $state,
-        ]);
+        if (! $response->successful()) {
+            Log::warning('Discord link token request failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
 
-        return redirect("https://discord.com/api/oauth2/authorize?{$params}");
+            return redirect()->route('admin.notifications')->with('error', 'Failed to start Discord linking.');
+        }
+
+        return redirect($response->json('link_url'));
     }
 
     public function callback(Request $request)
     {
-        if ($request->state !== session('discord_oauth_state')) {
-            return redirect()->route('admin.notifications')->with('error', 'Invalid state. Please try again.');
-        }
-
-        session()->forget('discord_oauth_state');
-
         if ($request->has('error')) {
             return redirect()->route('admin.notifications')->with('error', 'Discord authorization was cancelled.');
         }
 
-        $request->validate([
-            'code' => 'required|string',
-        ]);
-
-        // Exchange the code for an access token
-        $tokenResponse = Http::asForm()->post('https://discord.com/api/oauth2/token', [
-            'client_id' => config('services.discord.client_id'),
-            'client_secret' => config('services.discord.client_secret'),
-            'grant_type' => 'authorization_code',
-            'code' => $request->code,
-            'redirect_uri' => route('discord.callback'),
-        ]);
-
-        if (! $tokenResponse->successful()) {
-            Log::warning('Discord OAuth token exchange failed', ['status' => $tokenResponse->status(), 'body' => $tokenResponse->body()]);
-
-            return redirect()->route('admin.notifications')->with('error', 'Failed to connect Discord account.');
-        }
-
-        $accessToken = $tokenResponse->json('access_token');
-
-        // Fetch the user's Discord profile
-        $userResponse = Http::withToken($accessToken)->get('https://discord.com/api/v10/users/@me');
-
-        if (! $userResponse->successful()) {
-            Log::warning('Discord OAuth user fetch failed', ['status' => $userResponse->status()]);
-
-            return redirect()->route('admin.notifications')->with('error', 'Failed to fetch Discord profile.');
-        }
-
-        $discord = $userResponse->json();
-
         $user = Auth::user();
-        $user->setData('discord_user_id', $discord['id']);
-        $user->setData('discord_username', $discord['global_name'] ?? $discord['username']);
-        $user->setData('discord_avatar', $discord['avatar']);
-        $user->save();
 
-        return redirect()->route('admin.notifications')->with('message', "Linked Discord account: {$user->getData('discord_username')}");
+        if ($request->has('discord_username')) {
+            $user->setData('discord_username', $request->input('discord_username'));
+            $user->setData('discord_user_id', $request->input('discord_id'));
+            $user->save();
+        }
+
+        return redirect()->route('admin.notifications')
+            ->with('message', "Linked Discord account: {$request->input('discord_username')}");
     }
 
     public function unlink()
     {
         $user = Auth::user();
+        $bot = $this->firstBot();
+
+        if ($bot) {
+            Http::withToken($bot['hub_api_key'])
+                ->accept('application/json')
+                ->timeout(15)
+                ->post(rtrim($bot['hub_url'], '/').'/api/users/unlink', [
+                    'user_identifier' => $user->name,
+                ]);
+        }
+
         $user->setData('discord_user_id', null);
         $user->setData('discord_username', null);
         $user->setData('discord_avatar', null);
         $user->save();
 
         return redirect()->route('admin.notifications')->with('message', 'Discord account unlinked.');
+    }
+
+    protected function firstBot(): ?array
+    {
+        $bots = Setting::get('discord_bots', []);
+
+        return $bots[0] ?? null;
     }
 }

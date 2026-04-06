@@ -74,7 +74,7 @@
         @endforeach
 
         {{-- Discord Identity --}}
-        @if(!empty($discordBots) && config('services.discord.client_id'))
+        @if(!empty($discordBots))
             <div class="flex items-center justify-between px-1">
                 <div class="text-xs text-gray-500 dark:text-gray-400">
                     @if($discordUsername)
