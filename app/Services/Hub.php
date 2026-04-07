@@ -34,8 +34,6 @@ class Hub
             'abv' => $beer->abv,
             'user' => $user->name,
             'beer_image' => $beer->photo_path ? url(Storage::url($beer->photo_path)) : null,
-            'username' => static::discordUsername($user),
-            'avatar_url' => static::discordAvatarUrl($user),
         ];
 
         $sent = false;
@@ -70,8 +68,6 @@ class Hub
             'abv' => $beer->abv,
             'user' => $user->name,
             'beer_image' => $beer->photo_path ? url(Storage::url($beer->photo_path)) : null,
-            'username' => static::discordUsername($user),
-            'avatar_url' => static::discordAvatarUrl($user),
         ];
 
         $sent = false;
