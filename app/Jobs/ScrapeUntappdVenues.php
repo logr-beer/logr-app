@@ -17,9 +17,7 @@ class ScrapeUntappdVenues implements ShouldQueue
 
     public int $timeout = 120;
 
-    public function __construct(public User $user)
-    {
-    }
+    public function __construct(public User $user) {}
 
     public function handle(UntappdScraper $scraper): void
     {
@@ -30,7 +28,7 @@ class ScrapeUntappdVenues implements ShouldQueue
         $result = $scraper->scrapeUserVenues($this->user);
 
         if ($result['error']) {
-            Cache::put($cacheKey, ['status' => 'error', 'message' => 'Error: ' . $result['error']], now()->addMinutes(10));
+            Cache::put($cacheKey, ['status' => 'error', 'message' => 'Error: '.$result['error']], now()->addMinutes(10));
         } else {
             Cache::put($cacheKey, [
                 'status' => 'done',

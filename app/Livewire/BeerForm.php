@@ -20,28 +20,45 @@ class BeerForm extends Component
     public ?Beer $beer = null;
 
     public string $name = '';
+
     public ?int $brewery_id = null;
+
     public string $brewerySearch = '';
+
     public bool $showBreweryDropdown = false;
+
     public array $style = [];
+
     public ?float $abv = null;
+
     public ?int $ibu = null;
+
     public ?int $release_year = null;
+
     public string $brewer_master = '';
+
     public string $description = '';
+
     public $photo;
 
     // Inventory (add form only)
     public bool $addToInventory = false;
+
     public string $storageLocation = 'Fridge';
+
     public int $addQuantity = 1;
+
     public string $purchaseLocation = '';
+
     public string $purchaseDate = '';
+
     public bool $isGift = false;
 
     // Beer search
     public string $beerSearch = '';
+
     public bool $showBeerDropdown = false;
+
     public array $beerResults = [];
 
     // Brewery search results
@@ -70,6 +87,7 @@ class BeerForm extends Component
         if (strlen($this->beerSearch) < 2) {
             $this->showBeerDropdown = false;
             $this->beerResults = [];
+
             return;
         }
 
@@ -98,6 +116,7 @@ class BeerForm extends Component
                         ],
                     ]), now()->addMinutes(5));
                 }
+
                 return $results;
             }
 
@@ -109,6 +128,7 @@ class BeerForm extends Component
                     $result['_source'] = 'untappd';
                     Cache::put("beer_api_{$result['bid']}", array_merge($result, ['_source' => 'untappd']), now()->addMinutes(5));
                 }
+
                 return $results;
             }
 
@@ -120,6 +140,7 @@ class BeerForm extends Component
                     $result['_source'] = 'catalog';
                     Cache::put("beer_api_{$result['id']}", array_merge($result, ['_source' => 'catalog']), now()->addMinutes(5));
                 }
+
                 return $results;
             }
 
@@ -129,6 +150,7 @@ class BeerForm extends Component
                 'query' => $this->beerSearch,
                 'error' => $e->getMessage(),
             ]);
+
             return [];
         }
     }
@@ -174,6 +196,7 @@ class BeerForm extends Component
             $this->showBreweryDropdown = false;
             $this->breweryResults = ['local' => [], 'api' => []];
             $this->brewery_id = null;
+
             return;
         }
 
@@ -293,7 +316,7 @@ class BeerForm extends Component
             'style.*' => 'string|max:255',
             'abv' => 'nullable|numeric|min:0|max:100',
             'ibu' => 'nullable|integer|min:0|max:999',
-            'release_year' => 'nullable|integer|min:1800|max:' . (date('Y') + 1),
+            'release_year' => 'nullable|integer|min:1800|max:'.(date('Y') + 1),
             'brewer_master' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:5000',
             'photo' => 'nullable|image|max:4096',
@@ -354,7 +377,7 @@ class BeerForm extends Component
             'styles' => $this->getStyles(),
             'isEditing' => $isEditing,
             'hasApiKey' => LogrDb::forUser() !== null || (bool) (auth()->user()->untappd_client_id || auth()->user()->catalog_beer_api_key ?? config('services.catalog_beer.key')),
-        ])->title($isEditing ? 'Edit ' . $this->beer->name . ' | Beers' : 'Add Beer | Beers');
+        ])->title($isEditing ? 'Edit '.$this->beer->name.' | Beers' : 'Add Beer | Beers');
     }
 
     private function submitToCatalogBeer(Beer $beer): void

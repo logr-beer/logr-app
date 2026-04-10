@@ -9,12 +9,16 @@ use Livewire\Component;
 class CollectionShow extends Component
 {
     public Collection $collection;
+
     public string $addBeerSearch = '';
+
     public array $addBeerResults = [];
 
     // Edit form
     public bool $editing = false;
+
     public string $editName = '';
+
     public string $editDescription = '';
 
     public function mount(Collection $collection): void
@@ -26,6 +30,7 @@ class CollectionShow extends Component
     {
         if (strlen($this->addBeerSearch) < 2) {
             $this->addBeerResults = [];
+
             return;
         }
 
@@ -97,6 +102,6 @@ class CollectionShow extends Component
         return view('livewire.collection-show', [
             'beers' => $this->collection->resolveBeers(),
             'isDynamic' => $this->collection->is_dynamic,
-        ])->title($this->collection->name . ' | Collections');
+        ])->title($this->collection->name.' | Collections');
     }
 }

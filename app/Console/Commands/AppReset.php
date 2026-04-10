@@ -13,8 +13,9 @@ class AppReset extends Command
 
     public function handle(): int
     {
-        if (!$this->option('force') && !$this->confirm('This will wipe ALL data including user accounts. Continue?')) {
+        if (! $this->option('force') && ! $this->confirm('This will wipe ALL data including user accounts. Continue?')) {
             $this->info('Aborted.');
+
             return self::SUCCESS;
         }
 

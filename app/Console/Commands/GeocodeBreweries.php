@@ -31,6 +31,7 @@ class GeocodeBreweries extends Command
 
         if ($breweries->isEmpty()) {
             $this->info('No breweries to geocode.');
+
             return self::SUCCESS;
         }
 

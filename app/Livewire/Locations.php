@@ -15,7 +15,9 @@ class Locations extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $sortBy = 'checkins';
+
     public string $sortDirection = 'desc';
 
     public bool $geocoding = false;
@@ -90,10 +92,10 @@ class Locations extends Component
 
         if ($this->search) {
             $listQuery->where(function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhere('city', 'like', '%' . $this->search . '%')
-                    ->orWhere('state', 'like', '%' . $this->search . '%')
-                    ->orWhere('country', 'like', '%' . $this->search . '%');
+                $q->where('name', 'like', '%'.$this->search.'%')
+                    ->orWhere('city', 'like', '%'.$this->search.'%')
+                    ->orWhere('state', 'like', '%'.$this->search.'%')
+                    ->orWhere('country', 'like', '%'.$this->search.'%');
             });
         }
 

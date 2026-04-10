@@ -7,7 +7,9 @@
       "Bash(php artisan:*)",
       "Bash(npm run:*)",
       "WebFetch(domain:api.github.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)"
     ]
   }
 }

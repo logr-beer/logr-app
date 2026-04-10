@@ -11,21 +11,34 @@ class Setup extends Component
 {
     // Account
     public string $username = '';
+
     public string $password = '';
+
     public string $password_confirmation = '';
+
     public bool $loadDemoData = false;
+
     public bool $geocodingEnabled = true;
 
     // Integrations (editable when not set via env)
     public string $untappd_username = '';
+
     public string $catalog_beer_api_key = '';
+
     public string $untappd_api_key = '';
+
     public string $untappd_api_secret = '';
+
     public string $newFeedLabel = '';
+
     public string $newFeedUrl = '';
+
     public array $rssFeeds = [];
+
     public string $newWebhookLabel = '';
+
     public string $newWebhookUrl = '';
+
     public array $discordWebhooks = [];
 
     // Track which fields are locked by env
@@ -93,6 +106,7 @@ class Setup extends Component
 
         if (collect($this->rssFeeds)->contains('url', $this->newFeedUrl)) {
             $this->addError('newFeedUrl', 'This feed URL has already been added.');
+
             return;
         }
 
@@ -122,6 +136,7 @@ class Setup extends Component
 
         if (collect($this->discordWebhooks)->contains('url', $this->newWebhookUrl)) {
             $this->addError('newWebhookUrl', 'This webhook URL has already been added.');
+
             return;
         }
 
@@ -148,6 +163,7 @@ class Setup extends Component
     {
         if (User::count() > 0) {
             $this->redirect(route('dashboard'), navigate: true);
+
             return;
         }
 
@@ -187,7 +203,7 @@ class Setup extends Component
         $user->save();
 
         if ($this->loadDemoData) {
-            $seeder = new \Database\Seeders\DemoSeeder();
+            $seeder = new \Database\Seeders\DemoSeeder;
             $seeder->run();
         }
 
@@ -209,6 +225,6 @@ class Setup extends Component
     {
         return view('livewire.setup')
             ->layout('layouts.setup')
-            ->title('Setup | ' . config('app.name'));
+            ->title('Setup | '.config('app.name'));
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Beer;
 use App\Models\Checkin;
 use App\Models\Inventory;
 use App\Models\User;
@@ -15,7 +14,7 @@ class Discord
     public static function sendCheckin(Checkin $checkin, User $user): bool
     {
         $webhooks = collect($user->getData('discord_webhooks') ?? [])
-            ->filter(fn ($w) => !empty($w['url']) && !empty($w['publish_checkins']));
+            ->filter(fn ($w) => ! empty($w['url']) && ! empty($w['publish_checkins']));
 
         if ($webhooks->isEmpty()) {
             return false;
@@ -36,7 +35,7 @@ class Discord
         $description .= "\n\nRating: **{$checkin->rating}** / 5 {$stars}";
 
         if ($checkin->serving_type) {
-            $description .= "\nServing: " . ucfirst($checkin->serving_type);
+            $description .= "\nServing: ".ucfirst($checkin->serving_type);
         }
         if ($checkin->venue) {
             $description .= "\nVenue: {$checkin->venue->name}";
@@ -86,7 +85,7 @@ class Discord
     public static function sendPurchase(Inventory $inventory, User $user): bool
     {
         $webhooks = collect($user->getData('discord_webhooks') ?? [])
-            ->filter(fn ($w) => !empty($w['url']) && !empty($w['publish_purchases']));
+            ->filter(fn ($w) => ! empty($w['url']) && ! empty($w['publish_purchases']));
 
         if ($webhooks->isEmpty()) {
             return false;
@@ -174,12 +173,14 @@ class Discord
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]);
+
                 return false;
             }
 
             return true;
         } catch (\Exception $e) {
             Log::warning('Discord webhook error', ['error' => $e->getMessage()]);
+
             return false;
         }
     }

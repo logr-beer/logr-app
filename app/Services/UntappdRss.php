@@ -56,7 +56,7 @@ class UntappdRss
             ->get($url);
 
         if ($response->failed()) {
-            return ['imported' => 0, 'skipped' => 0, 'error' => 'Failed to fetch RSS feed (HTTP ' . $response->status() . ').'];
+            return ['imported' => 0, 'skipped' => 0, 'error' => 'Failed to fetch RSS feed (HTTP '.$response->status().').'];
         }
 
         $xml = @simplexml_load_string($response->body());
@@ -75,6 +75,7 @@ class UntappdRss
 
             if (! $parsed) {
                 $skipped++;
+
                 continue;
             }
 
@@ -85,10 +86,12 @@ class UntappdRss
             if (Checkin::where('user_id', $user->id)->where('untappd_id', $untappdId)->exists()) {
                 // Also check by guid in case older imports used it
                 $skipped++;
+
                 continue;
             }
             if ($untappdId !== $guid && Checkin::where('user_id', $user->id)->where('untappd_id', $guid)->exists()) {
                 $skipped++;
+
                 continue;
             }
 
@@ -136,7 +139,7 @@ class UntappdRss
 
                     if ($photoResponse->successful()) {
                         $extension = 'jpg';
-                        $filename = 'checkin-photos/' . $checkin->id . '_' . uniqid() . '.' . $extension;
+                        $filename = 'checkin-photos/'.$checkin->id.'_'.uniqid().'.'.$extension;
                         Storage::disk('public')->put($filename, $photoResponse->body());
 
                         CheckinPhoto::create([
@@ -150,7 +153,7 @@ class UntappdRss
                         }
                     }
                 } catch (\Exception $e) {
-                    Log::warning('Failed to download Untappd photo: ' . $e->getMessage());
+                    Log::warning('Failed to download Untappd photo: '.$e->getMessage());
                 }
             }
 

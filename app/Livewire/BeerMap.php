@@ -10,6 +10,7 @@ use Livewire\Component;
 class BeerMap extends Component
 {
     public string $search = '';
+
     public string $colorBy = 'checkins'; // checkins, beers
 
     public function render()
@@ -29,6 +30,7 @@ class BeerMap extends Component
             ->get()
             ->map(function ($brewery) {
                 $totalCheckins = $brewery->beers->sum('checkins_count');
+
                 return [
                     'id' => $brewery->id,
                     'name' => $brewery->name,

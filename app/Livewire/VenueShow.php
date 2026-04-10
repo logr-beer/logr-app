@@ -11,12 +11,19 @@ class VenueShow extends Component
     public Venue $venue;
 
     public bool $editing = false;
+
     public string $name = '';
+
     public string $address = '';
+
     public string $city = '';
+
     public string $state = '';
+
     public string $country = '';
+
     public ?string $latitude = null;
+
     public ?string $longitude = null;
 
     public function mount(Venue $venue): void
@@ -112,6 +119,7 @@ class VenueShow extends Component
 
         if (empty($queries)) {
             $this->geocodeError = 'Enter an address or name first.';
+
             return;
         }
 
@@ -151,7 +159,7 @@ class VenueShow extends Component
 
             $this->geocodeError = 'No results found. Try adjusting the address or enter coordinates manually.';
         } catch (\Exception $e) {
-            $this->geocodeError = 'Geocoding failed: ' . $e->getMessage();
+            $this->geocodeError = 'Geocoding failed: '.$e->getMessage();
         }
     }
 
@@ -175,6 +183,6 @@ class VenueShow extends Component
 
         return view('livewire.venue-show', [
             'checkins' => $checkins,
-        ])->title($this->venue->name . ' | Venues');
+        ])->title($this->venue->name.' | Venues');
     }
 }

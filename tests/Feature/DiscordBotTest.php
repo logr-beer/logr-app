@@ -43,7 +43,7 @@ class DiscordBotTest extends TestCase
         $this->actingAs($admin);
         session(['logr_state' => 'test-state']);
 
-        $response = $this->get('/logr/callback?' . http_build_query([
+        $response = $this->get('/logr/callback?'.http_build_query([
             'api_key' => 'test-api-key',
             'guild_id' => '12345',
             'guild_name' => 'Test Server',
@@ -94,7 +94,7 @@ class DiscordBotTest extends TestCase
         $this->actingAs($admin);
         session(['logr_state' => 'test-state']);
 
-        $this->get('/logr/callback?' . http_build_query([
+        $this->get('/logr/callback?'.http_build_query([
             'api_key' => 'new-key',
             'guild_id' => '12345',
             'guild_name' => 'Test Server',
@@ -115,7 +115,7 @@ class DiscordBotTest extends TestCase
         $this->actingAs($admin);
 
         session(['logr_state' => 'state1']);
-        $this->get('/logr/callback?' . http_build_query([
+        $this->get('/logr/callback?'.http_build_query([
             'api_key' => 'key1',
             'guild_id' => '111',
             'guild_name' => 'Server A',
@@ -124,7 +124,7 @@ class DiscordBotTest extends TestCase
         ]));
 
         session(['logr_state' => 'state2']);
-        $this->get('/logr/callback?' . http_build_query([
+        $this->get('/logr/callback?'.http_build_query([
             'api_key' => 'key2',
             'guild_id' => '222',
             'guild_name' => 'Server B',

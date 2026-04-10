@@ -16,16 +16,22 @@ class BeerIndex extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $style = '';
+
     public string $sortBy = 'newest';
+
     public string $sortDirection = 'desc';
 
     public array $selected = [];
 
     // Modal state
     public bool $showCollectionModal = false;
+
     public bool $showInventoryModal = false;
+
     public string $inventoryLocation = 'Fridge';
+
     public int $inventoryQuantity = 1;
 
     protected $queryString = [
@@ -93,7 +99,7 @@ class BeerIndex extends Component
         $maxSort = $collection->beers()->max('sort_order') ?? 0;
 
         foreach ($this->selected as $beerId) {
-            if (!in_array($beerId, $existing)) {
+            if (! in_array($beerId, $existing)) {
                 $maxSort++;
                 $collection->beers()->attach($beerId, ['sort_order' => $maxSort]);
             }
@@ -140,7 +146,7 @@ class BeerIndex extends Component
     public function toggleFavorite(int $beerId): void
     {
         $beer = Beer::findOrFail($beerId);
-        $beer->update(['is_favorite' => !$beer->is_favorite]);
+        $beer->update(['is_favorite' => ! $beer->is_favorite]);
     }
 
     public function render()
@@ -163,8 +169,8 @@ class BeerIndex extends Component
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhereHas('brewery', fn ($b) => $b->where('name', 'like', '%' . $this->search . '%'));
+                $q->where('name', 'like', '%'.$this->search.'%')
+                    ->orWhereHas('brewery', fn ($b) => $b->where('name', 'like', '%'.$this->search.'%'));
             });
         }
 

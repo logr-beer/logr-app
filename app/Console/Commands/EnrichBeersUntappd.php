@@ -23,6 +23,7 @@ class EnrichBeersUntappd extends Command
 
         if (! $beerId && ! $all && ! $missing) {
             $this->error('Provide a beer ID, or use --missing or --all for bulk enrichment.');
+
             return self::FAILURE;
         }
 
@@ -32,10 +33,11 @@ class EnrichBeersUntappd extends Command
 
             if (! $beer) {
                 $this->error("Beer ID {$beerId} not found.");
+
                 return self::FAILURE;
             }
 
-            $this->info("Enriching: {$beer->name} (" . ($beer->brewery?->name ?? 'unknown brewery') . ')');
+            $this->info("Enriching: {$beer->name} (".($beer->brewery?->name ?? 'unknown brewery').')');
             $result = $scraper->enrichBeer($beer);
             $this->line("  → {$result['message']}");
 
@@ -61,7 +63,7 @@ class EnrichBeersUntappd extends Command
             return self::SUCCESS;
         }
 
-        if (! $this->confirm("This will make up to {$total} requests at 15s each (~" . ceil($total * 15 / 60) . ' min). Continue?')) {
+        if (! $this->confirm("This will make up to {$total} requests at 15s each (~".ceil($total * 15 / 60).' min). Continue?')) {
             return self::SUCCESS;
         }
 

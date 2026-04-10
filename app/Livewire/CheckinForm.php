@@ -21,19 +21,30 @@ class CheckinForm extends Component
 
     // Beer search
     public string $beerQuery = '';
+
     public ?int $selectedBeerId = null;
+
     public string $selectedBeerName = '';
 
     // Checkin fields
     public ?float $rating = null;
+
     public string $serving_type = '';
+
     public string $venueQuery = '';
+
     public ?int $selectedVenueId = null;
+
     public string $selectedVenueName = '';
+
     public string $notes = '';
+
     public $photos = [];
+
     public array $existingPhotos = [];
+
     public array $photosToDelete = [];
+
     public bool $shareCheckinToDiscord = false;
 
     // Date override (for editing)
@@ -47,13 +58,13 @@ class CheckinForm extends Component
             $b = Beer::find($beer);
             if ($b) {
                 $this->selectedBeerId = $b->id;
-                $this->selectedBeerName = $b->name . ($b->brewery ? ' — ' . $b->brewery->name : '');
+                $this->selectedBeerName = $b->name.($b->brewery ? ' — '.$b->brewery->name : '');
             }
         }
 
         $user = auth()->user();
         $webhooks = collect($user->getData('discord_webhooks') ?? []);
-        $this->shareCheckinToDiscord = $webhooks->contains(fn ($w) => !empty($w['publish_checkins']))
+        $this->shareCheckinToDiscord = $webhooks->contains(fn ($w) => ! empty($w['publish_checkins']))
             || \App\Services\Hub::hasPublishing($user, 'publish_checkins');
     }
 
@@ -67,7 +78,7 @@ class CheckinForm extends Component
 
         $this->checkinId = $checkin->id;
         $this->selectedBeerId = $checkin->beer_id;
-        $this->selectedBeerName = $checkin->beer->name . ($checkin->beer->brewery ? ' — ' . $checkin->beer->brewery->name : '');
+        $this->selectedBeerName = $checkin->beer->name.($checkin->beer->brewery ? ' — '.$checkin->beer->brewery->name : '');
         $this->rating = $checkin->rating;
         $this->serving_type = $checkin->serving_type ?? '';
         $this->notes = $checkin->notes ?? '';
@@ -91,7 +102,7 @@ class CheckinForm extends Component
         $beer = Beer::with('brewery')->find($beerId);
         if ($beer) {
             $this->selectedBeerId = $beer->id;
-            $this->selectedBeerName = $beer->name . ($beer->brewery ? ' — ' . $beer->brewery->name : '');
+            $this->selectedBeerName = $beer->name.($beer->brewery ? ' — '.$beer->brewery->name : '');
             $this->beerQuery = '';
         }
     }
@@ -226,7 +237,9 @@ class CheckinForm extends Component
 
     public function deleteCheckin(): void
     {
-        if (! $this->checkinId) return;
+        if (! $this->checkinId) {
+            return;
+        }
 
         $checkin = Checkin::where('id', $this->checkinId)->where('user_id', auth()->id())->firstOrFail();
         $checkin->delete();
@@ -240,8 +253,8 @@ class CheckinForm extends Component
         $beerSuggestions = [];
         if (strlen($this->beerQuery) >= 2 && ! $this->selectedBeerId) {
             $beerSuggestions = Beer::with('brewery')
-                ->where('name', 'like', '%' . $this->beerQuery . '%')
-                ->orWhereHas('brewery', fn ($q) => $q->where('name', 'like', '%' . $this->beerQuery . '%'))
+                ->where('name', 'like', '%'.$this->beerQuery.'%')
+                ->orWhereHas('brewery', fn ($q) => $q->where('name', 'like', '%'.$this->beerQuery.'%'))
                 ->orderBy('name')
                 ->limit(10)
                 ->get();
@@ -249,7 +262,7 @@ class CheckinForm extends Component
 
         $venueSuggestions = [];
         if (strlen($this->venueQuery) >= 2 && ! $this->selectedVenueId) {
-            $venueSuggestions = Venue::where('name', 'like', '%' . $this->venueQuery . '%')
+            $venueSuggestions = Venue::where('name', 'like', '%'.$this->venueQuery.'%')
                 ->orderBy('name')
                 ->limit(8)
                 ->get();

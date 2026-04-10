@@ -10,7 +10,7 @@ class ExportController extends Controller
 {
     public function checkins(): StreamedResponse
     {
-        $filename = 'logr-checkins-' . now()->format('Y-m-d') . '.csv';
+        $filename = 'logr-checkins-'.now()->format('Y-m-d').'.csv';
 
         return response()->streamDownload(function () {
             $handle = fopen('php://output', 'w');
@@ -68,7 +68,7 @@ class ExportController extends Controller
 
     public function beers(): StreamedResponse
     {
-        $filename = 'logr-beers-' . now()->format('Y-m-d') . '.csv';
+        $filename = 'logr-beers-'.now()->format('Y-m-d').'.csv';
 
         return response()->streamDownload(function () {
             $handle = fopen('php://output', 'w');

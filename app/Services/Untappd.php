@@ -9,6 +9,7 @@ class Untappd
     protected string $baseUrl = 'https://api.untappd.com/v4';
 
     protected ?string $clientId;
+
     protected ?string $clientSecret;
 
     public function __construct(?string $clientId = null, ?string $clientSecret = null)

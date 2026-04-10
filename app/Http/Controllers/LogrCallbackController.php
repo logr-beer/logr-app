@@ -22,7 +22,7 @@ class LogrCallbackController extends Controller
         $state = bin2hex(random_bytes(16));
         session(['logr_state' => $state]);
 
-        return redirect("{$hubUrl}/oauth/authorize?" . http_build_query([
+        return redirect("{$hubUrl}/oauth/authorize?".http_build_query([
             'callback_url' => $callbackUrl,
             'state' => $state,
         ]));
@@ -54,8 +54,7 @@ class LogrCallbackController extends Controller
         $bots = Setting::get('discord_bots', []);
 
         // Check if this guild is already connected
-        $exists = collect($bots)->contains(fn ($b) =>
-            $b['hub_url'] === $hubUrl && $b['guild_id'] === $request->guild_id
+        $exists = collect($bots)->contains(fn ($b) => $b['hub_url'] === $hubUrl && $b['guild_id'] === $request->guild_id
         );
 
         if (! $exists) {
