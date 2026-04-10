@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'version' => '0.1.11',
+    'version' => '0.1.12',
 
     'links' => [
         'github' => 'https://github.com/logr-beer/logr-app',
