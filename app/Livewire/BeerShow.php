@@ -16,13 +16,18 @@ use Livewire\WithFileUploads;
 class BeerShow extends Component
 {
     use WithFileUploads;
+
     public Beer $beer;
 
     // Fridge form properties
     public string $storageLocation = 'Fridge';
+
     public string $purchaseLocation = '';
+
     public string $purchaseDate = '';
+
     public int $addQuantity = 1;
+
     public bool $isGift = false;
 
     // Collection form
@@ -30,13 +35,21 @@ class BeerShow extends Component
 
     // Checkin form properties
     public ?float $rating = null;
+
     public string $serving_type = '';
+
     public string $venueQuery = '';
+
     public ?int $selectedVenueId = null;
+
     public string $selectedVenueName = '';
+
     public string $notes = '';
+
     public $checkinPhotos = [];
+
     public bool $shareCheckinToDiscord = false;
+
     public bool $sharePurchaseToDiscord = false;
 
     public function mount(Beer $beer): void
@@ -44,15 +57,15 @@ class BeerShow extends Component
         $this->beer = $beer;
         $user = auth()->user();
         $webhooks = collect($user->getData('discord_webhooks') ?? []);
-        $this->shareCheckinToDiscord = $webhooks->contains(fn ($w) => !empty($w['publish_checkins']))
+        $this->shareCheckinToDiscord = $webhooks->contains(fn ($w) => ! empty($w['publish_checkins']))
             || \App\Services\Hub::hasPublishing($user, 'publish_checkins');
-        $this->sharePurchaseToDiscord = $webhooks->contains(fn ($w) => !empty($w['publish_purchases']))
+        $this->sharePurchaseToDiscord = $webhooks->contains(fn ($w) => ! empty($w['publish_purchases']))
             || \App\Services\Hub::hasPublishing($user, 'publish_purchases');
     }
 
     public function toggleFavorite(): void
     {
-        $this->beer->update(['is_favorite' => !$this->beer->is_favorite]);
+        $this->beer->update(['is_favorite' => ! $this->beer->is_favorite]);
         $this->beer->refresh();
     }
 
@@ -278,7 +291,7 @@ class BeerShow extends Component
 
         $venueSuggestions = [];
         if (strlen($this->venueQuery) >= 2 && ! $this->selectedVenueId) {
-            $venueSuggestions = Venue::where('name', 'like', '%' . $this->venueQuery . '%')
+            $venueSuggestions = Venue::where('name', 'like', '%'.$this->venueQuery.'%')
                 ->orderBy('name')
                 ->limit(8)
                 ->get();
@@ -294,6 +307,6 @@ class BeerShow extends Component
             'beerCollections' => $beerCollections,
             'availableCollections' => $availableCollections,
             'storageLocations' => $storageLocations,
-        ])->title($this->beer->name . ' | Beers');
+        ])->title($this->beer->name.' | Beers');
     }
 }

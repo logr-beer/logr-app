@@ -18,15 +18,25 @@ class CsvImport extends Component
     use WithFileUploads;
 
     public $csvFile;
+
     public string $importType = 'checkins'; // checkins, inventory, both
+
     public array $csvHeaders = [];
+
     public array $csvPreview = [];
+
     public array $mapping = [];
+
     public int $totalRows = 0;
+
     public string $step = 'upload'; // upload, map, preview, importing, results
+
     public array $results = [];
+
     public int $processedRows = 0;
+
     public array $importErrors = [];
+
     public array $rawData = [];
 
     // All mappable fields
@@ -88,6 +98,7 @@ class CsvImport extends Component
                 'inventory_notes' => 'Inventory Notes',
             ]);
         }
+
         return $this->getCheckinFields();
     }
 
@@ -107,6 +118,7 @@ class CsvImport extends Component
 
         if (! $handle) {
             $this->addError('csvFile', 'Could not read the CSV file.');
+
             return;
         }
 
@@ -115,6 +127,7 @@ class CsvImport extends Component
         if (! $headers) {
             fclose($handle);
             $this->addError('csvFile', 'CSV file appears to be empty.');
+
             return;
         }
 
@@ -187,6 +200,7 @@ class CsvImport extends Component
         $mappedFields = array_filter($this->mapping);
         if (! in_array('beer_name', $mappedFields)) {
             $this->addError('mapping', 'You must map at least the Beer Name column.');
+
             return;
         }
 
@@ -223,7 +237,7 @@ class CsvImport extends Component
             try {
                 $this->importRow($row, $fieldMap, $index + 2); // +2 for 1-indexed + header row
             } catch (\Throwable $e) {
-                $this->importErrors[] = "Row " . ($index + 2) . ": " . $e->getMessage();
+                $this->importErrors[] = 'Row '.($index + 2).': '.$e->getMessage();
             }
             $this->processedRows++;
         }
@@ -238,6 +252,7 @@ class CsvImport extends Component
         $beerName = $getValue('beer_name');
         if (! $beerName) {
             $this->results['skipped']++;
+
             return;
         }
 
@@ -263,10 +278,18 @@ class CsvImport extends Component
             if ($brewery) {
                 // Backfill missing location data on existing brewery
                 $breweryUpdates = [];
-                if (! $brewery->city && $breweryCity) $breweryUpdates['city'] = $breweryCity;
-                if (! $brewery->state && $breweryState) $breweryUpdates['state'] = $breweryState;
-                if (! $brewery->country && $breweryCountry) $breweryUpdates['country'] = $breweryCountry;
-                if ($breweryUpdates) $brewery->update($breweryUpdates);
+                if (! $brewery->city && $breweryCity) {
+                    $breweryUpdates['city'] = $breweryCity;
+                }
+                if (! $brewery->state && $breweryState) {
+                    $breweryUpdates['state'] = $breweryState;
+                }
+                if (! $brewery->country && $breweryCountry) {
+                    $breweryUpdates['country'] = $breweryCountry;
+                }
+                if ($breweryUpdates) {
+                    $brewery->update($breweryUpdates);
+                }
 
                 // Geocode if missing coordinates and we have location data
                 if (! $brewery->latitude && ($brewery->city || $brewery->state || $brewery->country)) {
@@ -299,11 +322,21 @@ class CsvImport extends Component
             $this->results['existing_beers']++;
             // Backfill missing fields
             $updates = [];
-            if (! $beer->brewery_id && $brewery) $updates['brewery_id'] = $brewery->id;
-            if (! $beer->abv && ($abv = $getValue('beer_abv'))) $updates['abv'] = (float) $abv;
-            if (! $beer->ibu && ($ibu = $getValue('beer_ibu'))) $updates['ibu'] = (float) $ibu;
-            if (empty($beer->style) && ($style = $getValue('beer_style'))) $updates['style'] = $this->parseStyles($style);
-            if ($updates) $beer->update($updates);
+            if (! $beer->brewery_id && $brewery) {
+                $updates['brewery_id'] = $brewery->id;
+            }
+            if (! $beer->abv && ($abv = $getValue('beer_abv'))) {
+                $updates['abv'] = (float) $abv;
+            }
+            if (! $beer->ibu && ($ibu = $getValue('beer_ibu'))) {
+                $updates['ibu'] = (float) $ibu;
+            }
+            if (empty($beer->style) && ($style = $getValue('beer_style'))) {
+                $updates['style'] = $this->parseStyles($style);
+            }
+            if ($updates) {
+                $beer->update($updates);
+            }
         } else {
             $style = $getValue('beer_style');
             $beer = Beer::create([
@@ -335,7 +368,9 @@ class CsvImport extends Component
             // Skip duplicate Untappd checkins
             if ($untappdId && Checkin::where('untappd_id', $untappdId)->exists()) {
                 $this->results['skipped']++;
-                if ($this->importType === 'checkins') return;
+                if ($this->importType === 'checkins') {
+                    return;
+                }
             } else {
                 // Resolve venue
                 $venueId = null;
@@ -395,7 +430,9 @@ class CsvImport extends Component
 
             // Default quantity to 1 if doing inventory import
             $qty = $quantity !== '' ? (int) $quantity : 1;
-            if ($qty <= 0) $qty = 1;
+            if ($qty <= 0) {
+                $qty = 1;
+            }
 
             $inventoryData = [
                 'beer_id' => $beer->id,

@@ -107,6 +107,7 @@ class UntappdScraper
                 if (empty($seen)) {
                     return ['imported' => 0, 'skipped' => 0, 'error' => 'Failed to fetch Untappd profile.'];
                 }
+
                 continue;
             }
 
@@ -181,8 +182,8 @@ class UntappdScraper
 
     protected function parseHtml(string $html): array
     {
-        $dom = new DOMDocument();
-        @$dom->loadHTML('<meta charset="utf-8">' . $html);
+        $dom = new DOMDocument;
+        @$dom->loadHTML('<meta charset="utf-8">'.$html);
         $xpath = new DOMXPath($dom);
 
         $items = $xpath->query('//div[contains(@class, "beer-item")]');
@@ -335,7 +336,7 @@ class UntappdScraper
         // Use the first checkin date
         if ($data['first_checkin_date']) {
             $checkinDate = date('Y-m-d H:i:s', strtotime($data['first_checkin_date']));
-            $untappdId = $data['checkin_url'] ? 'https://untappd.com' . $data['checkin_url'] : null;
+            $untappdId = $data['checkin_url'] ? 'https://untappd.com'.$data['checkin_url'] : null;
 
             // Check if we already have this checkin
             $existingCheckin = null;
@@ -384,11 +385,11 @@ class UntappdScraper
             ->get("https://untappd.com/user/{$username}/venues");
 
         if ($response->failed()) {
-            return ['imported' => 0, 'skipped' => 0, 'error' => 'Failed to fetch venues page (HTTP ' . $response->status() . ').'];
+            return ['imported' => 0, 'skipped' => 0, 'error' => 'Failed to fetch venues page (HTTP '.$response->status().').'];
         }
 
         $dom = new DOMDocument;
-        @$dom->loadHTML('<meta charset="utf-8">' . $response->body());
+        @$dom->loadHTML('<meta charset="utf-8">'.$response->body());
         $xpath = new DOMXPath($dom);
 
         $items = $xpath->query('//div[contains(@class, "venue-item")]');
@@ -700,12 +701,12 @@ class UntappdScraper
                 $extension = 'webp';
             }
 
-            $path = 'beer-photos/' . $beer->id . '_' . uniqid() . '.' . $extension;
+            $path = 'beer-photos/'.$beer->id.'_'.uniqid().'.'.$extension;
             Storage::disk('public')->put($path, $response->body());
 
             $beer->update(['photo_path' => $path]);
         } catch (\Exception $e) {
-            Log::debug('Failed to download beer label: ' . $e->getMessage());
+            Log::debug('Failed to download beer label: '.$e->getMessage());
         }
     }
 }

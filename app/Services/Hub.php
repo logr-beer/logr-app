@@ -94,8 +94,7 @@ class Hub
         $prefs = $user->getData('discord_bot_prefs') ?? [];
 
         return collect($allBots)
-            ->filter(fn ($bot) =>
-                ! empty($bot['hub_url']) && ! empty($bot['hub_api_key']) && ! empty($bot['guild_id'])
+            ->filter(fn ($bot) => ! empty($bot['hub_url']) && ! empty($bot['hub_api_key']) && ! empty($bot['guild_id'])
                 && ! empty($prefs[$bot['guild_id']][$publishKey])
             )
             ->values()
@@ -119,16 +118,18 @@ class Hub
             $response = Http::withToken($apiKey)
                 ->accept('application/json')
                 ->timeout(10)
-                ->get(rtrim($hubUrl, '/') . '/api/guilds');
+                ->get(rtrim($hubUrl, '/').'/api/guilds');
 
             if ($response->successful()) {
                 return $response->json('data') ?? $response->json();
             }
 
             Log::warning('Hub fetchGuilds failed', ['status' => $response->status(), 'body' => $response->body()]);
+
             return null;
         } catch (\Exception $e) {
             Log::warning('Hub fetchGuilds error', ['error' => $e->getMessage()]);
+
             return null;
         }
     }
@@ -139,7 +140,7 @@ class Hub
             $response = Http::withToken($apiKey)
                 ->accept('application/json')
                 ->timeout(10)
-                ->get(rtrim($hubUrl, '/') . '/api/guilds/' . $guildId . '/channels');
+                ->get(rtrim($hubUrl, '/').'/api/guilds/'.$guildId.'/channels');
 
             if ($response->successful()) {
                 return $response->json('channels') ?? [];
@@ -148,6 +149,7 @@ class Hub
             return null;
         } catch (\Exception $e) {
             Log::warning('Hub fetchChannels error', ['error' => $e->getMessage()]);
+
             return null;
         }
     }
@@ -158,13 +160,14 @@ class Hub
             $response = Http::withToken($apiKey)
                 ->accept('application/json')
                 ->timeout(10)
-                ->put(rtrim($hubUrl, '/') . '/api/guilds/' . $guildId . '/channel', [
+                ->put(rtrim($hubUrl, '/').'/api/guilds/'.$guildId.'/channel', [
                     'channel_id' => $channelId,
                 ]);
 
             return $response->successful();
         } catch (\Exception $e) {
             Log::warning('Hub updateChannel error', ['error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -192,24 +195,26 @@ class Hub
             $response = Http::withToken($bot['hub_api_key'])
                 ->accept('application/json')
                 ->timeout(15)
-                ->post(rtrim($bot['hub_url'], '/') . '/api/post', [
+                ->post(rtrim($bot['hub_url'], '/').'/api/post', [
                     'guild_id' => $bot['guild_id'],
                     'type' => $type,
                     'payload' => $payload,
                 ]);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 Log::warning('Hub post failed', [
                     'status' => $response->status(),
                     'body' => $response->body(),
                     'guild_id' => $bot['guild_id'],
                 ]);
+
                 return false;
             }
 
             return true;
         } catch (\Exception $e) {
             Log::warning('Hub post error', ['error' => $e->getMessage()]);
+
             return false;
         }
     }

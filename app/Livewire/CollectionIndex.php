@@ -12,19 +12,26 @@ use Livewire\Component;
 class CollectionIndex extends Component
 {
     public string $search = '';
+
     public string $collectionFilter = 'all'; // all, curated, smart
+
     public string $sortBy = 'newest'; // newest, name, count
+
     public string $sortDirection = 'desc';
 
     public bool $showCreateModal = false;
+
     public string $createTab = 'collection'; // collection, smart
 
     public string $name = '';
+
     public string $description = '';
 
     // Dynamic collection form
     public string $dynamicType = '';
+
     public string $dynamicStyle = '';
+
     public ?float $dynamicMinRating = null;
 
     protected function rules(): array
@@ -64,13 +71,13 @@ class CollectionIndex extends Component
                     return;
                 }
                 $rules = ['style' => $this->dynamicStyle];
-                $name = $this->dynamicStyle . ' Collection';
+                $name = $this->dynamicStyle.' Collection';
                 $description = "All {$this->dynamicStyle} beers.";
                 break;
             case 'rating':
                 $min = $this->dynamicMinRating ?? 4.0;
                 $rules = ['min_rating' => $min];
-                $name = $min . '+ Stars';
+                $name = $min.'+ Stars';
                 $description = "Beers rated {$min} or higher.";
                 break;
             case 'favorites':
@@ -115,7 +122,7 @@ class CollectionIndex extends Component
                     'rules->year' => (int) $year,
                 ],
                 [
-                    'name' => $year . ' Check-ins',
+                    'name' => $year.' Check-ins',
                     'description' => "Beers checked in during {$year}.",
                     'rules' => ['year' => (int) $year],
                 ]
@@ -164,7 +171,7 @@ class CollectionIndex extends Component
         $query = Collection::where('user_id', auth()->id());
 
         if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%');
+            $query->where('name', 'like', '%'.$this->search.'%');
         }
 
         $collections = (clone $query)->where('is_dynamic', false)

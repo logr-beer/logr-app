@@ -13,8 +13,11 @@ class CheckinIndex extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $sortBy = 'newest';
+
     public string $sortDirection = 'desc';
+
     public array $selected = [];
 
     protected $queryString = [
@@ -76,8 +79,8 @@ class CheckinIndex extends Component
 
         if ($this->search) {
             $query->whereHas('beer', function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhereHas('brewery', fn ($b) => $b->where('name', 'like', '%' . $this->search . '%'));
+                $q->where('name', 'like', '%'.$this->search.'%')
+                    ->orWhereHas('brewery', fn ($b) => $b->where('name', 'like', '%'.$this->search.'%'));
             });
         }
 

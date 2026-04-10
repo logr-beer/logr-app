@@ -11,8 +11,11 @@ use Livewire\Component;
 class InventoryIndex extends Component
 {
     public string $search = '';
+
     public string $location = '';
+
     public string $sortBy = 'recent';
+
     public string $sortDirection = 'desc';
 
     public function updatedSearch()
@@ -53,9 +56,9 @@ class InventoryIndex extends Component
 
         if ($this->search) {
             $query->whereHas('beer', function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
+                $q->where('name', 'like', '%'.$this->search.'%')
                     ->orWhereHas('brewery', function ($bq) {
-                        $bq->where('name', 'like', '%' . $this->search . '%');
+                        $bq->where('name', 'like', '%'.$this->search.'%');
                     });
             });
         }

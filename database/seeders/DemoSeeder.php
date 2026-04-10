@@ -60,7 +60,7 @@ class DemoSeeder extends Seeder
             }
             $brewery = $breweryCache[$breweryKey];
 
-            $beerKey = $data['beer_name'] . '|' . $brewery->id;
+            $beerKey = $data['beer_name'].'|'.$brewery->id;
             if (! isset($beerCache[$beerKey])) {
                 $beerAttrs = [
                     'style' => $data['style'] ? [$data['style']] : null,
@@ -83,12 +83,12 @@ class DemoSeeder extends Seeder
 
             $venueId = null;
             if (! empty($data['venue_name'])) {
-                $venueKey = $data['venue_name'] . '|' . ($data['venue_city'] ?? '');
+                $venueKey = $data['venue_name'].'|'.($data['venue_city'] ?? '');
                 if (! isset($venueCache[$venueKey])) {
                     $venueAttrs = [
-                            'state' => $data['venue_state'] ?: null,
-                            'country' => $data['venue_country'] ?: null,
-                        ];
+                        'state' => $data['venue_state'] ?: null,
+                        'country' => $data['venue_country'] ?: null,
+                    ];
 
                     if (! empty($data['venue_latitude'])) {
                         $venueAttrs['latitude'] = $data['venue_latitude'];
@@ -122,7 +122,7 @@ class DemoSeeder extends Seeder
         fclose($handle);
 
         $this->command?->info("Imported {$count} checkins ({$csvPath})");
-        $this->command?->info('Breweries: ' . count($breweryCache) . ', Beers: ' . count($beerCache) . ', Venues: ' . count($venueCache));
+        $this->command?->info('Breweries: '.count($breweryCache).', Beers: '.count($beerCache).', Venues: '.count($venueCache));
 
         $this->seedInventory($user, $beerCache);
     }
@@ -148,6 +148,6 @@ class DemoSeeder extends Seeder
             $inventoryCount++;
         }
 
-        $this->command?->info("Inventory: {$inventoryCount} beers across " . count($locations) . ' locations');
+        $this->command?->info("Inventory: {$inventoryCount} beers across ".count($locations).' locations');
     }
 }

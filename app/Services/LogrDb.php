@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 class LogrDb
 {
     protected string $baseUrl;
+
     protected string $token;
 
     public function __construct(string $token = '')
@@ -22,7 +23,7 @@ class LogrDb
         $url = config('services.logr_db.url');
         $token = $user?->logr_db_token;
 
-        if (!$url || !$token) {
+        if (! $url || ! $token) {
             return null;
         }
 
@@ -37,7 +38,7 @@ class LogrDb
             'per_page' => $perPage,
         ]);
 
-        if (!$response) {
+        if (! $response) {
             return [];
         }
 
@@ -64,7 +65,7 @@ class LogrDb
             'per_page' => $perPage,
         ]);
 
-        if (!$response) {
+        if (! $response) {
             return [];
         }
 
@@ -90,11 +91,12 @@ class LogrDb
 
     protected function request(string $path, array $query = []): ?array
     {
-        if (!$this->baseUrl || !$this->token) {
+        if (! $this->baseUrl || ! $this->token) {
             \Log::warning('LogrDb: missing config', [
                 'has_url' => (bool) $this->baseUrl,
                 'has_token' => (bool) $this->token,
             ]);
+
             return null;
         }
 
@@ -110,6 +112,7 @@ class LogrDb
                 'url' => $url,
                 'error' => $e->getMessage(),
             ]);
+
             return null;
         }
 
@@ -119,6 +122,7 @@ class LogrDb
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
+
             return null;
         }
 

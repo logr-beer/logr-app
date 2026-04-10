@@ -24,6 +24,7 @@ class SyncUntappdRss extends Command
 
         if ($users->isEmpty()) {
             $this->info('No users with Untappd RSS feeds configured.');
+
             return self::SUCCESS;
         }
 

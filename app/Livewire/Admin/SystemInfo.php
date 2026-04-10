@@ -13,10 +13,15 @@ use Livewire\Component;
 class SystemInfo extends Component
 {
     public bool $showPurgeModal = false;
+
     public bool $purgeWithDemo = false;
+
     public bool $showPurgeSettingsModal = false;
+
     public bool $showResetModal = false;
+
     public string $purgeConfirmation = '';
+
     public string $purgeSettingsConfirmation = '';
 
     public function getSystemInfoProperty(): array
@@ -108,7 +113,7 @@ class SystemInfo extends Component
         $this->purgeConfirmation = '';
         $this->purgeWithDemo = false;
 
-        session()->flash('message', 'All data has been purged.' . ($this->purgeWithDemo ? ' Demo data loaded.' : ''));
+        session()->flash('message', 'All data has been purged.'.($this->purgeWithDemo ? ' Demo data loaded.' : ''));
 
         $this->redirect(route('admin.system'), navigate: true);
     }

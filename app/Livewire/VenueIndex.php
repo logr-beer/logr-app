@@ -15,8 +15,11 @@ class VenueIndex extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $sortBy = 'checkins';
+
     public string $sortDirection = 'desc';
+
     public bool $geocoding = false;
 
     public function updatedSearch(): void
@@ -42,9 +45,9 @@ class VenueIndex extends Component
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhere('city', 'like', '%' . $this->search . '%')
-                    ->orWhere('state', 'like', '%' . $this->search . '%');
+                $q->where('name', 'like', '%'.$this->search.'%')
+                    ->orWhere('city', 'like', '%'.$this->search.'%')
+                    ->orWhere('state', 'like', '%'.$this->search.'%');
             });
         }
 

@@ -67,7 +67,7 @@ class GeocodeVenues implements ShouldQueue
                     }
                 }
             } catch (\Exception $e) {
-                Log::debug("Geocode failed for venue {$venue->id}: " . $e->getMessage());
+                Log::debug("Geocode failed for venue {$venue->id}: ".$e->getMessage());
             }
 
             // Nominatim rate limit: 1 request per second

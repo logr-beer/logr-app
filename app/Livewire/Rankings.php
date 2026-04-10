@@ -14,13 +14,16 @@ use Livewire\Component;
 class Rankings extends Component
 {
     public int $topRatedLimit = 5;
+
     public int $mostCheckedInLimit = 5;
+
     public int $topBreweriesLimit = 5;
+
     public int $highestAbvLimit = 5;
 
     public function expandSection(string $section, int $limit): void
     {
-        $this->{$section . 'Limit'} = $limit;
+        $this->{$section.'Limit'} = $limit;
     }
 
     public function render()

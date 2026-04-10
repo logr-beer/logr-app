@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 
 class GeocodingService
 {
@@ -21,7 +21,7 @@ class GeocodingService
         }
 
         $query = $parts->implode(', ');
-        $cacheKey = 'geocode:' . md5($query);
+        $cacheKey = 'geocode:'.md5($query);
 
         return Cache::remember($cacheKey, now()->addMonth(), function () use ($query) {
             try {
@@ -35,6 +35,7 @@ class GeocodingService
 
                 if ($response->successful() && $response->json()) {
                     $result = $response->json()[0];
+
                     return [
                         'lat' => (float) $result['lat'],
                         'lng' => (float) $result['lon'],
