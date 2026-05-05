@@ -9,9 +9,11 @@
                     <livewire:profile.update-profile-information-form />
                 </div>
 
-                <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow rounded-lg">
-                    <livewire:profile.update-password-form />
-                </div>
+                @unless(config('app.demo_mode'))
+                    <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow rounded-lg">
+                        <livewire:profile.update-password-form />
+                    </div>
+                @endunless
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -43,9 +45,11 @@
                     </div>
                 </div>
 
-                <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow rounded-lg">
-                    <livewire:profile.delete-user-form />
-                </div>
+                @unless(config('app.demo_mode'))
+                    <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow rounded-lg">
+                        <livewire:profile.delete-user-form />
+                    </div>
+                @endunless
             </div>
         </div>
     </div>

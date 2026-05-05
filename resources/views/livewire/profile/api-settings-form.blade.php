@@ -48,6 +48,10 @@ new class extends Component
 
     public function save(): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         $user = Auth::user();
 
         $strings = [
@@ -290,6 +294,7 @@ new class extends Component
     }
 }; ?>
 
+@php $demoMode = config('app.demo_mode'); @endphp
 <section @if($syncing || $scraping || $scrapingVenues || $geocoding) wire:poll.3s="pollJobStatus" @endif>
     <header>
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">API Settings</h2>
@@ -312,11 +317,11 @@ new class extends Component
                 </div>
                 <div>
                     <x-input-label for="logr_db_token" value="API Token" />
-                    <input wire:model.live="logr_db_token" id="logr_db_token" type="text" autocomplete="off"
-                        class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" />
+                    <input wire:model.live="logr_db_token" id="logr_db_token" type="text" autocomplete="off" {{ $demoMode ? 'disabled' : '' }}
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Bearer token for the Logr DB API.</p>
                 </div>
-                <button type="button" wire:click="testLogrDb" class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors">
+                <button type="button" wire:click="testLogrDb" {{ $demoMode ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50">
                     <span wire:loading wire:target="testLogrDb"><svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
                     Test Connection
                 </button>
@@ -333,8 +338,8 @@ new class extends Component
             </div>
             <div>
                 <x-input-label for="catalog_beer_api_key" value="API Key" />
-                <input wire:model.live="catalog_beer_api_key" id="catalog_beer_api_key" type="text" autocomplete="off"
-                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" />
+                <input wire:model.live="catalog_beer_api_key" id="catalog_beer_api_key" type="text" autocomplete="off" {{ $demoMode ? 'disabled' : '' }}
+                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     Get a free API key at <span class="font-medium">catalog.beer</span>.
                     @if(config('services.catalog_beer.key'))
@@ -342,7 +347,7 @@ new class extends Component
                     @endif
                 </p>
             </div>
-            <button type="button" wire:click="testCatalogBeer" class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors">
+            <button type="button" wire:click="testCatalogBeer" {{ $demoMode ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50">
                 <span wire:loading wire:target="testCatalogBeer"><svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
                 Test Connection
             </button>
@@ -361,11 +366,11 @@ new class extends Component
                     @endif
                 </div>
                 <input wire:model.live="untappd_username" id="untappd_username" type="text" autocomplete="off" placeholder="e.g. ajp"
-                    {{ config('services.untappd.username') ? 'disabled' : '' }}
-                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ config('services.untappd.username') ? 'opacity-60 cursor-not-allowed' : '' }}" />
+                    {{ config('services.untappd.username') || $demoMode ? 'disabled' : '' }}
+                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ config('services.untappd.username') || $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
             </div>
 
-            @if($untappd_username)
+            @if($untappd_username && !$demoMode)
                 <div class="flex flex-wrap items-center gap-3">
                     <button type="button" wire:click="scrapeProfile" {{ $scraping ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
                         @if($scraping) <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> @endif
@@ -403,36 +408,40 @@ new class extends Component
                             <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $feed['label'] ?? 'Untitled Feed' }}</span>
                             <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $feed['url'] }}</p>
                         </div>
-                        <button type="button" wire:click="removeFeed({{ $index }})" wire:confirm="Remove this RSS feed?" class="shrink-0 p-1.5 text-gray-400 hover:text-red-500 transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
-                        </button>
+                        @unless($demoMode)
+                            <button type="button" wire:click="removeFeed({{ $index }})" wire:confirm="Remove this RSS feed?" class="shrink-0 p-1.5 text-gray-400 hover:text-red-500 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
+                            </button>
+                        @endunless
                     </div>
                 @endforeach
 
-                <div class="flex items-start gap-2">
-                    <div class="w-36">
-                        <x-input-label for="newFeedLabel" value="Label" />
-                        <input wire:model="newFeedLabel" id="newFeedLabel" type="text" placeholder="e.g. Main"
-                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" />
+                @unless($demoMode)
+                    <div class="flex items-start gap-2">
+                        <div class="w-36">
+                            <x-input-label for="newFeedLabel" value="Label" />
+                            <input wire:model="newFeedLabel" id="newFeedLabel" type="text" placeholder="e.g. Main"
+                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" />
+                        </div>
+                        <div class="flex-1">
+                            <x-input-label for="newFeedUrl" value="RSS URL" />
+                            <input wire:model="newFeedUrl" id="newFeedUrl" type="url" placeholder="https://untappd.com/rss/user/..."
+                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" />
+                        </div>
+                        <div class="shrink-0">
+                            <x-input-label class="invisible">&nbsp;</x-input-label>
+                            <button type="button" wire:click="addFeed" class="mt-1 inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-md shadow-sm hover:bg-amber-600 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                                Add
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex-1">
-                        <x-input-label for="newFeedUrl" value="RSS URL" />
-                        <input wire:model="newFeedUrl" id="newFeedUrl" type="url" placeholder="https://untappd.com/rss/user/..."
-                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" />
-                    </div>
-                    <div class="shrink-0">
-                        <x-input-label class="invisible">&nbsp;</x-input-label>
-                        <button type="button" wire:click="addFeed" class="mt-1 inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-md shadow-sm hover:bg-amber-600 transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                            Add
-                        </button>
-                    </div>
-                </div>
-                <x-input-error class="mt-1" :messages="$errors->get('newFeedUrl')" />
+                    <x-input-error class="mt-1" :messages="$errors->get('newFeedUrl')" />
+                @endunless
             </div>
 
             {{-- Sync Feeds --}}
-            @if(count($rssFeeds))
+            @if(count($rssFeeds) && !$demoMode)
                 <div class="flex flex-wrap items-center gap-3">
                     <button type="button" wire:click="syncRss" {{ $syncing ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
                         @if($syncing) <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> @endif
@@ -459,8 +468,8 @@ new class extends Component
                             @endif
                         </div>
                         <input wire:model.live="untappd_client_id" id="untappd_client_id" type="text" autocomplete="off"
-                            {{ config('services.untappd.api_key') ? 'disabled' : '' }}
-                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ config('services.untappd.api_key') ? 'opacity-60 cursor-not-allowed' : '' }}" />
+                            {{ config('services.untappd.api_key') || $demoMode ? 'disabled' : '' }}
+                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ config('services.untappd.api_key') || $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
                     </div>
                     <div>
                         <div class="flex items-center justify-between">
@@ -470,11 +479,11 @@ new class extends Component
                             @endif
                         </div>
                         <input wire:model.live="untappd_client_secret" id="untappd_client_secret" type="text" autocomplete="off"
-                            {{ config('services.untappd.api_secret') ? 'disabled' : '' }}
-                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ config('services.untappd.api_secret') ? 'opacity-60 cursor-not-allowed' : '' }}" />
+                            {{ config('services.untappd.api_secret') || $demoMode ? 'disabled' : '' }}
+                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ config('services.untappd.api_secret') || $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
                         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Register at <span class="font-medium">untappd.com/api/docs</span>.</p>
                     </div>
-                    <button type="button" wire:click="testUntappd" class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors">
+                    <button type="button" wire:click="testUntappd" {{ $demoMode ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50">
                         <span wire:loading wire:target="testUntappd"><svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
                         Test Connection
                     </button>
@@ -486,16 +495,18 @@ new class extends Component
         <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
             <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Venues</h3>
             <p class="text-xs text-gray-500 dark:text-gray-400">Geocode venues without coordinates using OpenStreetMap/Nominatim.</p>
-            <button type="button" wire:click="geocodeVenues" {{ $geocoding ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
+            <button type="button" wire:click="geocodeVenues" {{ $geocoding || $demoMode ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
                 @if($geocoding) <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> @endif
                 Geocode Venues
             </button>
             @if($geocodeStatus) <p class="text-sm text-green-600 dark:text-green-400">{{ $geocodeStatus }}</p> @endif
         </div>
 
-        <div class="flex items-center gap-4">
-            <x-primary-button>Save</x-primary-button>
-            <x-action-message class="me-3" on="api-settings-updated">Saved.</x-action-message>
-        </div>
+        @unless($demoMode)
+            <div class="flex items-center gap-4">
+                <x-primary-button>Save</x-primary-button>
+                <x-action-message class="me-3" on="api-settings-updated">Saved.</x-action-message>
+            </div>
+        @endunless
     </form>
 </section>
