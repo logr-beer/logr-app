@@ -165,6 +165,10 @@ class VenueShow extends Component
 
     public function delete(): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         if ($this->venue->checkins()->where('user_id', auth()->id())->doesntExist()) {
             abort(403);
         }

@@ -91,6 +91,10 @@ class CollectionShow extends Component
 
     public function deleteCollection(): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         $this->collection->beers()->detach();
         $this->collection->delete();
 

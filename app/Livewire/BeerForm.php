@@ -286,7 +286,7 @@ class BeerForm extends Component
 
     public function deleteBeer(): void
     {
-        if (! $this->beer) {
+        if (config('app.demo_mode') || ! $this->beer) {
             return;
         }
 

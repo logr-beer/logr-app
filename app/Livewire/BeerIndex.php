@@ -82,6 +82,10 @@ class BeerIndex extends Component
 
     public function deleteSelected(): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         Beer::whereIn('id', $this->selected)->delete();
         Checkin::whereIn('beer_id', $this->selected)->delete();
         $this->selected = [];

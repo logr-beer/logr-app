@@ -365,7 +365,7 @@ new class extends Component
                         <x-env-badge name="UNTAPPD_USERNAME" />
                     @endif
                 </div>
-                <input wire:model.live="untappd_username" id="untappd_username" type="text" autocomplete="off" placeholder="e.g. ajp"
+                <input wire:model.live="untappd_username" id="untappd_username" type="text" autocomplete="off" placeholder="e.g. username"
                     {{ config('services.untappd.username') || $demoMode ? 'disabled' : '' }}
                     class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ config('services.untappd.username') || $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
             </div>

@@ -265,7 +265,7 @@
                         {{ $checkinId ? 'Save Changes' : 'Check In' }}
                     </button>
 
-                    @if($checkinId)
+                    @if($checkinId && !config('app.demo_mode'))
                         <button
                             type="button"
                             wire:click="deleteCheckin"

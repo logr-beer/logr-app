@@ -72,12 +72,14 @@
                 <div class="flex items-center gap-3 pt-2">
                     <button type="submit" class="px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors">Save</button>
                     <button type="button" wire:click="cancel" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">Cancel</button>
-                    <button
-                        type="button"
-                        wire:click="delete"
-                        wire:confirm="Delete this venue? This cannot be undone."
-                        class="ml-auto px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
-                    >Delete</button>
+                    @unless(config('app.demo_mode'))
+                        <button
+                            type="button"
+                            wire:click="delete"
+                            wire:confirm="Delete this venue? This cannot be undone."
+                            class="ml-auto px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+                        >Delete</button>
+                    @endunless
                 </div>
             </form>
         @else

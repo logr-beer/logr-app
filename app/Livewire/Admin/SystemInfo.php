@@ -92,6 +92,10 @@ class SystemInfo extends Component
 
     public function confirmPurge(): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         $this->showPurgeModal = true;
         $this->purgeConfirmation = '';
     }
@@ -120,6 +124,10 @@ class SystemInfo extends Component
 
     public function confirmPurgeSettings(): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         $this->showPurgeSettingsModal = true;
         $this->purgeSettingsConfirmation = '';
     }
@@ -144,6 +152,10 @@ class SystemInfo extends Component
 
     public function confirmReset(): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         $this->showResetModal = true;
     }
 

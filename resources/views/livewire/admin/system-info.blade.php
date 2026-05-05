@@ -110,45 +110,47 @@
             </div>
 
             {{-- Danger Zone --}}
-            <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-red-200 dark:border-red-900/50">
-                <h3 class="text-lg font-semibold text-red-600 dark:text-red-400 mb-1">Danger Zone</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">These actions are destructive and cannot be undone.</p>
+            @unless(config('app.demo_mode'))
+                <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-red-200 dark:border-red-900/50">
+                    <h3 class="text-lg font-semibold text-red-600 dark:text-red-400 mb-1">Danger Zone</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">These actions are destructive and cannot be undone.</p>
 
-                <div class="space-y-4">
-                    {{-- Purge Data --}}
-                    <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                        <div>
-                            <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Purge All Data</h4>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Delete all beers, check-ins, inventory, and collections. User accounts are preserved.</p>
+                    <div class="space-y-4">
+                        {{-- Purge Data --}}
+                        <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Purge All Data</h4>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Delete all beers, check-ins, inventory, and collections. User accounts are preserved.</p>
+                            </div>
+                            <button wire:click="confirmPurge" class="shrink-0 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
+                                Purge Data
+                            </button>
                         </div>
-                        <button wire:click="confirmPurge" class="shrink-0 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
-                            Purge Data
-                        </button>
-                    </div>
 
-                    {{-- Purge Settings --}}
-                    <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                        <div>
-                            <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Purge Settings</h4>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Clear all user settings (API keys, integrations, webhooks). Beer data is preserved.</p>
+                        {{-- Purge Settings --}}
+                        <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Purge Settings</h4>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Clear all user settings (API keys, integrations, webhooks). Beer data is preserved.</p>
+                            </div>
+                            <button wire:click="confirmPurgeSettings" class="shrink-0 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
+                                Purge Settings
+                            </button>
                         </div>
-                        <button wire:click="confirmPurgeSettings" class="shrink-0 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
-                            Purge Settings
-                        </button>
-                    </div>
 
-                    {{-- Re-run Setup Wizard --}}
-                    <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                        <div>
-                            <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Re-run Setup Wizard</h4>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Wipe everything and start fresh. This deletes all data <strong>including user accounts</strong>.</p>
+                        {{-- Re-run Setup Wizard --}}
+                        <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Re-run Setup Wizard</h4>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Wipe everything and start fresh. This deletes all data <strong>including user accounts</strong>.</p>
+                            </div>
+                            <button wire:click="confirmReset" class="shrink-0 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
+                                Reset App
+                            </button>
                         </div>
-                        <button wire:click="confirmReset" class="shrink-0 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
-                            Reset App
-                        </button>
                     </div>
                 </div>
-            </div>
+            @endunless
 
             {{-- Links --}}
             <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
