@@ -15,6 +15,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - All delete buttons and danger zone hidden in demo mode (beer, checkin, collection, venue, bulk delete, admin purge/reset)
 - Replace personal placeholder with generic "username" in API settings
 
+## [0.1.12] - 2026-04-10
+
+### Added
+- CI workflow for automated testing on pull requests
+
+## [0.1.11] - 2026-04-07
+
+### Changed
+- Discord bot posts now use the user's verified Discord identity instead of app-provided names
+- Removed ability to set custom display names for bot posts
+
+## [0.1.10] - 2026-04-06
+
+### Changed
+- Moved Discord OAuth flow to Logr Hub — users no longer need `DISCORD_CLIENT_ID` / `DISCORD_CLIENT_SECRET` in their environment
+
+## [0.1.9] - 2026-04-04
+
+### Added
+- Multi-server Discord bot support — connect the Logr bot to multiple Discord servers simultaneously
+
 ## [0.1.8] - 2026-04-04
 
 ### Fixed
@@ -83,6 +104,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - System info page with version and dependency details
 
 [0.1.13]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.13
+[0.1.12]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.12
+[0.1.11]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.11
+[0.1.10]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.10
+[0.1.9]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.9
 [0.1.8]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.8
 [0.1.7]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.7
 [0.1.6]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.6
