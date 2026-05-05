@@ -43,6 +43,8 @@ return [
 
     'demo_mode' => (bool) env('DEMO_MODE', false),
 
+    'google_analytics_id' => env('GOOGLE_ANALYTICS_ID'),
+
     /*
     |--------------------------------------------------------------------------
     | Application URL

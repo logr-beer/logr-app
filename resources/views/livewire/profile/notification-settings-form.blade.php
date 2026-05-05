@@ -39,6 +39,10 @@ new class extends Component
 
     public function addWebhook(): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         $this->validate([
             'newWebhookUrl' => ['required', 'url', 'max:500', new \App\Rules\DiscordWebhookUrl],
             'newWebhookLabel' => 'nullable|string|max:100',
@@ -69,6 +73,10 @@ new class extends Component
 
     public function removeWebhook(int $index): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         unset($this->discordWebhooks[$index]);
         $this->discordWebhooks = array_values($this->discordWebhooks);
 
@@ -79,6 +87,10 @@ new class extends Component
 
     public function toggleWebhookSetting(int $index, string $setting): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         if (isset($this->discordWebhooks[$index])) {
             $this->discordWebhooks[$index][$setting] = !($this->discordWebhooks[$index][$setting] ?? false);
 
@@ -90,6 +102,10 @@ new class extends Component
 
     public function testDiscord(int $index): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         $webhook = $this->discordWebhooks[$index] ?? null;
         if (!$webhook || empty($webhook['url'])) {
             $this->testResult = 'No webhook URL configured.';
@@ -125,6 +141,10 @@ new class extends Component
 
     public function toggleBotPref(string $guildId, string $setting): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         $this->botPrefs[$guildId][$setting] = ! ($this->botPrefs[$guildId][$setting] ?? false);
 
         $user = Auth::user();
@@ -135,7 +155,7 @@ new class extends Component
     public function loadChannels(int $index): void
     {
         $bot = $this->discordBots[$index] ?? null;
-        if (! Auth::user()->is_admin || ! $bot) {
+        if (config('app.demo_mode') || ! Auth::user()->is_admin || ! $bot) {
             return;
         }
 
@@ -148,7 +168,7 @@ new class extends Component
     public function changeBotChannel(int $index, string $channelId): void
     {
         $bot = $this->discordBots[$index] ?? null;
-        if (! Auth::user()->is_admin || ! $bot) {
+        if (config('app.demo_mode') || ! Auth::user()->is_admin || ! $bot) {
             return;
         }
 
@@ -178,7 +198,7 @@ new class extends Component
 
     public function disconnectBot(int $index): void
     {
-        if (! Auth::user()->is_admin) {
+        if (config('app.demo_mode') || ! Auth::user()->is_admin) {
             return;
         }
 
@@ -189,6 +209,10 @@ new class extends Component
 
     public function testBot(int $index): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         $bot = $this->discordBots[$index] ?? null;
         if (! $bot) {
             $this->testResult = 'Bot not configured.';

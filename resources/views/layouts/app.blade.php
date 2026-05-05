@@ -17,12 +17,22 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        @if(config('app.google_analytics_id'))
+            <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('app.google_analytics_id') }}"></script>
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '{{ config('app.google_analytics_id') }}');
+            </script>
+        @endif
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             @if(config('app.demo_mode'))
                 <div class="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 text-center text-sm text-amber-700 dark:text-amber-400 px-4 py-2">
-                    <strong>Demo Site.</strong> Credentials are <code class="px-1 py-0.5 bg-amber-100 dark:bg-amber-900/40 rounded text-xs font-mono">admin</code> / <code class="px-1 py-0.5 bg-amber-100 dark:bg-amber-900/40 rounded text-xs font-mono">password</code>
+                    <strong>Demo Site.</strong> Data resets every 30 minutes.
                 </div>
             @endif
 
