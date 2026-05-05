@@ -4,6 +4,17 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.13] - 2026-05-05
+
+### Added
+- Optional Google Analytics tracking via `GOOGLE_ANALYTICS_ID` environment variable
+
+### Changed
+- Demo mode banner shows reset interval instead of credentials on authenticated pages
+- Settings pages are read-only in demo mode — profile, API credentials, Discord webhooks/bots, and preferences inputs are all disabled
+- All delete buttons and danger zone hidden in demo mode (beer, checkin, collection, venue, bulk delete, admin purge/reset)
+- Replace personal placeholder with generic "username" in API settings
+
 ## [0.1.8] - 2026-04-04
 
 ### Fixed
@@ -71,6 +82,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Database purge and reset tools
 - System info page with version and dependency details
 
+[0.1.13]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.13
 [0.1.8]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.8
 [0.1.7]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.7
 [0.1.6]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.6
