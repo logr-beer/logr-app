@@ -36,6 +36,10 @@ class InventoryIndex extends Component
 
     public function deleteItem(int $inventoryId)
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         Inventory::where('user_id', Auth::id())->findOrFail($inventoryId)->delete();
     }
 

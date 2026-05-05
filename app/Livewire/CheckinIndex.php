@@ -65,6 +65,10 @@ class CheckinIndex extends Component
 
     public function deleteSelected(): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         Checkin::where('user_id', auth()->id())
             ->whereIn('id', $this->selected)
             ->delete();

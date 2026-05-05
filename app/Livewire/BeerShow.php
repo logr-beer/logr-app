@@ -169,6 +169,10 @@ class BeerShow extends Component
 
     public function deleteBeer(): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         $this->beer->checkins()->delete();
         $this->beer->inventory()->delete();
         $this->beer->collections()->detach();

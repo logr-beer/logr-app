@@ -237,7 +237,7 @@ class CheckinForm extends Component
 
     public function deleteCheckin(): void
     {
-        if (! $this->checkinId) {
+        if (config('app.demo_mode') || ! $this->checkinId) {
             return;
         }
 
