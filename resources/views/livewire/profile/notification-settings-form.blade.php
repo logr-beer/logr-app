@@ -29,10 +29,16 @@ new class extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        $this->discordWebhooks = $user->getData('discord_webhooks') ?? [];
         $this->discordBots = Setting::get('discord_bots', []);
         $this->botPrefs = $user->getData('discord_bot_prefs') ?? [];
-        $this->discordUsername = $user->getData('discord_username');
+
+        if (config('app.demo_mode')) {
+            $this->discordWebhooks = [];
+            $this->discordUsername = null;
+        } else {
+            $this->discordWebhooks = $user->getData('discord_webhooks') ?? [];
+            $this->discordUsername = $user->getData('discord_username');
+        }
     }
 
     // -- Webhooks --

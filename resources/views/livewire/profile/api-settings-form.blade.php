@@ -35,6 +35,11 @@ new class extends Component
 
     private function loadFromUser(): void
     {
+        if (config('app.demo_mode')) {
+            $this->rssFeeds = [];
+            return;
+        }
+
         $user = Auth::user();
         $keys = [
             'untappd_username', 'untappd_client_id', 'untappd_client_secret',

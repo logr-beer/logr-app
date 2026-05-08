@@ -10,6 +10,8 @@ class ExportController extends Controller
 {
     public function checkins(): StreamedResponse
     {
+        abort_if(config('app.demo_mode'), 403);
+
         $filename = 'logr-checkins-'.now()->format('Y-m-d').'.csv';
 
         return response()->streamDownload(function () {
@@ -68,6 +70,8 @@ class ExportController extends Controller
 
     public function beers(): StreamedResponse
     {
+        abort_if(config('app.demo_mode'), 403);
+
         $filename = 'logr-beers-'.now()->format('Y-m-d').'.csv';
 
         return response()->streamDownload(function () {

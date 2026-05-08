@@ -77,11 +77,13 @@ new class extends Component
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('import')" wire:navigate>
-                            {{ __('Import') }}
-                        </x-dropdown-link>
+                        @unless(config('app.demo_mode'))
+                            <x-dropdown-link :href="route('import')" wire:navigate>
+                                {{ __('Import') }}
+                            </x-dropdown-link>
 
-                        <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
+                            <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
+                        @endunless
 
                         <x-dropdown-link :href="route('profile')" wire:navigate>
                             {{ __('Profile') }}
@@ -157,11 +159,13 @@ new class extends Component
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('import')" wire:navigate>
-                    {{ __('Import') }}
-                </x-responsive-nav-link>
+                @unless(config('app.demo_mode'))
+                    <x-responsive-nav-link :href="route('import')" wire:navigate>
+                        {{ __('Import') }}
+                    </x-responsive-nav-link>
 
-                <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
+                    <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
+                @endunless
 
                 <x-responsive-nav-link :href="route('profile')" wire:navigate>
                     {{ __('Profile') }}
