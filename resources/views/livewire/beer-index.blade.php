@@ -17,12 +17,9 @@
                     <input wire:model.live.debounce.300ms="search" type="text" placeholder="Search beers or breweries..." class="w-full pl-9 pr-4 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-amber-500 focus:border-amber-500" />
                 </div>
                 <div class="flex items-center gap-2">
-                    <select wire:model.live="style" class="flex-1 sm:flex-none px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500">
-                        <option value="">All Styles</option>
-                        @foreach($styles as $s)
-                            <option value="{{ $s }}">{{ $s }}</option>
-                        @endforeach
-                    </select>
+                    <div class="flex-1 sm:flex-none sm:w-40">
+                        <x-custom-select :options="array_merge(['' => 'All Styles'], array_combine($styles, $styles))" wireModel="style" placeholder="All Styles" />
+                    </div>
                     <x-sort-control :options="['newest' => 'Newest', 'name' => 'Name', 'rating' => 'Rating', 'abv' => 'ABV']" />
                 </div>
             </div>

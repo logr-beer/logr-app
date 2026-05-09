@@ -13,7 +13,7 @@
         @endphp
 
         @if(!$loop->first)
-            <div class="w-px h-6 bg-gray-300 dark:border-gray-600 {{ $isActive || $active === array_keys($tabs)[$loop->index - 1] ? 'bg-amber-500/30' : '' }}"></div>
+            <div class="w-px self-stretch bg-gray-300 dark:bg-gray-600"></div>
         @endif
 
         @if($href)

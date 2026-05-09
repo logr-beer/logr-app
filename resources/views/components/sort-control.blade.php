@@ -1,15 +1,54 @@
 @props(['options', 'sortField' => 'sortBy', 'directionField' => 'sortDirection'])
 
 <div class="inline-flex items-stretch flex-shrink-0">
-    <select
-        wire:model.live="{{ $sortField }}"
-        class="pl-3 pr-8 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-lg border-r-0 text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500 appearance-none bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat"
-        style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E&quot;)"
-    >
-        @foreach($options as $value => $label)
-            <option value="{{ $value }}">{{ $label }}</option>
-        @endforeach
-    </select>
+    <div class="min-w-[5rem]">
+        @php $selectId = 'sort-' . uniqid(); @endphp
+        <div
+            x-data="{
+                open: false,
+                value: @entangle($sortField),
+                get label() {
+                    const opts = {{ Js::from($options) }};
+                    return opts[this.value] ?? 'Sort';
+                }
+            }"
+            x-on:click.outside="open = false"
+            x-on:keydown.escape.window="open = false"
+            class="relative"
+        >
+            <button
+                type="button"
+                x-on:click="open = !open"
+                class="w-full flex items-center justify-between gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-lg border-r-0 text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500 focus:ring-1 focus:outline-none"
+            >
+                <span x-text="label" class="truncate"></span>
+                <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform" :class="open && 'rotate-180'" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+            </button>
+
+            <div
+                x-show="open"
+                x-cloak
+                x-transition:enter="transition ease-out duration-100"
+                x-transition:enter-start="opacity-0 scale-95"
+                x-transition:enter-end="opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-75"
+                x-transition:leave-start="opacity-100 scale-100"
+                x-transition:leave-end="opacity-0 scale-95"
+                class="absolute z-50 mt-1 w-full min-w-[8rem] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg overflow-auto max-h-60"
+            >
+                @foreach($options as $val => $label)
+                    <button
+                        type="button"
+                        x-on:click="value = '{{ $val }}'; open = false"
+                        class="w-full text-left px-3 py-2 text-sm transition-colors hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                        :class="value === '{{ $val }}' && 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 font-medium'"
+                    >
+                        {{ $label }}
+                    </button>
+                @endforeach
+            </div>
+        </div>
+    </div>
     <button
         wire:click="$set('{{ $directionField }}', '{{ $this->{$directionField} === 'asc' ? 'desc' : 'asc' }}')"
         class="inline-flex items-center px-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-r-lg text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors"

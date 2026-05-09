@@ -284,16 +284,12 @@
                             @error('rating') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label for="serving_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Serving Type</label>
-                            <select wire:model="serving_type" id="serving_type" class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500">
-                                <option value="">Select...</option>
-                                <option value="draft">Draft</option>
-                                <option value="bottle">Bottle</option>
-                                <option value="can">Can</option>
-                                <option value="crowler">Crowler</option>
-                                <option value="growler">Growler</option>
-                                <option value="cask">Cask</option>
-                            </select>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Serving Type</label>
+                            <x-custom-select
+                                wireModel="serving_type"
+                                placeholder="Select..."
+                                :options="['' => 'Select...', 'draft' => 'Draft', 'bottle' => 'Bottle', 'can' => 'Can', 'crowler' => 'Crowler', 'growler' => 'Growler', 'cask' => 'Cask']"
+                            />
                             @error('serving_type') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                         </div>
                         <div x-data="{ venueOpen: false }" @click.outside="venueOpen = false" class="relative">
