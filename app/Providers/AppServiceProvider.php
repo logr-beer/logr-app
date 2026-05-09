@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 use App\Events\CheckinCreated;
-use App\Listeners\SendDiscordCheckinViaWebhook;
 use App\Listeners\SendDiscordCheckinViaBot;
+use App\Listeners\SendDiscordCheckinViaWebhook;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 

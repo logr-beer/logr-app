@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Livewire\Admin\SystemInfo;
-use App\Livewire\Setup;
 use App\Livewire\VenueShow;
 use App\Models\Beer;
 use App\Models\Checkin;

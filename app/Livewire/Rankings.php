@@ -54,11 +54,11 @@ class Rankings extends Component
 
         // Top breweries (by avg rating across all beers, min 3 check-ins)
         $topBreweries = Brewery::select(
-                'breweries.*',
-                DB::raw('AVG(checkins.rating) as avg_rating'),
-                DB::raw('COUNT(DISTINCT beers.id) as beer_count'),
-                DB::raw('COUNT(checkins.id) as checkin_count')
-            )
+            'breweries.*',
+            DB::raw('AVG(checkins.rating) as avg_rating'),
+            DB::raw('COUNT(DISTINCT beers.id) as beer_count'),
+            DB::raw('COUNT(checkins.id) as checkin_count')
+        )
             ->join('beers', 'breweries.id', '=', 'beers.brewery_id')
             ->join('checkins', 'beers.id', '=', 'checkins.beer_id')
             ->where('checkins.user_id', $userId)
