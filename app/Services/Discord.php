@@ -78,9 +78,8 @@ class Discord
         }
 
         $sent = false;
-        $identity = static::discordIdentity($user);
         foreach ($webhooks as $webhook) {
-            if (static::send($webhook['url'], $embed, $identity)) {
+            if (static::send($webhook['url'], $embed)) {
                 $sent = true;
             }
         }
@@ -143,9 +142,8 @@ class Discord
         }
 
         $sent = false;
-        $identity = static::discordIdentity($user);
         foreach ($webhooks as $webhook) {
-            if (static::send($webhook['url'], $embed, $identity)) {
+            if (static::send($webhook['url'], $embed)) {
                 $sent = true;
             }
         }
@@ -164,32 +162,12 @@ class Discord
         return null;
     }
 
-    protected static function discordIdentity(User $user): array
-    {
-        $username = $user->getData('discord_username');
-
-        if (! $username) {
-            return [];
-        }
-
-        $identity = ['username' => $username];
-        $avatarUrl = Hub::discordAvatarUrl($user);
-
-        if ($avatarUrl) {
-            $identity['avatar_url'] = $avatarUrl;
-        }
-
-        return $identity;
-    }
-
-    protected static function send(string $webhookUrl, array $embed, array $identity = []): bool
+    protected static function send(string $webhookUrl, array $embed): bool
     {
         try {
-            $response = Http::timeout(15)->post($webhookUrl, array_filter([
+            $response = Http::timeout(15)->post($webhookUrl, [
                 'embeds' => [$embed],
-                'username' => $identity['username'] ?? null,
-                'avatar_url' => $identity['avatar_url'] ?? null,
-            ]));
+            ]);
 
             if (! $response->successful()) {
                 Log::warning('Discord webhook failed', [

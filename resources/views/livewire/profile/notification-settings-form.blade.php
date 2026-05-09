@@ -284,8 +284,6 @@ new class extends Component
                         'venue' => 'The Local Taproom',
                         'notes' => 'Perfectly balanced, one of the best DIPAs out there.',
                         'user' => Auth::user()->name,
-                        'username' => \App\Services\Hub::discordUsername(Auth::user()),
-                        'avatar_url' => \App\Services\Hub::discordAvatarUrl(Auth::user()),
                     ],
                 ]);
 
@@ -328,8 +326,6 @@ new class extends Component
                         'storage_location' => 'Fridge',
                         'purchase_location' => 'Total Wine',
                         'user' => Auth::user()->name,
-                        'username' => \App\Services\Hub::discordUsername(Auth::user()),
-                        'avatar_url' => \App\Services\Hub::discordAvatarUrl(Auth::user()),
                     ],
                 ]);
 
