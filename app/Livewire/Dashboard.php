@@ -39,12 +39,12 @@ class Dashboard extends Component
             'recentBeers' => Beer::with('brewery')->latest()->take(12)->get(),
             'recentCheckins' => Beer::with('brewery')
                 ->whereHas('checkins')
-                ->orderByDesc(
-                    Checkin::select('created_at')
-                        ->whereColumn('beer_id', 'beers.id')
-                        ->latest()
-                        ->limit(1)
-                )
+                ->addSelect(['last_checkin_at' => Checkin::select('created_at')
+                    ->whereColumn('beer_id', 'beers.id')
+                    ->latest()
+                    ->limit(1),
+                ])
+                ->orderByDesc('last_checkin_at')
                 ->take(12)
                 ->get(),
             'favorites' => Beer::with('brewery')

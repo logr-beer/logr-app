@@ -23,7 +23,7 @@
     <x-beer-row title="Recently Added" :beers="$recentBeers" />
 
     {{-- Recently Checked In --}}
-    <x-beer-row title="Recently Checked In" :beers="$recentCheckins" />
+    <x-beer-row title="Recently Checked In" :beers="$recentCheckins" dateField="last_checkin_at" dateLabel="Checked in" />
 
     {{-- Favorites --}}
     <x-beer-row title="Favorites" :beers="$favorites" />
