@@ -20,7 +20,7 @@ class Discord
             return false;
         }
 
-        $checkin->loadMissing(['beer.brewery', 'venue']);
+        $checkin->loadMissing(['beer.brewery', 'venue', 'photos']);
         $beer = $checkin->beer;
 
         $stars = str_repeat("\u{2B50}", (int) $checkin->rating);
@@ -66,15 +66,20 @@ class Discord
             'footer' => ['text' => 'Logr'],
         ];
 
-        if ($beer->photo_path) {
-            $photoUrl = url(Storage::url($beer->photo_path));
-            $embed['thumbnail'] = ['url' => $photoUrl];
+        // Image priority: checkin photo > beer label > brewery logo
+        $imageUrl = static::resolveImageUrl(
+            $checkin->photos->first()?->photo_path,
+            $beer->photo_path,
+            $beer->brewery?->logo_path,
+        );
+
+        if ($imageUrl) {
+            $embed['thumbnail'] = ['url' => $imageUrl];
         }
 
         $sent = false;
-        $identity = static::discordIdentity($user);
         foreach ($webhooks as $webhook) {
-            if (static::send($webhook['url'], $embed, $identity)) {
+            if (static::send($webhook['url'], $embed)) {
                 $sent = true;
             }
         }
@@ -125,15 +130,20 @@ class Discord
             'footer' => ['text' => 'Logr'],
         ];
 
-        if ($beer->photo_path) {
-            $photoUrl = url(Storage::url($beer->photo_path));
-            $embed['thumbnail'] = ['url' => $photoUrl];
+        // Image priority: beer label > brewery logo
+        $imageUrl = static::resolveImageUrl(
+            null,
+            $beer->photo_path,
+            $beer->brewery?->logo_path,
+        );
+
+        if ($imageUrl) {
+            $embed['thumbnail'] = ['url' => $imageUrl];
         }
 
         $sent = false;
-        $identity = static::discordIdentity($user);
         foreach ($webhooks as $webhook) {
-            if (static::send($webhook['url'], $embed, $identity)) {
+            if (static::send($webhook['url'], $embed)) {
                 $sent = true;
             }
         }
@@ -141,32 +151,23 @@ class Discord
         return $sent;
     }
 
-    protected static function discordIdentity(User $user): array
+    protected static function resolveImageUrl(?string ...$paths): ?string
     {
-        $username = $user->getData('discord_username');
-
-        if (! $username) {
-            return [];
+        foreach ($paths as $path) {
+            if ($path) {
+                return url(Storage::url($path));
+            }
         }
 
-        $identity = ['username' => $username];
-        $avatarUrl = Hub::discordAvatarUrl($user);
-
-        if ($avatarUrl) {
-            $identity['avatar_url'] = $avatarUrl;
-        }
-
-        return $identity;
+        return null;
     }
 
-    protected static function send(string $webhookUrl, array $embed, array $identity = []): bool
+    protected static function send(string $webhookUrl, array $embed): bool
     {
         try {
-            $response = Http::post($webhookUrl, array_filter([
+            $response = Http::timeout(15)->post($webhookUrl, [
                 'embeds' => [$embed],
-                'username' => $identity['username'] ?? null,
-                'avatar_url' => $identity['avatar_url'] ?? null,
-            ]));
+            ]);
 
             if (! $response->successful()) {
                 Log::warning('Discord webhook failed', [

@@ -11,5 +11,5 @@ Artisan::command('inspire', function () {
 Schedule::command('untappd:sync')->daily()->at('03:00');
 
 if (env('DEMO_MODE')) {
-    Schedule::command('demo:reset')->everyThirtyMinutes();
+    Schedule::command('demo:reset')->hourly();
 }

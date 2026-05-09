@@ -96,7 +96,7 @@ class CheckinIndex extends Component
         };
 
         return view('livewire.checkin-index', [
-            'checkins' => $query->paginate(20),
+            'checkins' => $query->paginate(24),
         ]);
     }
 }

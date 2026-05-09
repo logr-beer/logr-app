@@ -29,10 +29,16 @@ new class extends Component
     public function mount(): void
     {
         $user = Auth::user();
-        $this->discordWebhooks = $user->getData('discord_webhooks') ?? [];
         $this->discordBots = Setting::get('discord_bots', []);
         $this->botPrefs = $user->getData('discord_bot_prefs') ?? [];
-        $this->discordUsername = $user->getData('discord_username');
+
+        if (config('app.demo_mode')) {
+            $this->discordWebhooks = [];
+            $this->discordUsername = null;
+        } else {
+            $this->discordWebhooks = $user->getData('discord_webhooks') ?? [];
+            $this->discordUsername = $user->getData('discord_username');
+        }
     }
 
     // -- Webhooks --
@@ -100,7 +106,7 @@ new class extends Component
         }
     }
 
-    public function testDiscord(int $index): void
+    public function testCheckin(int $index): void
     {
         if (config('app.demo_mode')) {
             return;
@@ -114,30 +120,70 @@ new class extends Component
         }
 
         try {
-            $response = \Illuminate\Support\Facades\Http::post($webhook['url'], [
+            $response = \Illuminate\Support\Facades\Http::timeout(15)->post($webhook['url'], [
                 'embeds' => [[
-                    'title' => 'Logr Connected!',
-                    'description' => 'Your Discord webhook is working.' . ($webhook['label'] ? " ({$webhook['label']})" : ''),
+                    'title' => 'Check-in: Pliny the Elder',
+                    'description' => "**Pliny the Elder** by Russian River Brewing Company\n\nRating: **5** / 5 ⭐⭐⭐⭐⭐\nServing: Draft\nVenue: The Local Taproom\n\n> Perfectly balanced, one of the best DIPAs out there.",
                     'color' => 0xF59E0B,
+                    'fields' => [
+                        ['name' => 'Style', 'value' => 'Double IPA, IPA, Pale Ale', 'inline' => true],
+                        ['name' => 'ABV', 'value' => '8.0%', 'inline' => true],
+                        ['name' => 'IBU', 'value' => '100', 'inline' => true],
+                    ],
                     'footer' => ['text' => 'Logr'],
                     'timestamp' => now()->toIso8601String(),
                 ]],
             ]);
 
-            if ($response->successful()) {
-                $this->testResult = 'Test message sent! Check your Discord channel.';
-                $this->testStatus = 'success';
-            } else {
-                $this->testResult = "HTTP {$response->status()}: {$response->body()}";
-                $this->testStatus = 'error';
-            }
+            $this->testResult = $response->successful()
+                ? 'Test check-in sent! Check your Discord channel.'
+                : "HTTP {$response->status()}: {$response->body()}";
+            $this->testStatus = $response->successful() ? 'success' : 'error';
         } catch (\Exception $e) {
             $this->testResult = $e->getMessage();
             $this->testStatus = 'error';
         }
     }
 
-    // -- Bots (Logr Hub) --
+    public function testInventory(int $index): void
+    {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
+        $webhook = $this->discordWebhooks[$index] ?? null;
+        if (!$webhook || empty($webhook['url'])) {
+            $this->testResult = 'No webhook URL configured.';
+            $this->testStatus = 'error';
+            return;
+        }
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(15)->post($webhook['url'], [
+                'embeds' => [[
+                    'title' => 'Added to Inventory: Two Hearted Ale',
+                    'description' => "**Two Hearted Ale** by Bell's Brewery\n\nQuantity: **6**\nStorage: Fridge\nFrom: Total Wine",
+                    'color' => 0x3B82F6,
+                    'fields' => [
+                        ['name' => 'Style', 'value' => 'American IPA', 'inline' => true],
+                        ['name' => 'ABV', 'value' => '7.0%', 'inline' => true],
+                    ],
+                    'footer' => ['text' => 'Logr'],
+                    'timestamp' => now()->toIso8601String(),
+                ]],
+            ]);
+
+            $this->testResult = $response->successful()
+                ? 'Test inventory notification sent! Check your Discord channel.'
+                : "HTTP {$response->status()}: {$response->body()}";
+            $this->testStatus = $response->successful() ? 'success' : 'error';
+        } catch (\Exception $e) {
+            $this->testResult = $e->getMessage();
+            $this->testStatus = 'error';
+        }
+    }
+
+    // -- Bots (Logr Bot) --
 
     public function toggleBotPref(string $guildId, string $setting): void
     {
@@ -207,7 +253,7 @@ new class extends Component
         Setting::set('discord_bots', $this->discordBots ?: []);
     }
 
-    public function testBot(int $index): void
+    public function testBotCheckin(int $index): void
     {
         if (config('app.demo_mode')) {
             return;
@@ -228,24 +274,65 @@ new class extends Component
                     'guild_id' => $bot['guild_id'],
                     'type' => 'checkin',
                     'payload' => [
-                        'beer_name' => 'Test Beer',
-                        'brewery' => 'Logr Brewing',
+                        'beer_name' => 'Pliny the Elder',
+                        'brewery' => 'Russian River Brewing Company',
+                        'style' => 'Double IPA, IPA, Pale Ale',
+                        'abv' => '8.0%',
+                        'ibu' => '100',
                         'rating' => 5.0,
-                        'serving' => 'Can',
-                        'notes' => 'This is a test notification from Logr!',
+                        'serving' => 'Draft',
+                        'venue' => 'The Local Taproom',
+                        'notes' => 'Perfectly balanced, one of the best DIPAs out there.',
                         'user' => Auth::user()->name,
-                        'username' => \App\Services\Hub::discordUsername(Auth::user()),
-                        'avatar_url' => \App\Services\Hub::discordAvatarUrl(Auth::user()),
                     ],
                 ]);
 
-            if ($response->successful()) {
-                $this->testResult = 'Test message sent! Check your Discord channel.';
-                $this->testStatus = 'success';
-            } else {
-                $this->testResult = "HTTP {$response->status()}: {$response->body()}";
-                $this->testStatus = 'error';
-            }
+            $this->testResult = $response->successful()
+                ? 'Test check-in sent! Check your Discord channel.'
+                : "HTTP {$response->status()}: {$response->body()}";
+            $this->testStatus = $response->successful() ? 'success' : 'error';
+        } catch (\Exception $e) {
+            $this->testResult = $e->getMessage();
+            $this->testStatus = 'error';
+        }
+    }
+
+    public function testBotInventory(int $index): void
+    {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
+        $bot = $this->discordBots[$index] ?? null;
+        if (! $bot) {
+            $this->testResult = 'Bot not configured.';
+            $this->testStatus = 'error';
+            return;
+        }
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withToken($bot['hub_api_key'])
+                ->accept('application/json')
+                ->timeout(15)
+                ->post(rtrim($bot['hub_url'], '/') . '/api/post', [
+                    'guild_id' => $bot['guild_id'],
+                    'type' => 'purchase',
+                    'payload' => [
+                        'beer_name' => 'Two Hearted Ale',
+                        'brewery' => "Bell's Brewery",
+                        'style' => 'American IPA',
+                        'abv' => '7.0%',
+                        'quantity' => 6,
+                        'storage_location' => 'Fridge',
+                        'purchase_location' => 'Total Wine',
+                        'user' => Auth::user()->name,
+                    ],
+                ]);
+
+            $this->testResult = $response->successful()
+                ? 'Test inventory notification sent! Check your Discord channel.'
+                : "HTTP {$response->status()}: {$response->body()}";
+            $this->testStatus = $response->successful() ? 'success' : 'error';
         } catch (\Exception $e) {
             $this->testResult = $e->getMessage();
             $this->testStatus = 'error';

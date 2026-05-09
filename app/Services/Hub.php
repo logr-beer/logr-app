@@ -38,7 +38,8 @@ class Hub
 
         $sent = false;
         foreach ($bots as $bot) {
-            if (static::post($bot, 'checkin', $payload)) {
+            $key = "checkin-{$checkin->id}-{$bot['guild_id']}";
+            if (static::post($bot, 'checkin', $payload, $key)) {
                 $sent = true;
             }
         }
@@ -72,7 +73,8 @@ class Hub
 
         $sent = false;
         foreach ($bots as $bot) {
-            if (static::post($bot, 'purchase', $payload)) {
+            $key = "inventory-{$inventory->id}-{$bot['guild_id']}";
+            if (static::post($bot, 'purchase', $payload, $key)) {
                 $sent = true;
             }
         }
@@ -189,17 +191,28 @@ class Hub
         return null;
     }
 
-    protected static function post(array $bot, string $type, array $payload): bool
+    protected static function post(array $bot, string $type, array $payload, ?string $idempotencyKey = null): bool
     {
         try {
+            $body = [
+                'guild_id' => $bot['guild_id'],
+                'type' => $type,
+                'payload' => $payload,
+            ];
+
+            if ($idempotencyKey) {
+                $body['idempotency_key'] = $idempotencyKey;
+            }
+
             $response = Http::withToken($bot['hub_api_key'])
                 ->accept('application/json')
                 ->timeout(15)
-                ->post(rtrim($bot['hub_url'], '/').'/api/post', [
-                    'guild_id' => $bot['guild_id'],
-                    'type' => $type,
-                    'payload' => $payload,
-                ]);
+                ->post(rtrim($bot['hub_url'], '/').'/api/post', $body);
+
+            // 409 = duplicate, already posted — treat as success
+            if ($response->status() === 409) {
+                return true;
+            }
 
             if (! $response->successful()) {
                 Log::warning('Hub post failed', [

@@ -44,16 +44,18 @@ class DiscordOAuthController extends Controller
             return redirect()->route('admin.notifications')->with('error', 'Discord authorization was cancelled.');
         }
 
-        $user = Auth::user();
+        $validated = $request->validate([
+            'discord_username' => 'required|string|max:100',
+            'discord_id' => 'required|string|max:50',
+        ]);
 
-        if ($request->has('discord_username')) {
-            $user->setData('discord_username', $request->input('discord_username'));
-            $user->setData('discord_user_id', $request->input('discord_id'));
-            $user->save();
-        }
+        $user = Auth::user();
+        $user->setData('discord_username', $validated['discord_username']);
+        $user->setData('discord_user_id', $validated['discord_id']);
+        $user->save();
 
         return redirect()->route('admin.notifications')
-            ->with('message', "Linked Discord account: {$request->input('discord_username')}");
+            ->with('message', "Linked Discord account: {$validated['discord_username']}");
     }
 
     public function unlink()

@@ -18,7 +18,7 @@
             <p class="text-gray-500 dark:text-gray-400">Check in to a beer to start tracking your tastings.</p>
         </div>
     @else
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
             @foreach($checkins as $checkin)
                 <x-beer-card
                     :beer="$checkin->beer"

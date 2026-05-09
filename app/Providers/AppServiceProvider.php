@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 use App\Events\CheckinCreated;
-use App\Listeners\SendCheckinToDiscord;
-use App\Listeners\SendCheckinToHub;
+use App\Listeners\SendDiscordCheckinViaBot;
+use App\Listeners\SendDiscordCheckinViaWebhook;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Event::listen(CheckinCreated::class, SendCheckinToDiscord::class);
-        Event::listen(CheckinCreated::class, SendCheckinToHub::class);
+        Event::listen(CheckinCreated::class, SendDiscordCheckinViaWebhook::class);
+        Event::listen(CheckinCreated::class, SendDiscordCheckinViaBot::class);
     }
 }

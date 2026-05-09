@@ -8,14 +8,14 @@
     $itemId = $selectId ?? $beer->id;
 @endphp
 
-<div class="group relative rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg hover:scale-[1.025] transition-all duration-150 hover:duration-[250ms] {{ $selected ? 'ring-2 ring-amber-500 ring-offset-2 dark:ring-offset-gray-900' : '' }}">
+<div class="group relative flex flex-col rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg hover:scale-[1.025] transition-all duration-150 hover:duration-[250ms] {{ $selected ? 'ring-2 ring-amber-500 ring-offset-2 dark:ring-offset-gray-900' : '' }}">
     <a href="{{ $link }}" wire:navigate>
         <div class="aspect-square bg-gray-100 dark:bg-gray-700 overflow-hidden relative">
             @if($beer->photo_path)
                 <img src="{{ Storage::url($beer->photo_path) }}" alt="{{ $beer->name }}" class="w-full h-full object-cover">
             @else
                 <div class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
-                    <x-application-logo class="w-12 h-12 stroke-current" />
+                    <x-application-logo-filled class="w-16 h-16 stroke-current" />
                 </div>
             @endif
 
@@ -24,6 +24,15 @@
                 <div class="absolute bottom-1.5 left-1.5">
                     <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 backdrop-blur-sm">
                         {{ ucfirst($servingType) }}
+                    </span>
+                </div>
+            @endif
+
+            {{-- ABV Badge --}}
+            @if($beer->abv)
+                <div class="absolute bottom-1.5 right-1.5">
+                    <span class="bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                        {{ $beer->abv }}%
                     </span>
                 </div>
             @endif
@@ -37,11 +46,11 @@
             class="absolute top-2 left-2 z-20 {{ $selected ? '' : 'opacity-0 group-hover:opacity-100' }} transition-opacity"
         >
             @if($selected)
-                <div class="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center shadow-lg">
-                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                <div class="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center shadow-lg">
+                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
                 </div>
             @else
-                <div class="w-7 h-7 rounded-full border-[3px] border-white dark:border-gray-300 bg-black/20 dark:bg-white/20 shadow-lg backdrop-blur-sm"></div>
+                <div class="w-5 h-5 rounded-full border-2 border-white dark:border-gray-300 bg-black/20 dark:bg-white/20 shadow-lg backdrop-blur-sm"></div>
             @endif
         </button>
     @endif
@@ -71,19 +80,14 @@
     </div>
 
     {{-- Info --}}
-    <div class="p-3">
-        <h3 class="font-semibold text-sm text-gray-900 dark:text-white truncate">{{ $beer->name }}</h3>
-        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $beer->brewery?->name ?? 'Unknown Brewery' }}</p>
-        <div class="flex items-center gap-2 mt-1">
-            @if($beer->style)
-                <span class="text-xs text-amber-600 dark:text-amber-400 truncate">{{ implode(', ', $beer->style) }}</span>
-            @endif
-            @if($beer->abv)
-                <span class="text-xs text-gray-400">{{ $beer->abv }}%</span>
-            @endif
-        </div>
+    <div class="p-3 flex flex-col flex-1">
+        <h3 class="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">{{ $beer->name }}</h3>
+        <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{{ $beer->brewery?->name ?? 'Unknown Brewery' }}</p>
+        @if($beer->style)
+            <p class="text-xs text-amber-600 dark:text-amber-400 line-clamp-1 mt-1">{{ implode(', ', $beer->style) }}</p>
+        @endif
         @if($displayDate)
-            <time class="block mt-1 text-[10px] text-gray-400 dark:text-gray-500" datetime="{{ $displayDate->toISOString() }}">
+            <time class="block mt-auto pt-1 text-[10px] text-gray-400 dark:text-gray-500" datetime="{{ $displayDate->toISOString() }}">
                 {{ $displayDateLabel }} {{ $displayDate->diffForHumans() }}
             </time>
         @endif

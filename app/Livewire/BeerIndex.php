@@ -86,8 +86,15 @@ class BeerIndex extends Component
             return;
         }
 
-        Beer::whereIn('id', $this->selected)->delete();
-        Checkin::whereIn('beer_id', $this->selected)->delete();
+        $userId = auth()->id();
+
+        // Only delete beers that have no checkins from other users
+        $safeToDelete = Beer::whereIn('id', $this->selected)
+            ->whereDoesntHave('checkins', fn ($q) => $q->where('user_id', '!=', $userId))
+            ->pluck('id');
+
+        Checkin::whereIn('beer_id', $safeToDelete)->where('user_id', $userId)->delete();
+        Beer::whereIn('id', $safeToDelete)->delete();
         $this->selected = [];
     }
 

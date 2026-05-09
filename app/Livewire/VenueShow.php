@@ -169,7 +169,8 @@ class VenueShow extends Component
             return;
         }
 
-        if ($this->venue->checkins()->where('user_id', auth()->id())->doesntExist()) {
+        // Only allow deletion if no other users have checkins at this venue
+        if ($this->venue->checkins()->where('user_id', '!=', auth()->id())->exists()) {
             abort(403);
         }
 

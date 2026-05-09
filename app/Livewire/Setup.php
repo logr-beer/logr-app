@@ -9,6 +9,13 @@ use Livewire\Component;
 
 class Setup extends Component
 {
+    public function boot(): void
+    {
+        if (User::count() > 0) {
+            $this->redirect(route('login'), navigate: true);
+        }
+    }
+
     // Account
     public string $username = '';
 

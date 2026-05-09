@@ -101,7 +101,7 @@
                 <p class="text-gray-500 dark:text-gray-400">No beers in this collection yet. Search above to add some.</p>
             </div>
         @else
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
                 @foreach($beers as $beer)
                     <div class="group relative rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg transition-shadow">
                         <a href="{{ route('beers.show', $beer) }}" wire:navigate>
@@ -110,7 +110,7 @@
                                     <img src="{{ Storage::url($beer->photo_path) }}" alt="{{ $beer->name }}" class="w-full h-full object-cover">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
-                                        <x-application-logo class="w-12 h-12 stroke-current" />
+                                        <x-application-logo-filled class="w-16 h-16 stroke-current" />
                                     </div>
                                 @endif
                             </div>

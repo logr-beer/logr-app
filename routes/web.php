@@ -11,7 +11,7 @@ Route::middleware(['auth'])->group(function () {
     Route::view('profile', 'profile')->name('profile');
     Route::view('admin/api', 'admin.api')->name('admin.api');
     Route::view('admin/notifications', 'admin.notifications')->name('admin.notifications');
-    Route::get('admin/system', \App\Livewire\Admin\SystemInfo::class)->name('admin.system');
+    Route::get('admin/system', \App\Livewire\Admin\SystemInfo::class)->name('admin.system')->middleware('admin');
 
     Route::view('beers', 'beers.index')->name('beers.index');
     Route::view('beers/create', 'beers.create')->name('beers.create');

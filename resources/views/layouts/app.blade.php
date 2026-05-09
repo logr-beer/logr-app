@@ -31,8 +31,21 @@
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             @if(config('app.demo_mode'))
-                <div class="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 text-center text-sm text-amber-700 dark:text-amber-400 px-4 py-2">
-                    <strong>Demo Site.</strong> Data resets every 30 minutes.
+                <div
+                    x-data="{
+                        seconds: {{ 3600 - (now()->minute * 60 + now()->second) }},
+                        get display() {
+                            let m = Math.floor(this.seconds / 60);
+                            let s = this.seconds % 60;
+                            return m + ':' + String(s).padStart(2, '0');
+                        },
+                        init() {
+                            setInterval(() => { this.seconds = this.seconds > 0 ? this.seconds - 1 : 3600; }, 1000);
+                        }
+                    }"
+                    class="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 text-center text-sm text-amber-700 dark:text-amber-400 px-4 py-2"
+                >
+                    <strong>Demo Site.</strong> Data resets in <span x-text="display"></span>.
                 </div>
             @endif
 

@@ -43,7 +43,10 @@ env | grep -E '^(APP_|DB_|QUEUE_|CACHE_|SESSION_)' | grep -v -E '^[^=]+=$' > .en
 php artisan storage:link --force 2>/dev/null || true
 
 # Run migrations on startup
-php artisan migrate --force
+if ! php artisan migrate --force; then
+    echo "ERROR: Migration failed. Check database state."
+    exit 1
+fi
 
 # Seed on first run (creates default venue)
 php artisan db:seed --force 2>/dev/null || true

@@ -336,6 +336,73 @@
                 </div>
             </div>
 
+            {{-- Check-in (Add form only) --}}
+            @if(!$isEditing)
+            <div class="md:col-span-2 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700" x-data="{ showCheckin: @entangle('addCheckin') }">
+                <label class="inline-flex items-center gap-2 cursor-pointer">
+                    <input
+                        type="checkbox"
+                        x-model="showCheckin"
+                        wire:model.live="addCheckin"
+                        class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700"
+                    />
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Check in this beer</span>
+                </label>
+
+                <div x-show="showCheckin" x-cloak x-transition class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="checkinRating" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rating</label>
+                        <select
+                            wire:model="checkinRating"
+                            id="checkinRating"
+                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
+                        >
+                            <option value="">No rating</option>
+                            @for($r = 0.5; $r <= 5; $r += 0.5)
+                                <option value="{{ $r }}">{{ $r }} {{ str_repeat('★', (int) $r) }}{{ ($r - (int) $r >= 0.5) ? '½' : '' }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                    <div>
+                        <label for="checkinServingType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Serving</label>
+                        <select
+                            wire:model="checkinServingType"
+                            id="checkinServingType"
+                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
+                        >
+                            <option value="">—</option>
+                            <option value="draft">Draft</option>
+                            <option value="bottle">Bottle</option>
+                            <option value="can">Can</option>
+                            <option value="crowler">Crowler</option>
+                            <option value="growler">Growler</option>
+                            <option value="cask">Cask</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="checkinVenue" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Venue</label>
+                        <input
+                            wire:model="checkinVenue"
+                            type="text"
+                            id="checkinVenue"
+                            placeholder="e.g. Home, The Local Taproom..."
+                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
+                        />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="checkinNotes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+                        <textarea
+                            wire:model="checkinNotes"
+                            id="checkinNotes"
+                            rows="2"
+                            placeholder="Tasting notes..."
+                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
+                        ></textarea>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             {{-- Inventory (Add form only) --}}
             @if(!$isEditing)
             <div class="md:col-span-2 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700" x-data="{ showInventory: @entangle('addToInventory') }">

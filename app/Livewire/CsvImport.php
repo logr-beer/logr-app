@@ -17,6 +17,11 @@ class CsvImport extends Component
 {
     use WithFileUploads;
 
+    public function boot(): void
+    {
+        abort_if(config('app.demo_mode'), 403);
+    }
+
     public $csvFile;
 
     public string $importType = 'checkins'; // checkins, inventory, both
