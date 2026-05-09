@@ -24,7 +24,7 @@
                         <img src="{{ Storage::url($beer->photo_path) }}" alt="{{ $beer->name }}" class="w-full h-full object-cover" />
                     @else
                         <div class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
-                            <x-application-logo-filled class="w-20 h-20 stroke-current" />
+                            <x-application-logo-filled class="w-28 h-28 stroke-current" />
                         </div>
                     @endif
                 </div>
