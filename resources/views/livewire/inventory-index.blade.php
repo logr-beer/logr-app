@@ -12,7 +12,7 @@
 
     {{-- Location Summary Cards --}}
     @if($locationSummary->isNotEmpty())
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-6">
             <button
                 wire:click="$set('location', '')"
                 class="p-3 rounded-lg text-left transition-colors {{ $location === '' ? 'bg-amber-500 text-white' : 'bg-white dark:bg-gray-800 shadow-sm hover:shadow-md text-gray-900 dark:text-white' }}"
@@ -45,7 +45,7 @@
 
     {{-- Inventory Grid --}}
     @if($items->count())
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
             @foreach($items as $item)
                 <div class="group relative bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                     <a href="{{ route('beers.show', $item->beer) }}" wire:navigate class="block">

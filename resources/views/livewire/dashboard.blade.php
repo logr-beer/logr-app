@@ -32,7 +32,7 @@
     @if($collections->isNotEmpty())
     <div class="mb-8">
         <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Your Collections</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
             @foreach($collections as $collection)
                 <a href="{{ route('collections.show', $collection) }}" wire:navigate class="group relative rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-200">
                     <div class="aspect-square bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
