@@ -20,9 +20,16 @@ class Locations extends Component
 
     public string $sortDirection = 'desc';
 
+    public string $locationFilter = 'all';
+
     public bool $geocoding = false;
 
     public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedLocationFilter(): void
     {
         $this->resetPage();
     }
@@ -89,6 +96,14 @@ class Locations extends Component
             ]);
 
         $listQuery = Brewery::query()->withCount('beers');
+
+        if ($this->locationFilter === 'missing') {
+            $listQuery->where(function ($q) {
+                $q->whereNull('latitude')->orWhereNull('longitude');
+            });
+        } elseif ($this->locationFilter === 'located') {
+            $listQuery->whereNotNull('latitude')->whereNotNull('longitude');
+        }
 
         if ($this->search) {
             $listQuery->where(function ($q) {

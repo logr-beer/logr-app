@@ -13,4 +13,7 @@ hooks:
         # Symlink shared database and run migrations
         ln -sf /data/database/database.sqlite /var/www/html/database/database.sqlite
         php artisan migrate --force
-    - exec: nohup php artisan queue:work --sleep=3 --tries=3 --timeout=300 > /dev/null 2>&1 &
+web_extra_daemons:
+  - name: queue-worker
+    command: php artisan queue:listen --sleep=3 --tries=3 --timeout=300
+    directory: /var/www/html

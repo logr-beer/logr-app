@@ -46,6 +46,28 @@
         <div id="breweries-map" class="w-full h-[400px] rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 z-0 relative"></div>
     </div>
 
+    {{-- Filter tabs --}}
+    <div class="flex items-center justify-end gap-1 mb-4">
+        @php
+            $filters = [
+                'all' => 'All',
+                'missing' => 'Missing Location',
+                'located' => 'With Location',
+            ];
+        @endphp
+        @foreach($filters as $value => $label)
+            <button
+                wire:click="$set('locationFilter', '{{ $value }}')"
+                class="px-3 py-1.5 text-xs font-medium rounded-full transition-colors {{ $locationFilter === $value ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' }}"
+            >
+                {{ $label }}
+                @if($value === 'missing' && $ungeocodedCount > 0)
+                    <span class="ml-1 inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold rounded-full {{ $locationFilter === $value ? 'bg-white/30' : 'bg-amber-500 text-white' }}">{{ $ungeocodedCount }}</span>
+                @endif
+            </button>
+        @endforeach
+    </div>
+
     {{-- List --}}
     @if($listItems->count())
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -72,6 +94,11 @@
                             @endif
                         </div>
                         <div class="flex items-center gap-2 flex-shrink-0">
+                            @if(!$item->latitude || !$item->longitude)
+                                <span title="Missing location data" class="text-amber-500">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
+                                </span>
+                            @endif
                             <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded text-xs font-medium">
                                 {{ $item->beers_count }} {{ Str::plural('beer', $item->beers_count) }}
                             </span>
