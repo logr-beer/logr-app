@@ -8,7 +8,7 @@
     $itemId = $selectId ?? $beer->id;
 @endphp
 
-<div class="group relative rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg hover:scale-[1.025] transition-all duration-150 hover:duration-[250ms] {{ $selected ? 'ring-2 ring-amber-500 ring-offset-2 dark:ring-offset-gray-900' : '' }}">
+<div class="group relative flex flex-col rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg hover:scale-[1.025] transition-all duration-150 hover:duration-[250ms] {{ $selected ? 'ring-2 ring-amber-500 ring-offset-2 dark:ring-offset-gray-900' : '' }}">
     <a href="{{ $link }}" wire:navigate>
         <div class="aspect-square bg-gray-100 dark:bg-gray-700 overflow-hidden relative">
             @if($beer->photo_path)
@@ -71,14 +71,14 @@
     </div>
 
     {{-- Info --}}
-    <div class="p-3">
+    <div class="p-3 flex flex-col flex-1">
         <h3 class="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">{{ $beer->name }}</h3>
         <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{{ $beer->brewery?->name ?? 'Unknown Brewery' }}</p>
         @if($beer->style)
             <p class="text-xs text-amber-600 dark:text-amber-400 line-clamp-1 mt-1">{{ implode(', ', $beer->style) }}</p>
         @endif
         @if($displayDate)
-            <time class="block mt-1 text-[10px] text-gray-400 dark:text-gray-500" datetime="{{ $displayDate->toISOString() }}">
+            <time class="block mt-auto pt-1 text-[10px] text-gray-400 dark:text-gray-500" datetime="{{ $displayDate->toISOString() }}">
                 {{ $displayDateLabel }} {{ $displayDate->diffForHumans() }}
             </time>
         @endif
