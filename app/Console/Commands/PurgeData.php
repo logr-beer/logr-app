@@ -22,6 +22,12 @@ class PurgeData extends Command
 
     public function handle(): int
     {
+        if (config('app.demo_mode')) {
+            $this->error('Cannot purge data in demo mode.');
+
+            return self::FAILURE;
+        }
+
         if (! $this->option('force') && ! $this->confirm('This will delete all beers, check-ins, inventory, collections, and related data. User accounts will be preserved. Continue?')) {
             $this->info('Aborted.');
 

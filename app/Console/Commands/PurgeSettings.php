@@ -13,6 +13,12 @@ class PurgeSettings extends Command
 
     public function handle(): int
     {
+        if (config('app.demo_mode')) {
+            $this->error('Cannot purge settings in demo mode.');
+
+            return self::FAILURE;
+        }
+
         if (! $this->option('force') && ! $this->confirm('This will clear all user settings (API keys, integrations, webhooks). Beer data will be preserved. Continue?')) {
             $this->info('Aborted.');
 

@@ -30,66 +30,44 @@ class Rankings extends Component
     {
         $userId = auth()->id();
 
-        // Top rated beers (min 2 check-ins)
-        $topRated = Beer::select('beers.*')
+        // Top rated beers (min 1 check-in)
+        $topRated = Beer::select('beers.*', DB::raw('AVG(checkins.rating) as avg_rating'), DB::raw('COUNT(checkins.id) as checkin_count'))
             ->join('checkins', 'beers.id', '=', 'checkins.beer_id')
             ->where('checkins.user_id', $userId)
             ->whereNotNull('checkins.rating')
             ->groupBy('beers.id')
             ->havingRaw('COUNT(checkins.id) >= 1')
-            ->orderByRaw('AVG(checkins.rating) DESC')
+            ->orderByDesc('avg_rating')
             ->limit($this->topRatedLimit)
             ->with('brewery')
-            ->get()
-            ->each(function ($beer) use ($userId) {
-                $beer->avg_rating = Checkin::where('beer_id', $beer->id)
-                    ->where('user_id', $userId)
-                    ->whereNotNull('rating')
-                    ->avg('rating');
-                $beer->checkin_count = Checkin::where('beer_id', $beer->id)
-                    ->where('user_id', $userId)
-                    ->count();
-            });
+            ->get();
 
         // Most checked-in beers
-        $mostCheckedIn = Beer::select('beers.*', DB::raw('COUNT(checkins.id) as checkin_count'))
+        $mostCheckedIn = Beer::select('beers.*', DB::raw('COUNT(checkins.id) as checkin_count'), DB::raw('AVG(checkins.rating) as avg_rating'))
             ->join('checkins', 'beers.id', '=', 'checkins.beer_id')
             ->where('checkins.user_id', $userId)
             ->groupBy('beers.id')
             ->orderByDesc('checkin_count')
             ->limit($this->mostCheckedInLimit)
             ->with('brewery')
-            ->get()
-            ->each(function ($beer) use ($userId) {
-                $beer->avg_rating = Checkin::where('beer_id', $beer->id)
-                    ->where('user_id', $userId)
-                    ->whereNotNull('rating')
-                    ->avg('rating');
-            });
+            ->get();
 
         // Top breweries (by avg rating across all beers, min 3 check-ins)
-        $topBreweries = Brewery::select('breweries.*')
+        $topBreweries = Brewery::select(
+                'breweries.*',
+                DB::raw('AVG(checkins.rating) as avg_rating'),
+                DB::raw('COUNT(DISTINCT beers.id) as beer_count'),
+                DB::raw('COUNT(checkins.id) as checkin_count')
+            )
             ->join('beers', 'breweries.id', '=', 'beers.brewery_id')
             ->join('checkins', 'beers.id', '=', 'checkins.beer_id')
             ->where('checkins.user_id', $userId)
             ->whereNotNull('checkins.rating')
             ->groupBy('breweries.id')
             ->havingRaw('COUNT(checkins.id) >= 3')
-            ->orderByRaw('AVG(checkins.rating) DESC')
+            ->orderByDesc('avg_rating')
             ->limit($this->topBreweriesLimit)
-            ->get()
-            ->each(function ($brewery) use ($userId) {
-                $brewery->avg_rating = Checkin::join('beers', 'checkins.beer_id', '=', 'beers.id')
-                    ->where('beers.brewery_id', $brewery->id)
-                    ->where('checkins.user_id', $userId)
-                    ->whereNotNull('checkins.rating')
-                    ->avg('checkins.rating');
-                $brewery->beer_count = Beer::where('brewery_id', $brewery->id)->count();
-                $brewery->checkin_count = Checkin::join('beers', 'checkins.beer_id', '=', 'beers.id')
-                    ->where('beers.brewery_id', $brewery->id)
-                    ->where('checkins.user_id', $userId)
-                    ->count();
-            });
+            ->get();
 
         // Highest ABV
         $highestAbv = Beer::whereNotNull('abv')
@@ -103,8 +81,8 @@ class Rankings extends Component
         // Style breakdown — top styles by beer count
         $styleBreakdown = Beer::whereHas('checkins', fn ($q) => $q->where('user_id', $userId))
             ->whereNotNull('style')
-            ->get()
-            ->flatMap(fn ($beer) => $beer->style ?? [])
+            ->pluck('style')
+            ->flatten()
             ->countBy()
             ->sortDesc()
             ->take(10);

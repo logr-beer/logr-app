@@ -11,6 +11,12 @@ class DiscordBotTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Setting::clearCache();
+    }
+
     public function test_first_user_is_admin(): void
     {
         $first = User::factory()->create();

@@ -17,33 +17,50 @@ class GeocodeBreweries implements ShouldQueue
 
     public int $timeout = 600;
 
+    public int $tries = 3;
+
+    public int $maxExceptions = 3;
+
     public function handle(): void
     {
-        $breweries = Brewery::whereNull('latitude')
-            ->where(function ($q) {
-                $q->whereNotNull('city')
-                    ->orWhereNotNull('state')
-                    ->orWhereNotNull('country');
-            })
-            ->get();
+        try {
+            $breweries = Brewery::whereNull('latitude')
+                ->where(function ($q) {
+                    $q->whereNotNull('city')
+                        ->orWhereNotNull('state')
+                        ->orWhereNotNull('country');
+                })
+                ->get();
 
-        $geocoded = 0;
+            $geocoded = 0;
 
-        foreach ($breweries as $brewery) {
-            $result = GeocodingService::geocode($brewery->city, $brewery->state, $brewery->country);
+            foreach ($breweries as $brewery) {
+                $result = GeocodingService::geocode($brewery->city, $brewery->state, $brewery->country);
 
-            if ($result) {
-                $brewery->update([
-                    'latitude' => $result['lat'],
-                    'longitude' => $result['lng'],
-                ]);
-                $geocoded++;
+                if ($result) {
+                    $brewery->update([
+                        'latitude' => $result['lat'],
+                        'longitude' => $result['lng'],
+                    ]);
+                    $geocoded++;
+                }
+
+                // Nominatim rate limit: 1 request per second
+                usleep(1_100_000);
             }
 
-            // Nominatim rate limit: 1 request per second
-            usleep(1_100_000);
-        }
+            Log::info("Geocoded {$geocoded} of {$breweries->count()} brewery(ies).");
+        } catch (\Throwable $e) {
+            Log::error('GeocodeBreweries job failed: '.$e->getMessage(), ['exception' => $e]);
 
-        Log::info("Geocoded {$geocoded} of {$breweries->count()} brewery(ies).");
+            throw $e;
+        }
+    }
+
+    public function failed(\Throwable $exception): void
+    {
+        Log::error('GeocodeBreweries job permanently failed: '.$exception->getMessage(), [
+            'exception' => $exception,
+        ]);
     }
 }

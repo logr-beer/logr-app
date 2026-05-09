@@ -162,7 +162,7 @@ class Discord
     protected static function send(string $webhookUrl, array $embed, array $identity = []): bool
     {
         try {
-            $response = Http::post($webhookUrl, array_filter([
+            $response = Http::timeout(15)->post($webhookUrl, array_filter([
                 'embeds' => [$embed],
                 'username' => $identity['username'] ?? null,
                 'avatar_url' => $identity['avatar_url'] ?? null,

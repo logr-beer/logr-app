@@ -23,6 +23,8 @@ class CollectionShow extends Component
 
     public function mount(Collection $collection): void
     {
+        abort_unless($collection->user_id === auth()->id(), 403);
+
         $this->collection = $collection;
     }
 

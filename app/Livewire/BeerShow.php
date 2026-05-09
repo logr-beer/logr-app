@@ -301,11 +301,13 @@ class BeerShow extends Component
                 ->get();
         }
 
+        $checkins = $this->beer->checkins()->with(['user', 'venue'])->latest()->get();
+
         return view('livewire.beer-show', [
-            'checkins' => $this->beer->checkins()->with(['user', 'venue'])->latest()->get(),
+            'checkins' => $checkins,
             'venueSuggestions' => $venueSuggestions,
-            'averageRating' => $this->beer->averageRating(),
-            'totalCheckins' => $this->beer->checkins()->count(),
+            'averageRating' => $checkins->whereNotNull('rating')->avg('rating') ?? 0,
+            'totalCheckins' => $checkins->count(),
             'inventoryItems' => $inventoryItems,
             'totalQty' => $totalQty,
             'beerCollections' => $beerCollections,

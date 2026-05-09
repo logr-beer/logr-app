@@ -12,6 +12,11 @@ use Livewire\Component;
 
 class SystemInfo extends Component
 {
+    public function boot(): void
+    {
+        abort_unless(auth()->user()?->is_admin, 403);
+    }
+
     public bool $showPurgeModal = false;
 
     public bool $purgeWithDemo = false;

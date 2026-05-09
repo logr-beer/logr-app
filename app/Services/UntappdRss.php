@@ -202,7 +202,7 @@ class UntappdRss
             'notes' => $notes,
             'photo_url' => $photoUrl,
             'link' => $link ?: null,
-            'date' => $pubDate ? date('Y-m-d H:i:s', strtotime($pubDate)) : now(),
+            'date' => ($pubDate && ($ts = strtotime($pubDate)) !== false) ? date('Y-m-d H:i:s', $ts) : now(),
         ];
     }
 }
