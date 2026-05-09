@@ -19,23 +19,31 @@
                 </div>
             @endif
 
-            {{-- Serving Type Badge --}}
-            @if($servingType)
-                <div class="absolute bottom-1.5 left-1.5">
+            {{-- Bottom badges row --}}
+            <div class="absolute bottom-1.5 left-1.5 right-1.5 flex items-center gap-1">
+                {{-- Serving Type --}}
+                @if($servingType)
                     <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 backdrop-blur-sm">
                         {{ ucfirst($servingType) }}
                     </span>
-                </div>
-            @endif
+                @endif
 
-            {{-- ABV Badge --}}
-            @if($beer->abv)
-                <div class="absolute bottom-1.5 right-1.5">
+                <div class="flex-1"></div>
+
+                {{-- Rating --}}
+                @if($avgRating > 0)
+                    <span class="bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                        {{ number_format($avgRating, 1) }} ★
+                    </span>
+                @endif
+
+                {{-- ABV --}}
+                @if($beer->abv)
                     <span class="bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
                         {{ $beer->abv }}%
                     </span>
-                </div>
-            @endif
+                @endif
+            </div>
         </div>
     </a>
 
@@ -55,29 +63,19 @@
         </button>
     @endif
 
-    {{-- Top-right: Rating + Favorite --}}
-    <div class="absolute top-2 right-2 flex flex-col items-end gap-1.5 z-10">
-        {{-- Rating badge --}}
-        @if($avgRating > 0)
-            <div class="bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-full">
-                {{ number_format($avgRating, 1) }} ★
-            </div>
-        @endif
-
-        {{-- Favorite toggle --}}
-        @if($showFavorite)
-            <button
-                wire:click.prevent.stop="toggleFavorite({{ $beer->id }})"
-                class="group/fav p-1.5 rounded-full {{ $beer->is_favorite ? 'bg-black/50' : 'bg-black/50 opacity-0 group-hover:opacity-100' }} text-white transition-all"
-            >
-                @if($beer->is_favorite)
-                    <svg class="w-4 h-4 text-red-400" fill="currentColor" viewBox="0 0 24 24"><path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/></svg>
-                @else
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path class="transition-[fill] duration-150 group-hover/fav:fill-red-400 group-hover/fav:duration-[250ms]" stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
-                @endif
-            </button>
-        @endif
-    </div>
+    {{-- Top-right: Favorite --}}
+    @if($showFavorite)
+        <button
+            wire:click.prevent.stop="toggleFavorite({{ $beer->id }})"
+            class="absolute top-2 right-2 z-10 group/fav p-1.5 rounded-full {{ $beer->is_favorite ? 'bg-black/50' : 'bg-black/50 opacity-0 group-hover:opacity-100' }} text-white transition-all"
+        >
+            @if($beer->is_favorite)
+                <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/></svg>
+            @else
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path class="transition-[fill] duration-150 group-hover/fav:fill-amber-400 group-hover/fav:duration-[250ms]" stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
+            @endif
+        </button>
+    @endif
 
     {{-- Info --}}
     <div class="p-3 flex flex-col flex-1">
