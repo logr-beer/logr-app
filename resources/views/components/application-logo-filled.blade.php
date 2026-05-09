@@ -45,9 +45,9 @@
         <g class="beer-fill-{{ $clipId }}">
             <rect x="4" y="3" width="16" height="4" fill="white" stroke="none" />
             <rect x="4" y="7" width="16" height="16" fill="#f59e0b" stroke="none" />
-            <circle class="bubble-{{ $clipId }}" cx="10" cy="19" r="0.5" stroke="none" />
-            <circle class="bubble-{{ $clipId }} bubble-2-{{ $clipId }}" cx="13" cy="18" r="0.4" stroke="none" />
-            <circle class="bubble-{{ $clipId }} bubble-3-{{ $clipId }}" cx="11.5" cy="19.5" r="0.3" stroke="none" />
+            <circle class="bubble-{{ $clipId }}" cx="10" cy="19" r="0.75" stroke="none" />
+            <circle class="bubble-{{ $clipId }} bubble-2-{{ $clipId }}" cx="13" cy="18" r="0.6" stroke="none" />
+            <circle class="bubble-{{ $clipId }} bubble-3-{{ $clipId }}" cx="11.5" cy="19.5" r="0.45" stroke="none" />
         </g>
     </g>
     <path d="M9 21h6a1 1 0 0 0 1 -1v-3.625c0 -1.397 .29 -2.775 .845 -4.025l.31 -.7c.556 -1.25 .845 -2.253 .845 -3.65v-4a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v4c0 1.397 .29 2.4 .845 3.65l.31 .7a9.931 9.931 0 0 1 .845 4.025v3.625a1 1 0 0 0 1 1" />
