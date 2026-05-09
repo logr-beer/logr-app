@@ -52,11 +52,23 @@ class Dashboard extends Component
                 ->latest()
                 ->take(12)
                 ->get(),
-            'collections' => Collection::where('user_id', $user->id)
+            'yearCollections' => Collection::where('user_id', $user->id)
+                ->where('is_dynamic', true)
+                ->whereNotNull('rules')
                 ->get()
+                ->filter(fn ($c) => isset($c->rules['year']))
+                ->sortByDesc(fn ($c) => $c->rules['year'])
+                ->take(6)
+                ->each(fn ($c) => $c->resolved_count = $c->resolveBeersCount())
+                ->values(),
+            'locationCollections' => Collection::where('user_id', $user->id)
+                ->where('is_dynamic', true)
+                ->whereNotNull('rules')
+                ->get()
+                ->filter(fn ($c) => isset($c->rules['storage_location']))
                 ->each(fn ($c) => $c->resolved_count = $c->resolveBeersCount())
                 ->sortByDesc('resolved_count')
-                ->take(12)
+                ->take(6)
                 ->values(),
         ]);
     }
