@@ -27,6 +27,15 @@
                     </span>
                 </div>
             @endif
+
+            {{-- ABV Badge --}}
+            @if($beer->abv)
+                <div class="absolute bottom-1.5 right-1.5">
+                    <span class="bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                        {{ $beer->abv }}%
+                    </span>
+                </div>
+            @endif
         </div>
     </a>
 
