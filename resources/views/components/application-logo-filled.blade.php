@@ -7,7 +7,7 @@
         <style>
             .beer-fill-{{ $clipId }} {
                 clip-path: inset(100% 0 0 0);
-                transition: clip-path 0.5s ease-out;
+                transition: clip-path 0.25s ease-out;
             }
             svg:hover .beer-fill-{{ $clipId }},
             .group:hover .beer-fill-{{ $clipId }} {
