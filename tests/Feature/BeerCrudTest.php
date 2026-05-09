@@ -184,4 +184,31 @@ class BeerCrudTest extends TestCase
             ->set('beerSearch', 'IP')
             ->assertSet('showBeerDropdown', true);
     }
+
+    public function test_create_beer_with_inline_checkin(): void
+    {
+        $user = User::factory()->create();
+
+        Livewire::actingAs($user)
+            ->test(BeerForm::class)
+            ->set('name', 'Inline Checkin Beer')
+            ->set('addCheckin', true)
+            ->set('checkinRating', 4.0)
+            ->set('checkinServingType', 'can')
+            ->set('checkinVenue', 'Home')
+            ->set('checkinNotes', 'Great first try')
+            ->call('save');
+
+        $this->assertDatabaseHas('beers', ['name' => 'Inline Checkin Beer']);
+
+        $beer = Beer::where('name', 'Inline Checkin Beer')->first();
+        $this->assertDatabaseHas('checkins', [
+            'beer_id' => $beer->id,
+            'user_id' => $user->id,
+            'rating' => 4.0,
+            'serving_type' => 'can',
+            'notes' => 'Great first try',
+        ]);
+        $this->assertDatabaseHas('venues', ['name' => 'Home']);
+    }
 }

@@ -2,9 +2,12 @@
 
 namespace App\Livewire;
 
+use App\Events\CheckinCreated;
 use App\Models\Beer;
 use App\Models\Brewery;
+use App\Models\Checkin;
 use App\Models\Inventory;
+use App\Models\Venue;
 use App\Services\CatalogBeer;
 use App\Services\LogrDb;
 use App\Services\OpenBreweryDb;
@@ -53,6 +56,17 @@ class BeerForm extends Component
     public string $purchaseDate = '';
 
     public bool $isGift = false;
+
+    // Check-in (add form only)
+    public bool $addCheckin = false;
+
+    public ?float $checkinRating = null;
+
+    public string $checkinServingType = '';
+
+    public string $checkinVenue = '';
+
+    public string $checkinNotes = '';
 
     // Beer search
     public string $beerSearch = '';
@@ -358,6 +372,25 @@ class BeerForm extends Component
                     'date_acquired' => $this->purchaseDate ?: now()->toDateString(),
                     'is_gift' => $this->isGift,
                 ]);
+            }
+
+            // Create check-in if requested
+            if ($this->addCheckin) {
+                $venue = null;
+                if (trim($this->checkinVenue)) {
+                    $venue = Venue::firstOrCreate(['name' => trim($this->checkinVenue)]);
+                }
+
+                $checkin = Checkin::create([
+                    'user_id' => auth()->id(),
+                    'beer_id' => $beer->id,
+                    'rating' => $this->checkinRating,
+                    'serving_type' => $this->checkinServingType ?: null,
+                    'venue_id' => $venue?->id,
+                    'notes' => trim($this->checkinNotes) ?: null,
+                ]);
+
+                event(new CheckinCreated($checkin, auth()->user()));
             }
 
             // Submit to catalog.beer if the user has an API key
