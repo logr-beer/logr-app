@@ -5,7 +5,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center gap-3">
             {{-- Tabs --}}
             <x-pill-tabs
-                :tabs="['library' => ['label' => 'Library', 'href' => route('beers.index')], 'inventory' => ['label' => 'Inventory', 'href' => route('beers.inventory')]]"
+                :tabs="['library' => ['label' => 'All Beers', 'href' => route('beers.index')], 'inventory' => ['label' => 'Inventory', 'href' => route('beers.inventory')]]"
                 active="library"
             />
 

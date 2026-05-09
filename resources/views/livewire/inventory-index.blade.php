@@ -1,15 +1,11 @@
 <div>
     {{-- Header --}}
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Beers</h1>
-            <div class="mt-2">
-                <x-pill-tabs
-                    :tabs="['library' => ['label' => 'Library', 'href' => route('beers.index')], 'inventory' => ['label' => 'Inventory', 'href' => route('beers.inventory')]]"
-                    active="inventory"
-                />
-            </div>
-        </div>
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Beers</h1>
+        <x-pill-tabs
+            :tabs="['library' => ['label' => 'All Beers', 'href' => route('beers.index')], 'inventory' => ['label' => 'Inventory', 'href' => route('beers.inventory')]]"
+            active="inventory"
+        />
     </div>
 
     {{-- Location Summary Cards --}}
