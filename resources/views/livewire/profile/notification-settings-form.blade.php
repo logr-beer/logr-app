@@ -143,7 +143,7 @@ new class extends Component
         }
     }
 
-    // -- Bots (Logr Hub) --
+    // -- Bots (Logr Bot) --
 
     public function toggleBotPref(string $guildId, string $setting): void
     {
