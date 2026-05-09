@@ -3,7 +3,7 @@
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Beers</h1>
         <x-pill-tabs
-            :tabs="['library' => ['label' => 'All Beers', 'href' => route('beers.index')], 'inventory' => ['label' => 'Inventory', 'href' => route('beers.inventory')]]"
+            :tabs="['beers' => ['label' => 'Beers', 'href' => route('beers.index')], 'inventory' => ['label' => 'Inventory', 'href' => route('beers.inventory')]]"
             active="inventory"
         />
     </div>

@@ -5,8 +5,13 @@
         <div class="flex flex-col sm:flex-row sm:items-center gap-3">
             {{-- Tabs --}}
             <x-pill-tabs
-                :tabs="['library' => ['label' => 'All Beers', 'href' => route('beers.index')], 'inventory' => ['label' => 'Inventory', 'href' => route('beers.inventory')]]"
-                active="library"
+                :tabs="['all' => 'All Beers', 'favorites' => 'Favorites']"
+                :active="$filter"
+                wireModel="filter"
+            />
+            <x-pill-tabs
+                :tabs="['beers' => ['label' => 'Beers', 'href' => route('beers.index')], 'inventory' => ['label' => 'Inventory', 'href' => route('beers.inventory')]]"
+                active="beers"
             />
 
             {{-- Search & Filters (right-aligned) --}}

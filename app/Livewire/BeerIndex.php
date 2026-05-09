@@ -23,6 +23,8 @@ class BeerIndex extends Component
 
     public string $sortDirection = 'desc';
 
+    public string $filter = 'all';
+
     public array $selected = [];
 
     // Modal state
@@ -39,6 +41,7 @@ class BeerIndex extends Component
         'style' => ['except' => ''],
         'sortBy' => ['except' => 'newest'],
         'sortDirection' => ['except' => 'desc'],
+        'filter' => ['except' => 'all'],
     ];
 
     public function updatingSearch(): void
@@ -177,6 +180,10 @@ class BeerIndex extends Component
     protected function getCurrentQuery()
     {
         $query = Beer::with('brewery');
+
+        if ($this->filter === 'favorites') {
+            $query->where('is_favorite', true);
+        }
 
         if ($this->search) {
             $query->where(function ($q) {
