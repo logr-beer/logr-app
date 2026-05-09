@@ -124,7 +124,7 @@
                                     <img src="{{ Storage::url($checkin->beer->photo_path) }}" alt="{{ $checkin->beer->name }}" class="w-full h-full object-cover">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
-                                        <x-application-logo class="w-8 h-8 stroke-current" />
+                                        <x-application-logo-filled class="w-8 h-8 stroke-current" />
                                     </div>
                                 @endif
                             </div>

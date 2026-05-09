@@ -4,33 +4,55 @@
         <clipPath id="{{ $clipId }}">
             <path d="M9 21h6a1 1 0 0 0 1 -1v-3.625c0 -1.397 .29 -2.775 .845 -4.025l.31 -.7c.556 -1.25 .845 -2.253 .845 -3.65v-4a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v4c0 1.397 .29 2.4 .845 3.65l.31 .7a9.931 9.931 0 0 1 .845 4.025v3.625a1 1 0 0 0 1 1" />
         </clipPath>
+        <style>
+            .beer-fill-{{ $clipId }} {
+                clip-path: inset(100% 0 0 0);
+                transition: clip-path 0.5s ease-out;
+            }
+            svg:hover .beer-fill-{{ $clipId }},
+            .group:hover .beer-fill-{{ $clipId }} {
+                clip-path: inset(0 0 0 0);
+            }
+            .bubble-{{ $clipId }} {
+                opacity: 0;
+                fill: rgba(255, 255, 255, 0.3);
+            }
+            svg:hover .bubble-{{ $clipId }} { animation: rise1-{{ $clipId }} 2s ease-in infinite; }
+            svg:hover .bubble-2-{{ $clipId }} { animation: rise2-{{ $clipId }} 2.3s ease-in infinite; animation-delay: 0.3s; }
+            svg:hover .bubble-3-{{ $clipId }} { animation: rise3-{{ $clipId }} 1.8s ease-in infinite; animation-delay: 0.6s; }
+            .group:hover .bubble-{{ $clipId }} { animation: rise1-{{ $clipId }} 2s ease-in infinite; }
+            .group:hover .bubble-2-{{ $clipId }} { animation: rise2-{{ $clipId }} 2.3s ease-in infinite; animation-delay: 0.3s; }
+            .group:hover .bubble-3-{{ $clipId }} { animation: rise3-{{ $clipId }} 1.8s ease-in infinite; animation-delay: 0.6s; }
+            @keyframes rise1-{{ $clipId }} {
+                0% { opacity: 0; transform: translate(0, 0); }
+                10% { opacity: 1; }
+                50% { transform: translate(-0.4px, -6px); }
+                100% { transform: translate(-0.2px, -12px); opacity: 0; }
+            }
+            @keyframes rise2-{{ $clipId }} {
+                0% { opacity: 0; transform: translate(0, 0); }
+                10% { opacity: 1; }
+                50% { transform: translate(0.5px, -5.5px); }
+                100% { transform: translate(0.6px, -11px); opacity: 0; }
+            }
+            @keyframes rise3-{{ $clipId }} {
+                0% { opacity: 0; transform: translate(0, 0); }
+                10% { opacity: 1; }
+                50% { transform: translate(-0.6px, -6.5px); }
+                100% { transform: translate(-0.5px, -12.5px); opacity: 0; }
+            }
+        </style>
     </defs>
     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-    <!-- Beer + foam (clipped to glass shape, revealed from bottom on hover) -->
     <g clip-path="url(#{{ $clipId }})">
-        <g class="beer-reveal">
-            <!-- Foam at the top -->
-            <ellipse cx="8" cy="5" rx="2.5" ry="2" fill="white" stroke="none" />
-            <ellipse cx="12" cy="4.5" rx="2.5" ry="2.2" fill="white" stroke="none" />
-            <ellipse cx="16" cy="5" rx="2.5" ry="2" fill="white" stroke="none" />
-            <ellipse cx="10" cy="6" rx="2" ry="1.5" fill="white" stroke="none" />
-            <ellipse cx="14" cy="6" rx="2" ry="1.5" fill="white" stroke="none" />
-            <!-- Beer liquid -->
+        <g class="beer-fill-{{ $clipId }}">
+            <rect x="4" y="3" width="16" height="4" fill="white" stroke="none" />
             <rect x="4" y="7" width="16" height="16" fill="#f59e0b" stroke="none" />
+            <circle class="bubble-{{ $clipId }}" cx="10" cy="19" r="0.7" stroke="none" />
+            <circle class="bubble-{{ $clipId }} bubble-2-{{ $clipId }}" cx="13" cy="18" r="0.5" stroke="none" />
+            <circle class="bubble-{{ $clipId }} bubble-3-{{ $clipId }}" cx="11.5" cy="19.5" r="0.4" stroke="none" />
         </g>
     </g>
-    <!-- Glass outline (on top) -->
     <path d="M9 21h6a1 1 0 0 0 1 -1v-3.625c0 -1.397 .29 -2.775 .845 -4.025l.31 -.7c.556 -1.25 .845 -2.253 .845 -3.65v-4a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v4c0 1.397 .29 2.4 .845 3.65l.31 .7a9.931 9.931 0 0 1 .845 4.025v3.625a1 1 0 0 0 1 1" />
     <path d="M6 8h12" />
-    <style>
-        .beer-reveal {
-            clip-path: inset(100% 0 0 0);
-            transition: clip-path 0.15s ease-out;
-        }
-        svg:hover .beer-reveal,
-        .group:hover .beer-reveal {
-            clip-path: inset(0 0 0 0);
-            transition-duration: 0.25s;
-        }
-    </style>
 </svg>

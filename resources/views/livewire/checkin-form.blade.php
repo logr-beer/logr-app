@@ -55,7 +55,7 @@
                                             <img src="{{ Storage::url($beer->photo_path) }}" alt="" class="w-8 h-8 rounded object-cover flex-shrink-0" />
                                         @else
                                             <div class="w-8 h-8 rounded bg-gray-100 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
-                                                <x-application-logo class="w-4 h-4 stroke-current text-gray-400" />
+                                                <x-application-logo-filled class="w-4 h-4 stroke-current text-gray-400" />
                                             </div>
                                         @endif
                                         <div>
