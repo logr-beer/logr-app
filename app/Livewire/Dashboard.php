@@ -53,10 +53,11 @@ class Dashboard extends Component
                 ->take(12)
                 ->get(),
             'collections' => Collection::where('user_id', $user->id)
-                ->latest()
-                ->take(12)
                 ->get()
-                ->each(fn ($c) => $c->resolved_count = $c->resolveBeersCount()),
+                ->each(fn ($c) => $c->resolved_count = $c->resolveBeersCount())
+                ->sortByDesc('resolved_count')
+                ->take(12)
+                ->values(),
         ]);
     }
 }
