@@ -46,11 +46,11 @@
             class="absolute top-2 left-2 z-20 {{ $selected ? '' : 'opacity-0 group-hover:opacity-100' }} transition-opacity"
         >
             @if($selected)
-                <div class="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center shadow-lg">
-                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                <div class="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center shadow-lg">
+                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
                 </div>
             @else
-                <div class="w-7 h-7 rounded-full border-[3px] border-white dark:border-gray-300 bg-black/20 dark:bg-white/20 shadow-lg backdrop-blur-sm"></div>
+                <div class="w-5 h-5 rounded-full border-2 border-white dark:border-gray-300 bg-black/20 dark:bg-white/20 shadow-lg backdrop-blur-sm"></div>
             @endif
         </button>
     @endif
