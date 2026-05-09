@@ -4,6 +4,41 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.14] - 2026-05-09
+
+### Added
+- Inline check-in option when creating a new beer (rating, serving, venue, notes in one form)
+- Google Analytics tracking via `GOOGLE_ANALYTICS_ID` environment variable
+- Demo mode countdown banner with hourly data reset
+- Admin middleware protecting system info routes
+- Comprehensive test suite (64 tests covering CRUD, authorization, and service integrations)
+- Database indexes on checkins and inventory tables
+- ABV badge overlay on beer cards
+- Beer logo with fill animation and rising bubbles
+
+### Changed
+- Demo mode locks down settings pages, hides import/export, masks API credentials, disables all delete/purge actions
+- Card grids use 6 columns (was 5) with improved text wrapping
+- Beer card text uses line-clamp instead of hard truncate
+- Discord embeds use image priority chain: checkin photo > beer label > brewery logo
+- Discord webhook posts no longer send deprecated username/avatar_url
+- Hub bot posts include idempotency keys to prevent duplicate Discord messages
+- Event listeners renamed for clarity (SendDiscordCheckinViaWebhook/Bot)
+- Rankings and BeerShow queries optimized to eliminate N+1 queries
+- Setting model uses request-scoped caching
+- Queue jobs have retry limits and error handling
+- Docker entrypoint checks migration exit code
+
+### Fixed
+- Beer bulk delete now scoped — can't delete beers with other users' checkins
+- Collection detail page verifies user ownership
+- Venue delete blocked when other users have checkins
+- Setup wizard redirects to login when users already exist
+- Discord OAuth callback validates input parameters
+- User model no longer silently saves null on decryption failure
+- Console purge/reset commands blocked in demo mode
+- CI workflow updated to Node 24-compatible action versions
+
 ## [0.1.13] - 2026-05-05
 
 ### Added
@@ -103,6 +138,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Database purge and reset tools
 - System info page with version and dependency details
 
+[0.1.14]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.14
 [0.1.13]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.13
 [0.1.12]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.12
 [0.1.11]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.11
