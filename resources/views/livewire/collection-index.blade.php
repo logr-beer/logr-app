@@ -4,10 +4,11 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Collections</h1>
         <div class="flex flex-col sm:flex-row sm:items-center gap-3">
             {{-- Tabs --}}
-            <div class="flex items-center gap-1 flex-shrink-0">
-                <button wire:click="$set('collectionFilter', 'all')" class="px-3 py-1.5 text-sm font-medium rounded-lg {{ $collectionFilter === 'all' ? 'bg-amber-500 text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700' }}">All</button>
-                <button wire:click="$set('collectionFilter', 'smart')" class="px-3 py-1.5 text-sm font-medium rounded-lg {{ $collectionFilter === 'smart' ? 'bg-purple-500 text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700' }}">Smart</button>
-            </div>
+            <x-pill-tabs
+                :tabs="['all' => 'All', 'smart' => 'Smart']"
+                :active="$collectionFilter"
+                wireModel="collectionFilter"
+            />
 
             {{-- Search (full width on mobile) --}}
             <div class="relative w-full sm:w-56 sm:ml-auto">

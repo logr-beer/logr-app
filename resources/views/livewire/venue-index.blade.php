@@ -46,6 +46,15 @@
         <div id="venue-map" class="w-full h-[400px] rounded-xl shadow-sm border border-gray-200 dark:border-gray-700" wire:ignore></div>
     </div>
 
+    {{-- Filter tabs --}}
+    <div class="flex justify-end mb-4">
+        <x-pill-tabs
+            :tabs="['all' => 'All', 'missing' => ['label' => 'Missing Location', 'badge' => $ungeocodedCount ?: null], 'located' => 'With Location']"
+            :active="$locationFilter"
+            wireModel="locationFilter"
+        />
+    </div>
+
     {{-- Venue List (always visible) --}}
     @if($venues->count())
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

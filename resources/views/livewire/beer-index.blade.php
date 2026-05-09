@@ -4,10 +4,10 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Beers</h1>
         <div class="flex flex-col sm:flex-row sm:items-center gap-3">
             {{-- Tabs --}}
-            <div class="flex items-center gap-1 flex-shrink-0">
-                <a href="{{ route('beers.index') }}" class="px-3 py-1.5 text-sm font-medium rounded-lg bg-amber-500 text-white">Library</a>
-                <a href="{{ route('beers.inventory') }}" wire:navigate class="px-3 py-1.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">Inventory</a>
-            </div>
+            <x-pill-tabs
+                :tabs="['library' => ['label' => 'Library', 'href' => route('beers.index')], 'inventory' => ['label' => 'Inventory', 'href' => route('beers.inventory')]]"
+                active="library"
+            />
 
             {{-- Search & Filters (right-aligned) --}}
             <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:ml-auto w-full sm:w-auto">

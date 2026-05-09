@@ -20,9 +20,16 @@ class VenueIndex extends Component
 
     public string $sortDirection = 'desc';
 
+    public string $locationFilter = 'all';
+
     public bool $geocoding = false;
 
     public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedLocationFilter(): void
     {
         $this->resetPage();
     }
@@ -42,6 +49,14 @@ class VenueIndex extends Component
     {
         $query = Venue::query()
             ->withCount('checkins');
+
+        if ($this->locationFilter === 'missing') {
+            $query->where(function ($q) {
+                $q->whereNull('latitude')->orWhereNull('longitude');
+            });
+        } elseif ($this->locationFilter === 'located') {
+            $query->whereNotNull('latitude')->whereNotNull('longitude');
+        }
 
         if ($this->search) {
             $query->where(function ($q) {

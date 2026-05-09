@@ -47,25 +47,12 @@
     </div>
 
     {{-- Filter tabs --}}
-    <div class="flex items-center justify-end gap-1 mb-4">
-        @php
-            $filters = [
-                'all' => 'All',
-                'missing' => 'Missing Location',
-                'located' => 'With Location',
-            ];
-        @endphp
-        @foreach($filters as $value => $label)
-            <button
-                wire:click="$set('locationFilter', '{{ $value }}')"
-                class="px-3 py-1.5 text-xs font-medium rounded-full transition-colors {{ $locationFilter === $value ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' }}"
-            >
-                {{ $label }}
-                @if($value === 'missing' && $ungeocodedCount > 0)
-                    <span class="ml-1 inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold rounded-full {{ $locationFilter === $value ? 'bg-white/30' : 'bg-amber-500 text-white' }}">{{ $ungeocodedCount }}</span>
-                @endif
-            </button>
-        @endforeach
+    <div class="flex justify-end mb-4">
+        <x-pill-tabs
+            :tabs="['all' => 'All', 'missing' => ['label' => 'Missing Location', 'badge' => $ungeocodedCount ?: null], 'located' => 'With Location']"
+            :active="$locationFilter"
+            wireModel="locationFilter"
+        />
     </div>
 
     {{-- List --}}

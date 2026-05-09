@@ -3,9 +3,11 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Beers</h1>
-            <div class="flex items-center gap-1 mt-2">
-                <a href="{{ route('beers.index') }}" wire:navigate class="px-3 py-1.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">Library</a>
-                <a href="{{ route('beers.inventory') }}" class="px-3 py-1.5 text-sm font-medium rounded-lg bg-amber-500 text-white">Inventory</a>
+            <div class="mt-2">
+                <x-pill-tabs
+                    :tabs="['library' => ['label' => 'Library', 'href' => route('beers.index')], 'inventory' => ['label' => 'Inventory', 'href' => route('beers.inventory')]]"
+                    active="inventory"
+                />
             </div>
         </div>
     </div>
