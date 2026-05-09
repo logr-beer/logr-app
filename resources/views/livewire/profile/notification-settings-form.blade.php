@@ -106,7 +106,7 @@ new class extends Component
         }
     }
 
-    public function testDiscord(int $index): void
+    public function testCheckin(int $index): void
     {
         if (config('app.demo_mode')) {
             return;
@@ -120,23 +120,63 @@ new class extends Component
         }
 
         try {
-            $response = \Illuminate\Support\Facades\Http::post($webhook['url'], [
+            $response = \Illuminate\Support\Facades\Http::timeout(15)->post($webhook['url'], [
                 'embeds' => [[
-                    'title' => 'Logr Connected!',
-                    'description' => 'Your Discord webhook is working.' . ($webhook['label'] ? " ({$webhook['label']})" : ''),
+                    'title' => 'Check-in: Hazy Little Thing',
+                    'description' => "**Hazy Little Thing** by Sierra Nevada Brewing Co.\n\nRating: **4.5** / 5 ⭐⭐⭐⭐⭐\nServing: Can\nVenue: The Local Taproom\n\n> Juicy and refreshing, perfect for a warm day.",
                     'color' => 0xF59E0B,
-                    'footer' => ['text' => 'Logr'],
+                    'fields' => [
+                        ['name' => 'Style', 'value' => 'Hazy IPA', 'inline' => true],
+                        ['name' => 'ABV', 'value' => '6.7%', 'inline' => true],
+                        ['name' => 'IBU', 'value' => '35', 'inline' => true],
+                    ],
+                    'footer' => ['text' => 'Logr — Sample Check-in'],
                     'timestamp' => now()->toIso8601String(),
                 ]],
             ]);
 
-            if ($response->successful()) {
-                $this->testResult = 'Test message sent! Check your Discord channel.';
-                $this->testStatus = 'success';
-            } else {
-                $this->testResult = "HTTP {$response->status()}: {$response->body()}";
-                $this->testStatus = 'error';
-            }
+            $this->testResult = $response->successful()
+                ? 'Test check-in sent! Check your Discord channel.'
+                : "HTTP {$response->status()}: {$response->body()}";
+            $this->testStatus = $response->successful() ? 'success' : 'error';
+        } catch (\Exception $e) {
+            $this->testResult = $e->getMessage();
+            $this->testStatus = 'error';
+        }
+    }
+
+    public function testInventory(int $index): void
+    {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
+        $webhook = $this->discordWebhooks[$index] ?? null;
+        if (!$webhook || empty($webhook['url'])) {
+            $this->testResult = 'No webhook URL configured.';
+            $this->testStatus = 'error';
+            return;
+        }
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(15)->post($webhook['url'], [
+                'embeds' => [[
+                    'title' => 'Added to Inventory: Two Hearted Ale',
+                    'description' => "**Two Hearted Ale** by Bell's Brewery\n\nQuantity: **6**\nStorage: Fridge\nFrom: Total Wine",
+                    'color' => 0x3B82F6,
+                    'fields' => [
+                        ['name' => 'Style', 'value' => 'American IPA', 'inline' => true],
+                        ['name' => 'ABV', 'value' => '7.0%', 'inline' => true],
+                    ],
+                    'footer' => ['text' => 'Logr — Sample Inventory'],
+                    'timestamp' => now()->toIso8601String(),
+                ]],
+            ]);
+
+            $this->testResult = $response->successful()
+                ? 'Test inventory notification sent! Check your Discord channel.'
+                : "HTTP {$response->status()}: {$response->body()}";
+            $this->testStatus = $response->successful() ? 'success' : 'error';
         } catch (\Exception $e) {
             $this->testResult = $e->getMessage();
             $this->testStatus = 'error';
@@ -213,7 +253,7 @@ new class extends Component
         Setting::set('discord_bots', $this->discordBots ?: []);
     }
 
-    public function testBot(int $index): void
+    public function testBotCheckin(int $index): void
     {
         if (config('app.demo_mode')) {
             return;
@@ -234,24 +274,69 @@ new class extends Component
                     'guild_id' => $bot['guild_id'],
                     'type' => 'checkin',
                     'payload' => [
-                        'beer_name' => 'Test Beer',
-                        'brewery' => 'Logr Brewing',
-                        'rating' => 5.0,
+                        'beer_name' => 'Hazy Little Thing',
+                        'brewery' => 'Sierra Nevada Brewing Co.',
+                        'style' => 'Hazy IPA',
+                        'abv' => '6.7%',
+                        'ibu' => '35',
+                        'rating' => 4.5,
                         'serving' => 'Can',
-                        'notes' => 'This is a test notification from Logr!',
+                        'venue' => 'The Local Taproom',
+                        'notes' => 'Juicy and refreshing, perfect for a warm day.',
                         'user' => Auth::user()->name,
                         'username' => \App\Services\Hub::discordUsername(Auth::user()),
                         'avatar_url' => \App\Services\Hub::discordAvatarUrl(Auth::user()),
                     ],
                 ]);
 
-            if ($response->successful()) {
-                $this->testResult = 'Test message sent! Check your Discord channel.';
-                $this->testStatus = 'success';
-            } else {
-                $this->testResult = "HTTP {$response->status()}: {$response->body()}";
-                $this->testStatus = 'error';
-            }
+            $this->testResult = $response->successful()
+                ? 'Test check-in sent! Check your Discord channel.'
+                : "HTTP {$response->status()}: {$response->body()}";
+            $this->testStatus = $response->successful() ? 'success' : 'error';
+        } catch (\Exception $e) {
+            $this->testResult = $e->getMessage();
+            $this->testStatus = 'error';
+        }
+    }
+
+    public function testBotInventory(int $index): void
+    {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
+        $bot = $this->discordBots[$index] ?? null;
+        if (! $bot) {
+            $this->testResult = 'Bot not configured.';
+            $this->testStatus = 'error';
+            return;
+        }
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withToken($bot['hub_api_key'])
+                ->accept('application/json')
+                ->timeout(15)
+                ->post(rtrim($bot['hub_url'], '/') . '/api/post', [
+                    'guild_id' => $bot['guild_id'],
+                    'type' => 'purchase',
+                    'payload' => [
+                        'beer_name' => 'Two Hearted Ale',
+                        'brewery' => "Bell's Brewery",
+                        'style' => 'American IPA',
+                        'abv' => '7.0%',
+                        'quantity' => 6,
+                        'storage_location' => 'Fridge',
+                        'purchase_location' => 'Total Wine',
+                        'user' => Auth::user()->name,
+                        'username' => \App\Services\Hub::discordUsername(Auth::user()),
+                        'avatar_url' => \App\Services\Hub::discordAvatarUrl(Auth::user()),
+                    ],
+                ]);
+
+            $this->testResult = $response->successful()
+                ? 'Test inventory notification sent! Check your Discord channel.'
+                : "HTTP {$response->status()}: {$response->body()}";
+            $this->testStatus = $response->successful() ? 'success' : 'error';
         } catch (\Exception $e) {
             $this->testResult = $e->getMessage();
             $this->testStatus = 'error';
