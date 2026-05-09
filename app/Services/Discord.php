@@ -20,7 +20,7 @@ class Discord
             return false;
         }
 
-        $checkin->loadMissing(['beer.brewery', 'venue']);
+        $checkin->loadMissing(['beer.brewery', 'venue', 'photos']);
         $beer = $checkin->beer;
 
         $stars = str_repeat("\u{2B50}", (int) $checkin->rating);
@@ -66,9 +66,15 @@ class Discord
             'footer' => ['text' => 'Logr'],
         ];
 
-        if ($beer->photo_path) {
-            $photoUrl = url(Storage::url($beer->photo_path));
-            $embed['thumbnail'] = ['url' => $photoUrl];
+        // Image priority: checkin photo > beer label > brewery logo
+        $imageUrl = static::resolveImageUrl(
+            $checkin->photos->first()?->photo_path,
+            $beer->photo_path,
+            $beer->brewery?->logo_path,
+        );
+
+        if ($imageUrl) {
+            $embed['thumbnail'] = ['url' => $imageUrl];
         }
 
         $sent = false;
@@ -125,9 +131,15 @@ class Discord
             'footer' => ['text' => 'Logr'],
         ];
 
-        if ($beer->photo_path) {
-            $photoUrl = url(Storage::url($beer->photo_path));
-            $embed['thumbnail'] = ['url' => $photoUrl];
+        // Image priority: beer label > brewery logo
+        $imageUrl = static::resolveImageUrl(
+            null,
+            $beer->photo_path,
+            $beer->brewery?->logo_path,
+        );
+
+        if ($imageUrl) {
+            $embed['thumbnail'] = ['url' => $imageUrl];
         }
 
         $sent = false;
@@ -139,6 +151,17 @@ class Discord
         }
 
         return $sent;
+    }
+
+    protected static function resolveImageUrl(?string ...$paths): ?string
+    {
+        foreach ($paths as $path) {
+            if ($path) {
+                return url(Storage::url($path));
+            }
+        }
+
+        return null;
     }
 
     protected static function discordIdentity(User $user): array
