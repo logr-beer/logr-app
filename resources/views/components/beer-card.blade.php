@@ -72,11 +72,11 @@
 
     {{-- Info --}}
     <div class="p-3">
-        <h3 class="font-semibold text-sm text-gray-900 dark:text-white truncate">{{ $beer->name }}</h3>
-        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $beer->brewery?->name ?? 'Unknown Brewery' }}</p>
+        <h3 class="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">{{ $beer->name }}</h3>
+        <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{{ $beer->brewery?->name ?? 'Unknown Brewery' }}</p>
         <div class="flex items-center gap-2 mt-1">
             @if($beer->style)
-                <span class="text-xs text-amber-600 dark:text-amber-400 truncate">{{ implode(', ', $beer->style) }}</span>
+                <span class="text-xs text-amber-600 dark:text-amber-400 line-clamp-1">{{ implode(', ', $beer->style) }}</span>
             @endif
             @if($beer->abv)
                 <span class="text-xs text-gray-400">{{ $beer->abv }}%</span>
