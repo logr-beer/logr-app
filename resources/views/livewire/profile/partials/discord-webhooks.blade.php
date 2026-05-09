@@ -28,11 +28,11 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $webhook['url'] }}</p>
                 </div>
                 @unless($demoMode)
-                    <button type="button" wire:click="testCheckin({{ $index }})" class="shrink-0 inline-flex items-center gap-1 px-2 py-1 bg-amber-600 text-white text-xs font-medium rounded hover:bg-amber-700 transition-colors" title="Send a sample check-in">
+                    <button type="button" wire:click="testCheckin({{ $index }})" class="shrink-0 inline-flex items-center gap-1 px-2 py-1 bg-gray-600 text-white text-xs font-medium rounded hover:bg-gray-700 transition-colors" title="Send a sample check-in">
                         <span wire:loading wire:target="testCheckin({{ $index }})"><svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
                         Test Check-in
                     </button>
-                    <button type="button" wire:click="testInventory({{ $index }})" class="shrink-0 inline-flex items-center gap-1 px-2 py-1 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors" title="Send a sample inventory notification">
+                    <button type="button" wire:click="testInventory({{ $index }})" class="shrink-0 inline-flex items-center gap-1 px-2 py-1 bg-gray-600 text-white text-xs font-medium rounded hover:bg-gray-700 transition-colors" title="Send a sample inventory notification">
                         <span wire:loading wire:target="testInventory({{ $index }})"><svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
                         Test Inventory
                     </button>
