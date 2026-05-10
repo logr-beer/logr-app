@@ -1,5 +1,5 @@
 <a href="{{ route('collections.show', $collection) }}" wire:navigate class="group relative rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-200">
-    <div class="aspect-square bg-gradient-to-br {{ $collection->is_dynamic ? 'from-purple-400 to-purple-600' : 'from-amber-400 to-amber-600' }} flex items-center justify-center relative">
+    <div class="aspect-[4/3] bg-gradient-to-br {{ $collection->is_dynamic ? 'from-purple-400 to-purple-600' : 'from-amber-400 to-amber-600' }} flex items-center justify-center relative">
         @if($collection->cover_path)
             <img src="{{ Storage::url($collection->cover_path) }}" alt="{{ $collection->name }}" class="w-full h-full object-cover">
         @else

@@ -105,7 +105,7 @@
                 @foreach($beers as $beer)
                     <div class="group relative rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg transition-shadow">
                         <a href="{{ route('beers.show', $beer) }}" wire:navigate>
-                            <div class="aspect-square bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                            <div class="aspect-[4/3] bg-gray-100 dark:bg-gray-700 overflow-hidden">
                                 @if($beer->photo_path)
                                     <img src="{{ Storage::url($beer->photo_path) }}" alt="{{ $beer->name }}" class="w-full h-full object-cover">
                                 @else
