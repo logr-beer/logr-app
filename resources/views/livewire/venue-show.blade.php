@@ -64,7 +64,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-3 pt-2">
-                    <button type="submit" class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">Save</button>
+                    <x-primary-button>Save</x-primary-button>
                     <button type="button" wire:click="cancel" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">Cancel</button>
                     @unless(config('app.demo_mode'))
                         <button
@@ -117,7 +117,7 @@
                                 @if($checkin->beer->photo_path)
                                     <img src="{{ Storage::url($checkin->beer->photo_path) }}" alt="{{ $checkin->beer->name }}" class="w-full h-full object-cover">
                                 @else
-                                    <div class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+                                    <div class="w-full h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
                                         <x-application-logo-filled class="w-12 h-12 stroke-current" />
                                     </div>
                                 @endif

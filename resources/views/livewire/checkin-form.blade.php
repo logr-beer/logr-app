@@ -55,7 +55,7 @@
                                         <div>
                                             <span class="text-gray-900 dark:text-white font-medium">{{ $beer->name }}</span>
                                             @if($beer->brewery)
-                                                <span class="text-gray-400 dark:text-gray-500 text-xs block">{{ $beer->brewery->name }}</span>
+                                                <span class="text-gray-500 dark:text-gray-400 text-xs block">{{ $beer->brewery->name }}</span>
                                             @endif
                                         </div>
                                     </button>
@@ -105,7 +105,7 @@
                                         <div>
                                             <span class="text-gray-900 dark:text-white">{{ $venue->name }}</span>
                                             @if($venue->displayLocation())
-                                                <span class="text-gray-400 dark:text-gray-500 text-xs ml-1">{{ $venue->displayLocation() }}</span>
+                                                <span class="text-gray-500 dark:text-gray-400 text-xs ml-1">{{ $venue->displayLocation() }}</span>
                                             @endif
                                         </div>
                                     </button>
@@ -273,14 +273,10 @@
                         wire:navigate
                         class="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                     >Cancel</a>
-                    <button
-                        type="submit"
-                        class="inline-flex items-center gap-2 px-6 py-2.5 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50"
-                        wire:loading.attr="disabled"
-                    >
+                    <x-primary-button size="lg" wire:loading.attr="disabled">
                         <svg wire:loading wire:target="submitCheckin" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
                         {{ $checkinId ? 'Save Changes' : 'Check In' }}
-                    </button>
+                    </x-primary-button>
                 </div>
             </div>
         </form>

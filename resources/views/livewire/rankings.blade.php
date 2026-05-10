@@ -239,7 +239,7 @@
                     @foreach($monthlyActivity as $month => $count)
                         <div class="flex-1 flex flex-col items-center gap-1">
                             <div class="w-full bg-amber-600 rounded-t" style="height: {{ $maxMonth > 0 ? ($count / $maxMonth) * 100 : 0 }}%"></div>
-                            <span class="text-[9px] text-gray-400 dark:text-gray-500">{{ \Carbon\Carbon::parse($month . '-01')->format('M') }}</span>
+                            <span class="text-[9px] text-gray-500 dark:text-gray-400">{{ \Carbon\Carbon::parse($month . '-01')->format('M') }}</span>
                         </div>
                     @endforeach
                 </div>

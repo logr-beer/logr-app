@@ -13,7 +13,7 @@
                     @if($beer->photo_path)
                         <img src="{{ Storage::url($beer->photo_path) }}" alt="{{ $beer->name }}" class="w-full h-full object-cover" />
                     @else
-                        <div class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+                        <div class="w-full h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
                             <x-application-logo-filled class="w-28 h-28 stroke-current" />
                         </div>
                     @endif
@@ -218,7 +218,7 @@
                             </div>
                         </div>
                         <div class="mt-3 flex items-center justify-between">
-                            <button wire:click="addToFridge" @click="open = false" class="inline-flex items-center gap-2 px-5 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">Add to Inventory</button>
+                            <x-primary-button type="button" wire:click="addToFridge" @click="open = false">Add to Inventory</x-primary-button>
                             @if(!empty(auth()->user()->getData('discord_webhooks')) || !empty(auth()->user()->getData('discord_bots')))
                                 <label class="inline-flex items-center gap-2 cursor-pointer">
                                     <input wire:model="sharePurchaseToDiscord" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
@@ -269,7 +269,7 @@
                                     :options="collect(['' => 'Add to collection...'])->merge($availableCollections->pluck('name', 'id'))->all()"
                                 />
                             </div>
-                            <button wire:click="addToCollection" class="px-4 py-2.5 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">Add</button>
+                            <x-primary-button type="button" wire:click="addToCollection">Add</x-primary-button>
                         </div>
                     @endif
                 </div>
@@ -320,7 +320,7 @@
                                                 <div>
                                                     <span class="text-gray-900 dark:text-white">{{ $venue->name }}</span>
                                                     @if($venue->displayLocation())
-                                                        <span class="text-gray-400 dark:text-gray-500 text-xs ml-1">{{ $venue->displayLocation() }}</span>
+                                                        <span class="text-gray-500 dark:text-gray-400 text-xs ml-1">{{ $venue->displayLocation() }}</span>
                                                     @endif
                                                 </div>
                                             </button>
@@ -362,10 +362,10 @@
                                 <span class="text-sm text-gray-500 dark:text-gray-400">Share to Discord</span>
                             </label>
                         @endif
-                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50" wire:loading.attr="disabled">
+                        <x-primary-button wire:loading.attr="disabled">
                             <svg wire:loading wire:target="submitCheckin" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
                             Check In
-                        </button>
+                        </x-primary-button>
                     </div>
                 </form>
 
@@ -380,7 +380,7 @@
                                     @if($checkin->rating !== null)
                                         <span class="text-sm font-bold text-amber-600 dark:text-amber-400">{{ number_format($checkin->rating, 1) }}</span>
                                     @else
-                                        <span class="text-[10px] text-gray-400 dark:text-gray-500">N/R</span>
+                                        <span class="text-[10px] text-gray-500 dark:text-gray-400">N/R</span>
                                     @endif
                                 </div>
                                 <div class="flex-1 min-w-0">

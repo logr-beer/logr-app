@@ -3,13 +3,9 @@
     <div class="mb-6">
         <div class="flex items-center gap-3 mb-3">
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Collections</h1>
-            <button
-                wire:click="$set('showCreateModal', true)"
-                class="inline-flex items-center gap-1 px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium rounded-md transition-colors flex-shrink-0"
-            >
-                <x-icon name="plus" size="3.5" />
-                New
-            </button>
+            <x-primary-button type="button" wire:click="$set('showCreateModal', true)" size="xs" class="flex-shrink-0">
+                <x-icon name="plus" size="3.5" /> New
+            </x-primary-button>
         </div>
         <div class="flex flex-col sm:flex-row sm:items-center gap-3">
             {{-- Tabs --}}
@@ -112,7 +108,7 @@
                         </x-form-field>
                         <div class="flex justify-end gap-3 pt-2">
                             <button type="button" wire:click="$set('showCreateModal', false)" class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">Cancel</button>
-                            <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors">Create Collection</button>
+                            <x-primary-button>Create Collection</x-primary-button>
                         </div>
                     </form>
                 @endif
@@ -187,7 +183,7 @@
                         <div class="flex justify-end gap-3 pt-2">
                             <button type="button" wire:click="$set('showCreateModal', false)" class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">Cancel</button>
                             @if($dynamicType)
-                                <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors">Create Dynamic Collection</button>
+                                <x-primary-button>Create Dynamic Collection</x-primary-button>
                             @endif
                         </div>
                     </form>

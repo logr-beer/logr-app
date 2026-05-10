@@ -106,9 +106,7 @@
             @endif
 
             <div class="flex justify-end">
-                <button wire:click="startPreview" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-md transition">
-                    Continue
-                </button>
+                <x-primary-button type="button" wire:click="startPreview">Continue</x-primary-button>
             </div>
         </div>
     @endif
@@ -152,9 +150,7 @@
                 <button wire:click="backToMap" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 font-medium rounded-md transition">
                     Go Back
                 </button>
-                <button wire:click="runImport" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-md transition">
-                    Import {{ $totalRows }} Rows
-                </button>
+                <x-primary-button type="button" wire:click="runImport">Import {{ $totalRows }} Rows</x-primary-button>
             </div>
         </div>
     @endif
@@ -207,9 +203,7 @@
             @endif
 
             <div class="flex gap-3">
-                <button wire:click="resetImport" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-md transition">
-                    Import Another File
-                </button>
+                <x-primary-button type="button" wire:click="resetImport">Import Another File</x-primary-button>
                 <a href="{{ route('beers.index') }}" wire:navigate class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 font-medium rounded-md transition">
                     View Beers
                 </a>

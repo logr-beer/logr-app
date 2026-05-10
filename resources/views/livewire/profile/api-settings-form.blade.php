@@ -377,14 +377,14 @@ new class extends Component
 
             @if($untappd_username && !$demoMode)
                 <div class="flex flex-wrap items-center gap-3">
-                    <button type="button" wire:click="scrapeProfile" {{ $scraping ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50">
+                    <x-primary-button type="button" wire:click="scrapeProfile" {{ $scraping ? 'disabled' : '' }}>
                         @if($scraping) <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> @endif
                         Scrape Public
-                    </button>
-                    <button type="button" wire:click="scrapeVenues" {{ $scrapingVenues ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50">
+                    </x-primary-button>
+                    <x-primary-button type="button" wire:click="scrapeVenues" {{ $scrapingVenues ? 'disabled' : '' }}>
                         @if($scrapingVenues) <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> @endif
                         Scrape Venues
-                    </button>
+                    </x-primary-button>
                 </div>
                 @if($scrapeStatus) <p class="text-sm text-green-600 dark:text-green-400">{{ $scrapeStatus }}</p> @endif
                 @if($venueScrapeStatus) <p class="text-sm text-green-600 dark:text-green-400">{{ $venueScrapeStatus }}</p> @endif
@@ -435,10 +435,9 @@ new class extends Component
                         </div>
                         <div class="shrink-0">
                             <x-input-label class="invisible">&nbsp;</x-input-label>
-                            <button type="button" wire:click="addFeed" class="mt-1 inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-amber-700 transition-colors">
-                                <x-icon name="plus" size="4" />
-                                Add
-                            </button>
+                            <x-primary-button type="button" wire:click="addFeed" class="mt-1">
+                                <x-icon name="plus" size="4" /> Add
+                            </x-primary-button>
                         </div>
                     </div>
                     <x-input-error class="mt-1" :messages="$errors->get('newFeedUrl')" />
@@ -448,10 +447,10 @@ new class extends Component
             {{-- Sync Feeds --}}
             @if(count($rssFeeds) && !$demoMode)
                 <div class="flex flex-wrap items-center gap-3">
-                    <button type="button" wire:click="syncRss" {{ $syncing ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50">
+                    <x-primary-button type="button" wire:click="syncRss" {{ $syncing ? 'disabled' : '' }}>
                         @if($syncing) <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> @endif
                         Sync All Feeds
-                    </button>
+                    </x-primary-button>
                 </div>
                 @if($syncStatus) <p class="text-sm text-green-600 dark:text-green-400">{{ $syncStatus }}</p> @endif
             @endif
@@ -461,7 +460,7 @@ new class extends Component
                 <summary class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
                     API Credentials
                     @if(!$untappd_client_id && !$untappd_client_secret && !config('services.untappd.api_key'))
-                        <span class="text-gray-400 dark:text-gray-500 normal-case font-normal">&mdash; optional</span>
+                        <span class="text-gray-500 dark:text-gray-400 normal-case font-normal">&mdash; optional</span>
                     @endif
                 </summary>
                 <div class="mt-3 space-y-4">
@@ -500,10 +499,10 @@ new class extends Component
         <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
             <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Venues</h3>
             <p class="text-xs text-gray-500 dark:text-gray-400">Geocode venues without coordinates using OpenStreetMap/Nominatim.</p>
-            <button type="button" wire:click="geocodeVenues" {{ $geocoding || $demoMode ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50">
+            <x-primary-button type="button" wire:click="geocodeVenues" {{ $geocoding || $demoMode ? 'disabled' : '' }}>
                 @if($geocoding) <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> @endif
                 Geocode Venues
-            </button>
+            </x-primary-button>
             @if($geocodeStatus) <p class="text-sm text-green-600 dark:text-green-400">{{ $geocodeStatus }}</p> @endif
         </div>
 

@@ -16,7 +16,7 @@
                         @error('editDescription') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                     </div>
                     <div class="flex items-center gap-3">
-                        <button type="submit" class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">Save</button>
+                        <x-primary-button>Save</x-primary-button>
                         <button type="button" wire:click="cancelEditing" class="px-4 py-2 text-gray-500 dark:text-gray-400 text-sm font-medium hover:text-gray-700 dark:hover:text-gray-200 transition-colors">Cancel</button>
                     </div>
                 </form>
@@ -75,13 +75,9 @@
                             <p class="font-medium text-gray-900 dark:text-white">{{ $result['name'] }}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400">{{ $result['brewery'] }}</p>
                         </div>
-                        <button
-                            wire:click="addBeer({{ $result['id'] }})"
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors"
-                        >
-                            <x-icon name="plus" size="4" />
-                            Add
-                        </button>
+                        <x-primary-button type="button" wire:click="addBeer({{ $result['id'] }})" size="sm">
+                            <x-icon name="plus" size="4" /> Add
+                        </x-primary-button>
                     </li>
                 @endforeach
             </ul>
@@ -109,7 +105,7 @@
                                 @if($beer->photo_path)
                                     <img src="{{ Storage::url($beer->photo_path) }}" alt="{{ $beer->name }}" class="w-full h-full object-cover">
                                 @else
-                                    <div class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+                                    <div class="w-full h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
                                         <x-application-logo-filled class="w-16 h-16 stroke-current" />
                                     </div>
                                 @endif

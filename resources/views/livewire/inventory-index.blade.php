@@ -17,7 +17,7 @@
             >
                 <p class="text-2xl font-bold">{{ $totalItems }}</p>
                 <p class="text-xs {{ $location === '' ? 'text-amber-100' : 'text-gray-500 dark:text-gray-400' }}">All Locations</p>
-                <p class="text-xs {{ $location === '' ? 'text-amber-200' : 'text-gray-400 dark:text-gray-500' }}">{{ $totalBeers }} {{ Str::plural('beer', $totalBeers) }}</p>
+                <p class="text-xs {{ $location === '' ? 'text-amber-200' : 'text-gray-500 dark:text-gray-400' }}">{{ $totalBeers }} {{ Str::plural('beer', $totalBeers) }}</p>
             </button>
             @foreach($locationSummary as $loc)
                 <button
@@ -26,7 +26,7 @@
                 >
                     <p class="text-2xl font-bold">{{ $loc->total }}</p>
                     <p class="text-xs {{ $location === $loc->loc ? 'text-amber-100' : 'text-gray-500 dark:text-gray-400' }} truncate">{{ $loc->loc }}</p>
-                    <p class="text-xs {{ $location === $loc->loc ? 'text-amber-200' : 'text-gray-400 dark:text-gray-500' }}">{{ $loc->unique_beers }} {{ Str::plural('beer', $loc->unique_beers) }}</p>
+                    <p class="text-xs {{ $location === $loc->loc ? 'text-amber-200' : 'text-gray-500 dark:text-gray-400' }}">{{ $loc->unique_beers }} {{ Str::plural('beer', $loc->unique_beers) }}</p>
                 </button>
             @endforeach
         </div>

@@ -131,9 +131,7 @@
             @endif
 
             <div class="pt-2">
-                <button type="submit" class="w-full px-5 py-2.5 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">
-                    Create Account
-                </button>
+                <x-primary-button :full="true" size="lg">Create Account</x-primary-button>
             </div>
         </form>
     </div>

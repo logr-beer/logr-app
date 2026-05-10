@@ -15,9 +15,9 @@
         <p class="text-gray-500 dark:text-gray-400 mb-4">{{ $message }}</p>
     @endif
     @if($actionLabel && $actionHref)
-        <a href="{{ $actionHref }}" wire:navigate class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">
+        <x-primary-button :href="$actionHref" wire:navigate>
             {{ $actionLabel }}
-        </a>
+        </x-primary-button>
     @endif
     {{ $slot }}
 </div>

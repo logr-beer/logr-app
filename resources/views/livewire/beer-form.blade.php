@@ -53,7 +53,7 @@
                                                 <span class="text-xs text-yellow-500">{{ number_format($result['rating'], 1) }} ★</span>
                                             @endif
                                             @if(config('app.debug') && ($result['_source'] ?? null))
-                                                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500">{{ $result['_source'] }}</span>
+                                                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">{{ $result['_source'] }}</span>
                                             @endif
                                         </div>
                                     </div>
@@ -109,7 +109,7 @@
 
                         <div wire:loading.remove wire:target="brewerySearch">
                             @if(count($breweryResults['local']) > 0)
-                                <div class="px-3 py-1.5 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Your Breweries</div>
+                                <div class="px-3 py-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Your Breweries</div>
                                 @foreach($breweryResults['local'] as $brewery)
                                     <button type="button" wire:click="selectBrewery({{ $brewery['id'] }})" class="w-full text-left px-4 py-2.5 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">
                                         <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $brewery['name'] }}</span>
@@ -121,7 +121,7 @@
                             @endif
 
                             @if(count($breweryResults['api']) > 0)
-                                <div class="px-3 py-1.5 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider {{ count($breweryResults['local']) > 0 ? 'border-t border-gray-100 dark:border-gray-600' : '' }}">Search Results</div>
+                                <div class="px-3 py-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider {{ count($breweryResults['local']) > 0 ? 'border-t border-gray-100 dark:border-gray-600' : '' }}">Search Results</div>
                                 @foreach($breweryResults['api'] as $apiBrewery)
                                     <button type="button" wire:click="importAndSelectBrewery('{{ $apiBrewery['id'] }}')" class="w-full text-left px-4 py-2.5 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">
                                         <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $apiBrewery['name'] }}</span>
@@ -130,7 +130,7 @@
                                         @endif
                                         <span class="ml-1 inline-flex items-center text-xs text-amber-600 dark:text-amber-400">+ Import</span>
                                         @if(config('app.debug') && ($apiBrewery['_source'] ?? null))
-                                            <span class="ml-1 text-[10px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500">{{ $apiBrewery['_source'] }}</span>
+                                            <span class="ml-1 text-[10px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">{{ $apiBrewery['_source'] }}</span>
                                         @endif
                                     </button>
                                 @endforeach
@@ -170,7 +170,7 @@
                                 @endforeach
                             </div>
                         @else
-                            <span class="text-gray-400 dark:text-gray-500">Select styles...</span>
+                            <span class="text-gray-500 dark:text-gray-400">Select styles...</span>
                         @endif
                         <x-icon name="chevron-down" size="4" class="text-gray-400 flex-shrink-0 ml-2 transition-transform" ::class="{ 'rotate-180': open }" />
                     </button>
@@ -210,7 +210,7 @@
                             @php $unselected = array_diff($categoryStyles, $style); @endphp
                             @if(count($unselected) > 0)
                                 <div class="px-3 pt-2 pb-1">
-                                    <h4 class="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{{ $category }}</h4>
+                                    <h4 class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $category }}</h4>
                                 </div>
                                 @foreach($unselected as $s)
                                     <label class="flex items-center gap-2 px-3 py-1.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
@@ -528,15 +528,11 @@
                 >
                     Cancel
                 </a>
-                <button
-                    type="submit"
-                    class="inline-flex items-center gap-2 px-6 py-2.5 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50"
-                    wire:loading.attr="disabled"
-                >
+                <x-primary-button size="lg" wire:loading.attr="disabled">
                     <svg wire:loading wire:target="save" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
                     <svg wire:loading wire:target="photo" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
                     {{ $isEditing ? 'Update Beer' : 'Add Beer' }}
-                </button>
+                </x-primary-button>
             </div>
         </form>
     </div>
