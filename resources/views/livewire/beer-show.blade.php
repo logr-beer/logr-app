@@ -108,9 +108,10 @@
                     <p class="text-gray-600 dark:text-gray-300 leading-relaxed mt-6">{{ $beer->description }}</p>
                 @endif
 
-                @if($beerCollections->isNotEmpty())
+                @php $staticCollections = $beerCollections->where('is_dynamic', false); @endphp
+                @if($staticCollections->isNotEmpty())
                     <div class="flex flex-wrap gap-2 mt-4">
-                        @foreach($beerCollections as $collection)
+                        @foreach($staticCollections as $collection)
                             <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-lg text-xs font-medium">
                                 <a href="{{ route('collections.show', $collection) }}" wire:navigate class="hover:underline">{{ $collection->name }}</a>
                                 <button wire:click="removeFromCollection({{ $collection->id }})" class="ml-0.5 text-purple-400 hover:text-purple-600 dark:hover:text-purple-300" title="Remove from collection">
