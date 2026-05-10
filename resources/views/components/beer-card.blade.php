@@ -22,8 +22,12 @@
     $rightBadges = collect($badges)->where('position', 'right')->values();
 @endphp
 
-<div class="group relative flex flex-col rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg hover:scale-[1.025] transition-all duration-150 hover:duration-[250ms] {{ $selected ? 'ring-2 ring-amber-500 ring-offset-2 dark:ring-offset-gray-900' : '' }} focus-within:ring-2 focus-within:ring-amber-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900">
-    <a href="{{ $link }}" wire:navigate class="focus:outline-none" @if($showFavorite) @keydown.f.prevent="$wire.toggleFavorite({{ $beer->id }})" @endif>
+<div
+    x-data="{ heartPop: false }"
+    @if($showFavorite) x-on:favorite-toggled-{{ $beer->id }}.window="heartPop = true; setTimeout(() => heartPop = false, 500)" @endif
+    class="group relative flex flex-col rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg hover:scale-[1.025] transition-all duration-150 hover:duration-[250ms] {{ $selected ? 'ring-2 ring-amber-500 ring-offset-2 dark:ring-offset-gray-900' : '' }} focus-within:ring-2 focus-within:ring-amber-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900"
+>
+    <a href="{{ $link }}" wire:navigate class="focus:outline-none" @if($showFavorite) @keydown.f.prevent="$wire.toggleFavorite({{ $beer->id }}); $dispatch('favorite-toggled-{{ $beer->id }}')" @endif>
         <div class="aspect-[4/3] bg-gray-100 dark:bg-gray-700 overflow-hidden relative">
             @if($beer->photo_path)
                 <img src="{{ Storage::url($beer->photo_path) }}" alt="{{ $beer->name }}" class="w-full h-full object-cover">
@@ -70,6 +74,24 @@
                     @endforeach
                 </div>
             @endif
+            {{-- Heart pop overlay --}}
+            @if($showFavorite)
+                <div
+                    x-show="heartPop"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 scale-50"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-150"
+                    class="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
+                    x-cloak
+                >
+                    <svg class="w-16 h-16 text-red-500/70 drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/>
+                    </svg>
+                </div>
+            @endif
         </div>
     </a>
 
@@ -93,6 +115,7 @@
     @if($showFavorite)
         <button
             wire:click.prevent.stop="toggleFavorite({{ $beer->id }})"
+            x-on:click="$dispatch('favorite-toggled-{{ $beer->id }}')"
             tabindex="-1"
             class="absolute top-1.5 right-1.5 z-10 group/fav w-6 h-6 flex items-center justify-center rounded-full {{ $beer->is_favorite ? 'bg-black/50' : 'bg-black/50 opacity-0 group-hover:opacity-100' }} text-white shadow-lg transition-all"
         >
