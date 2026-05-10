@@ -26,10 +26,10 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">CSV File</label>
                 <input type="file" wire:model="csvFile" accept=".csv,.txt"
                     class="block w-full text-sm text-gray-500 dark:text-gray-400
-                        file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-amber-50 file:text-amber-700 dark:file:bg-amber-900 dark:file:text-amber-200
-                        hover:file:bg-amber-100 dark:hover:file:bg-amber-800" />
+                        file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+                        file:text-sm file:font-medium
+                        file:bg-amber-600 file:text-white
+                        hover:file:bg-amber-700" />
                 @error('csvFile') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                 <div wire:loading wire:target="csvFile" class="text-sm text-gray-500 dark:text-gray-400 mt-2">Reading file...</div>
             </div>
