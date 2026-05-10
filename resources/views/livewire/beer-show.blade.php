@@ -76,31 +76,38 @@
                     </div>
                 </div>
 
-                <div class="flex flex-wrap gap-4 mt-6">
+                @php $tagClass = 'px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-lg text-sm font-medium'; @endphp
+                <div class="flex flex-wrap gap-2 mt-6">
                     @if($beer->abv)
-                        <div class="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm"><span class="font-medium">{{ $beer->abv }}%</span> ABV</div>
+                        <div class="inline-flex items-center gap-1.5 {{ $tagClass }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/></svg>
+                            {{ $beer->abv }}% ABV
+                        </div>
                     @endif
                     @if($beer->ibu)
-                        <div class="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm"><span class="font-medium">{{ $beer->ibu }}</span> IBU</div>
+                        <div class="{{ $tagClass }}">{{ $beer->ibu }} IBU</div>
                     @endif
                     @if($beer->style)
                         @foreach($beer->style as $s)
-                            <div class="px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-lg text-sm font-medium">{{ $s }}</div>
+                            <div class="{{ $tagClass }}">{{ $s }}</div>
                         @endforeach
                     @endif
                     @if($beer->release_year)
-                        <div class="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium">{{ $beer->release_year }}</div>
+                        <div class="{{ $tagClass }}">{{ $beer->release_year }}</div>
                     @endif
                     @if($beer->brewer_master)
-                        <div class="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium">{{ $beer->brewer_master }}</div>
+                        <div class="{{ $tagClass }}">{{ $beer->brewer_master }}</div>
                     @endif
                     @if($averageRating > 0)
-                        <div class="px-3 py-1.5 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 rounded-lg text-sm font-medium">
+                        <div class="{{ $tagClass }}">
                             {{ number_format($averageRating, 1) }} ★ ({{ $totalCheckins }} {{ Str::plural('check-in', $totalCheckins) }})
                         </div>
                     @endif
                     @if($totalQty > 0)
-                        <div class="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg text-sm font-medium">{{ $totalQty }} in stock</div>
+                        <div class="inline-flex items-center gap-1.5 {{ $tagClass }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
+                            {{ $totalQty }} in stock
+                        </div>
                     @endif
                 </div>
 
