@@ -33,7 +33,7 @@ window.LeafletMap = {
             el.innerHTML = '';
         }
 
-        const defaultView = options.center || [39.8, -98.5];
+        const defaultView = options.center || [41.8781, -87.6298]; // Chicago, IL
         const defaultZoom = options.zoom || 4;
 
         const map = L.map(el, { scrollWheelZoom: false, dragging: true })
