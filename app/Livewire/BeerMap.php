@@ -15,16 +15,8 @@ class BeerMap extends Component
 
     public function render()
     {
-        $query = Brewery::query()
-            ->whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->withCount(['beers', 'beers as checkins_count' => function ($q) {
-                $q->withCount('checkins');
-            }]);
-
         // Get breweries with coordinates and their beer/checkin counts
-        $mapBreweries = Brewery::whereNotNull('latitude')
-            ->whereNotNull('longitude')
+        $mapBreweries = Brewery::withCoordinates()
             ->withCount('beers')
             ->with(['beers' => fn ($q) => $q->withCount('checkins')])
             ->get()

@@ -56,13 +56,7 @@ class Locations extends Component
             return;
         }
 
-        $ungeocodedCount = Brewery::whereNull('latitude')
-            ->where(function ($q) {
-                $q->whereNotNull('city')
-                    ->orWhereNotNull('state')
-                    ->orWhereNotNull('country');
-            })
-            ->count();
+        $ungeocodedCount = Brewery::geocodable()->count();
 
         if ($ungeocodedCount > 0 && ! Cache::has('geocoding_breweries_dispatched')) {
             Cache::put('geocoding_breweries_dispatched', true, now()->addMinutes(10));
@@ -72,8 +66,7 @@ class Locations extends Component
 
     public function render()
     {
-        $mapPoints = Brewery::whereNotNull('latitude')
-            ->whereNotNull('longitude')
+        $mapPoints = Brewery::withCoordinates()
             ->withCount('beers')
             ->withCount(['beers as checkins_total' => function ($q) {
                 $q->join('checkins', 'beers.id', '=', 'checkins.beer_id');
@@ -98,11 +91,9 @@ class Locations extends Component
         $listQuery = Brewery::query()->withCount('beers');
 
         if ($this->locationFilter === 'missing') {
-            $listQuery->where(function ($q) {
-                $q->whereNull('latitude')->orWhereNull('longitude');
-            });
+            $listQuery->withoutCoordinates();
         } elseif ($this->locationFilter === 'located') {
-            $listQuery->whereNotNull('latitude')->whereNotNull('longitude');
+            $listQuery->withCoordinates();
         }
 
         if ($this->search) {
@@ -122,13 +113,7 @@ class Locations extends Component
             default => $listQuery->orderBy('beers_count', $dir),
         };
 
-        $ungeocodedCount = Brewery::whereNull('latitude')
-            ->where(function ($q) {
-                $q->whereNotNull('city')
-                    ->orWhereNotNull('state')
-                    ->orWhereNotNull('country');
-            })
-            ->count();
+        $ungeocodedCount = Brewery::geocodable()->count();
 
         return view('livewire.locations', [
             'mapPoints' => $mapPoints,

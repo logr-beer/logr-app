@@ -65,12 +65,7 @@ class InventoryIndex extends Component
             ->where('quantity', '>', 0);
 
         if ($this->search) {
-            $query->whereHas('beer', function ($q) {
-                $q->where('name', 'like', '%'.$this->search.'%')
-                    ->orWhereHas('brewery', function ($bq) {
-                        $bq->where('name', 'like', '%'.$this->search.'%');
-                    });
-            });
+            $query->whereHas('beer', fn ($q) => $q->search($this->search));
         }
 
         if ($this->location) {

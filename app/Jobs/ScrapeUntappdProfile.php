@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Concerns\ManagesJobStatus;
 use App\Models\User;
 use App\Services\UntappdScraper;
 use Illuminate\Bus\Queueable;
@@ -9,12 +10,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class ScrapeUntappdProfile implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, ManagesJobStatus, Queueable, SerializesModels;
 
     public int $timeout = 300;
 
@@ -24,22 +24,22 @@ class ScrapeUntappdProfile implements ShouldQueue
 
     public function __construct(public User $user) {}
 
+    protected function statusCacheKey(): string
+    {
+        return "scrape_status_{$this->user->id}";
+    }
+
     public function handle(UntappdScraper $scraper): void
     {
-        $cacheKey = "scrape_status_{$this->user->id}";
-
         try {
-            Cache::put($cacheKey, ['status' => 'running', 'message' => 'Scraping...'], now()->addMinutes(10));
+            $this->setStatusRunning('Scraping...');
 
             $result = $scraper->importViaHtml($this->user);
 
             if ($result['error']) {
-                Cache::put($cacheKey, ['status' => 'error', 'message' => 'Error: '.$result['error']], now()->addMinutes(10));
+                $this->setStatusError('Error: '.$result['error']);
             } else {
-                Cache::put($cacheKey, [
-                    'status' => 'done',
-                    'message' => "Imported {$result['imported']} new beer(s), updated {$result['skipped']} existing.",
-                ], now()->addMinutes(10));
+                $this->setStatusDone("Imported {$result['imported']} new beer(s), updated {$result['skipped']} existing.");
             }
         } catch (\Throwable $e) {
             Log::error('ScrapeUntappdProfile job failed: '.$e->getMessage(), ['exception' => $e]);
@@ -55,9 +55,6 @@ class ScrapeUntappdProfile implements ShouldQueue
             'user_id' => $this->user->id,
         ]);
 
-        Cache::put("scrape_status_{$this->user->id}", [
-            'status' => 'error',
-            'message' => 'Scraping failed: '.$exception->getMessage(),
-        ], now()->addMinutes(10));
+        $this->setStatusError('Scraping failed: '.$exception->getMessage());
     }
 }

@@ -79,8 +79,7 @@ class DiscordBotTest extends TestCase
 
         $response = $this->actingAs($user)->get('/logr/connect');
 
-        $response->assertRedirect(route('admin.notifications'));
-        $response->assertSessionHas('error');
+        $response->assertForbidden();
     }
 
     public function test_duplicate_guild_not_added(): void

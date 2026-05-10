@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Concerns\ManagesJobStatus;
 use App\Models\Venue;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 
 class GeocodeVenues implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, ManagesJobStatus, Queueable, SerializesModels;
 
     public int $timeout = 600;
 
@@ -22,26 +23,29 @@ class GeocodeVenues implements ShouldQueue
 
     public int $maxExceptions = 3;
 
+    protected function statusCacheKey(): string
+    {
+        return 'geocode_status';
+    }
+
     public function handle(): void
     {
         try {
-            Cache::put('geocode_status', [
+            Cache::put($this->statusCacheKey(), [
                 'status' => 'running',
                 'message' => 'Geocoding venues...',
             ], now()->addMinutes(15));
 
-            $venues = Venue::whereNull('latitude')->get();
+            $venues = Venue::withoutCoordinates()->get();
 
             $geocoded = 0;
 
             foreach ($venues as $venue) {
-                // Build query from address components, fall back to venue name
                 $query = collect([$venue->address, $venue->city, $venue->state])
                     ->filter()
                     ->implode(', ');
 
                 if (! $query) {
-                    // Fall back to venue name for name-only venues
                     $query = $venue->name;
                 }
 
@@ -51,7 +55,7 @@ class GeocodeVenues implements ShouldQueue
 
                 try {
                     $response = Http::withHeaders([
-                        'User-Agent' => 'Logr/1.0 (personal beer tracker)',
+                        'User-Agent' => config('logr.user_agent'),
                     ])
                         ->timeout(10)
                         ->get('https://nominatim.openstreetmap.org/search', [
@@ -79,10 +83,7 @@ class GeocodeVenues implements ShouldQueue
                 sleep(1);
             }
 
-            Cache::put('geocode_status', [
-                'status' => 'done',
-                'message' => "Geocoded {$geocoded} of {$venues->count()} venue(s).",
-            ], now()->addMinutes(10));
+            $this->setStatusDone("Geocoded {$geocoded} of {$venues->count()} venue(s).");
         } catch (\Throwable $e) {
             Log::error('GeocodeVenues job failed: '.$e->getMessage(), ['exception' => $e]);
 
@@ -96,9 +97,6 @@ class GeocodeVenues implements ShouldQueue
             'exception' => $exception,
         ]);
 
-        Cache::put('geocode_status', [
-            'status' => 'error',
-            'message' => 'Geocoding failed: '.$exception->getMessage(),
-        ], now()->addMinutes(10));
+        $this->setStatusError('Geocoding failed: '.$exception->getMessage());
     }
 }

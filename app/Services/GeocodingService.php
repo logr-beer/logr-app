@@ -26,7 +26,7 @@ class GeocodingService
         return Cache::remember($cacheKey, now()->addMonth(), function () use ($query) {
             try {
                 $response = Http::withHeaders([
-                    'User-Agent' => 'Logr-BeerTracker/1.0',
+                    'User-Agent' => config('logr.user_agent'),
                 ])->get('https://nominatim.openstreetmap.org/search', [
                     'q' => $query,
                     'format' => 'json',

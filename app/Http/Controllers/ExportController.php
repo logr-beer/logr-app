@@ -93,6 +93,7 @@ class ExportController extends Controller
             ]);
 
             Beer::with('brewery')
+                ->whereHas('checkins', fn ($q) => $q->where('user_id', auth()->id()))
                 ->withCount('checkins')
                 ->orderBy('name')
                 ->chunk(200, function ($beers) use ($handle) {

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Concerns\ManagesJobStatus;
 use App\Models\User;
 use App\Services\UntappdRss;
 use Illuminate\Bus\Queueable;
@@ -9,12 +10,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class SyncUntappdRss implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, ManagesJobStatus, Queueable, SerializesModels;
 
     public int $timeout = 120;
 
@@ -24,22 +24,22 @@ class SyncUntappdRss implements ShouldQueue
 
     public function __construct(public User $user) {}
 
+    protected function statusCacheKey(): string
+    {
+        return "rss_status_{$this->user->id}";
+    }
+
     public function handle(UntappdRss $rss): void
     {
-        $cacheKey = "rss_status_{$this->user->id}";
-
         try {
-            Cache::put($cacheKey, ['status' => 'running', 'message' => 'Syncing RSS feeds...'], now()->addMinutes(10));
+            $this->setStatusRunning('Syncing RSS feeds...');
 
             $result = $rss->syncAll($this->user);
 
             if ($result['error']) {
-                Cache::put($cacheKey, ['status' => 'error', 'message' => 'Error: '.$result['error']], now()->addMinutes(10));
+                $this->setStatusError('Error: '.$result['error']);
             } else {
-                Cache::put($cacheKey, [
-                    'status' => 'done',
-                    'message' => "Imported {$result['imported']} check-in(s), skipped {$result['skipped']} already imported.",
-                ], now()->addMinutes(10));
+                $this->setStatusDone("Imported {$result['imported']} check-in(s), skipped {$result['skipped']} already imported.");
             }
         } catch (\Throwable $e) {
             Log::error('SyncUntappdRss job failed: '.$e->getMessage(), ['exception' => $e]);
@@ -55,9 +55,6 @@ class SyncUntappdRss implements ShouldQueue
             'user_id' => $this->user->id,
         ]);
 
-        Cache::put("rss_status_{$this->user->id}", [
-            'status' => 'error',
-            'message' => 'RSS sync failed: '.$exception->getMessage(),
-        ], now()->addMinutes(10));
+        $this->setStatusError('RSS sync failed: '.$exception->getMessage());
     }
 }

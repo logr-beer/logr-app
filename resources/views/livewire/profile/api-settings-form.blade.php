@@ -150,7 +150,7 @@ new class extends Component
 
         try {
             $response = \Illuminate\Support\Facades\Http::accept('application/json')
-                ->withHeaders(['User-Agent' => 'Logr/1.0'])
+                ->withHeaders(['User-Agent' => config('logr.user_agent')])
                 ->timeout(10)
                 ->get('https://api.untappd.com/v4/search/beer', [
                     'client_id' => $this->untappd_client_id,

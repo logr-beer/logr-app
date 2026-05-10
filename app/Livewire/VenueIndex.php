@@ -51,11 +51,9 @@ class VenueIndex extends Component
             ->withCount('checkins');
 
         if ($this->locationFilter === 'missing') {
-            $query->where(function ($q) {
-                $q->whereNull('latitude')->orWhereNull('longitude');
-            });
+            $query->withoutCoordinates();
         } elseif ($this->locationFilter === 'located') {
-            $query->whereNotNull('latitude')->whereNotNull('longitude');
+            $query->withCoordinates();
         }
 
         if ($this->search) {
@@ -75,8 +73,7 @@ class VenueIndex extends Component
         };
 
         // Get all venues with coordinates for the map (unfiltered)
-        $mapVenues = Venue::whereNotNull('latitude')
-            ->whereNotNull('longitude')
+        $mapVenues = Venue::withCoordinates()
             ->withCount('checkins')
             ->get()
             ->map(fn ($v) => [
@@ -88,13 +85,7 @@ class VenueIndex extends Component
                 'checkins' => $v->checkins_count,
             ]);
 
-        $ungeocodedCount = Venue::whereNull('latitude')
-            ->where(function ($q) {
-                $q->whereNotNull('city')
-                    ->orWhereNotNull('state')
-                    ->orWhereNotNull('name');
-            })
-            ->count();
+        $ungeocodedCount = Venue::geocodable()->count();
 
         return view('livewire.venue-index', [
             'venues' => $query->paginate(24),
