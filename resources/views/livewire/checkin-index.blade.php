@@ -23,7 +23,7 @@
                 @php
                     $checkinBadges = [];
                     if ($checkin->serving_type) {
-                        $checkinBadges[] = ['label' => ucfirst($checkin->serving_type), 'position' => 'left', 'style' => 'dark', 'icon' => 'glass'];
+                        $checkinBadges[] = ['label' => ucfirst($checkin->serving_type), 'position' => 'left', 'style' => 'dark'];
                     }
                     if ($checkin->rating) {
                         $checkinBadges[] = ['label' => number_format($checkin->rating, 1) . ' ★', 'position' => 'right', 'style' => 'dark'];
