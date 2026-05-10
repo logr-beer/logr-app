@@ -128,7 +128,7 @@
                 <div x-data="{ open: false }" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                            <svg class="w-5 h-5 inline-block mr-1 text-blue-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
+                            <svg class="w-5 h-5 inline-block mr-1 text-amber-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
                             Inventory
                         </h2>
                         <button @click="open = !open" class="text-sm text-amber-500 hover:text-amber-600 font-medium">
@@ -235,7 +235,7 @@
                 {{-- Collections --}}
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
                     <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                        <svg class="w-5 h-5 inline-block mr-1 text-purple-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-1.243 1.007-2.25 2.25-2.25h13.5"/></svg>
+                        <svg class="w-5 h-5 inline-block mr-1 text-amber-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-1.243 1.007-2.25 2.25-2.25h13.5"/></svg>
                         Collections
                     </h2>
 
@@ -243,10 +243,17 @@
                         <div class="space-y-2 mb-4">
                             @foreach($beerCollections as $collection)
                                 <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                                    <a href="{{ route('collections.show', $collection) }}" wire:navigate class="text-sm font-medium text-gray-900 dark:text-white hover:text-amber-500 transition-colors">{{ $collection->name }}</a>
-                                    <button wire:click="removeFromCollection({{ $collection->id }})" class="p-1.5 text-gray-400 hover:text-red-500 transition-colors" title="Remove from collection">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                    </button>
+                                    <div class="flex items-center gap-2">
+                                        <a href="{{ route('collections.show', $collection) }}" wire:navigate class="text-sm font-medium text-gray-900 dark:text-white hover:text-amber-500 transition-colors">{{ $collection->name }}</a>
+                                        @if($collection->is_dynamic)
+                                            <span class="text-[10px] font-medium text-purple-500 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 px-1.5 py-0.5 rounded-full">Dynamic</span>
+                                        @endif
+                                    </div>
+                                    @unless($collection->is_dynamic)
+                                        <button wire:click="removeFromCollection({{ $collection->id }})" class="p-1.5 text-gray-400 hover:text-red-500 transition-colors" title="Remove from collection">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
+                                    @endunless
                                 </div>
                             @endforeach
                         </div>
@@ -256,13 +263,15 @@
 
                     @if($availableCollections->isNotEmpty())
                         <div class="flex items-center gap-2">
-                            <select wire:model.live="selectedCollectionId" class="flex-1 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500">
-                                <option value="">Add to collection...</option>
-                                @foreach($availableCollections as $collection)
-                                    <option value="{{ $collection->id }}">{{ $collection->name }}</option>
-                                @endforeach
-                            </select>
-                            <button wire:click="addToCollection" class="px-4 py-2 bg-purple-500 text-white text-sm font-medium rounded-lg hover:bg-purple-600 transition-colors">Add</button>
+                            <div class="flex-1">
+                                <x-custom-select
+                                    wireModel="selectedCollectionId"
+                                    placeholder="Add to collection..."
+                                    size="lg"
+                                    :options="collect(['' => 'Add to collection...'])->merge($availableCollections->pluck('name', 'id'))->all()"
+                                />
+                            </div>
+                            <button wire:click="addToCollection" class="px-4 py-2.5 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors">Add</button>
                         </div>
                     @endif
                 </div>
@@ -347,18 +356,18 @@
                             <div wire:loading wire:target="checkinPhotos" class="mt-2 text-sm text-amber-500">Uploading photos...</div>
                         </div>
                     </div>
-                    <div class="mt-4 flex items-center justify-between">
-                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50" wire:loading.attr="disabled">
-                            <svg wire:loading wire:target="submitCheckin" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                            Check In
-                        </button>
+                    <div class="mt-4 flex items-center justify-end gap-3">
                         @if(!empty(auth()->user()->getData('discord_webhooks')) || !empty(auth()->user()->getData('discord_bots')))
-                            <label class="inline-flex items-center gap-2 cursor-pointer">
+                            <label class="inline-flex items-center gap-2 cursor-pointer mr-auto">
                                 <input wire:model="shareCheckinToDiscord" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-indigo-500 focus:ring-indigo-500 dark:bg-gray-700" />
                                 <svg class="w-4 h-4 text-indigo-400" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
                                 <span class="text-sm text-gray-500 dark:text-gray-400">Share to Discord</span>
                             </label>
                         @endif
+                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50" wire:loading.attr="disabled">
+                            <svg wire:loading wire:target="submitCheckin" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                            Check In
+                        </button>
                     </div>
                 </form>
 

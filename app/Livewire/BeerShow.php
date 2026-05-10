@@ -278,9 +278,16 @@ class BeerShow extends Component
 
         $totalQty = $inventoryItems->sum('quantity');
 
-        $beerCollections = $this->beer->collections()
+        $staticCollections = $this->beer->collections()
             ->where('user_id', auth()->id())
             ->get();
+
+        $dynamicCollections = Collection::where('user_id', auth()->id())
+            ->where('is_dynamic', true)
+            ->get()
+            ->filter(fn ($c) => $c->dynamicBeers()->where('beers.id', $this->beer->id)->exists());
+
+        $beerCollections = $staticCollections->merge($dynamicCollections)->unique('id');
 
         $storageLocations = Collection::where('user_id', auth()->id())
             ->where('is_dynamic', true)
