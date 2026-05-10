@@ -63,10 +63,10 @@
                     {{-- Decrement button --}}
                     <button
                         wire:click="removeItem({{ $item->id }})"
-                        class="absolute bottom-[3.25rem] right-1.5 p-1 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all z-10"
+                        class="absolute bottom-[3.25rem] right-1.5 p-1.5 rounded-full bg-gray-900/70 text-white opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all z-10"
                         title="Remove one"
                     >
-                        <x-icon name="minus" size="3.5" />
+                        <x-icon name="minus" size="3" />
                     </button>
                 </div>
             @endforeach
