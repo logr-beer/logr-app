@@ -1,7 +1,7 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Your Check-ins</h1>
+        <x-page-header title="Your Check-ins" actionLabel="New" :actionHref="route('checkins.create')" />
         <div class="flex items-center gap-2 sm:justify-end">
             <x-search-input wire:model.live.debounce.300ms="search" placeholder="Search beers or breweries..." class="flex-1 sm:flex-none sm:w-56" />
             <x-sort-control :options="['newest' => 'Newest', 'rating' => 'Rating']" />

@@ -1,12 +1,7 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <div class="flex items-center gap-3 mb-3">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Collections</h1>
-            <x-primary-button type="button" wire:click="$set('showCreateModal', true)" size="xs" class="flex-shrink-0">
-                <x-icon name="plus" size="3.5" /> New
-            </x-primary-button>
-        </div>
+        <x-page-header title="Collections" actionLabel="New" actionClick="$set('showCreateModal', true)" />
         <div class="flex flex-col sm:flex-row sm:items-center gap-3">
             {{-- Tabs --}}
             <x-pill-tabs

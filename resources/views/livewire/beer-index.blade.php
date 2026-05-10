@@ -1,7 +1,7 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Beers</h1>
+        <x-page-header title="Beers" actionLabel="Add" :actionHref="route('beers.create')" />
         <div class="flex flex-col sm:flex-row sm:items-center gap-3">
             {{-- Tabs --}}
             <x-pill-tabs

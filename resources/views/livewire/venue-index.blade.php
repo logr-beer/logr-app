@@ -1,7 +1,7 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Locations</h1>
+        <x-page-header title="Locations" />
         <div class="flex flex-col sm:flex-row sm:items-center gap-3">
             <x-pill-tabs
                 :tabs="['venues' => 'Venues', 'breweries' => ['label' => 'Breweries', 'href' => route('locations.breweries')]]"

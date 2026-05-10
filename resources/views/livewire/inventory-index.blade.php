@@ -1,7 +1,7 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Beers</h1>
+        <x-page-header title="Beers" actionLabel="Add" :actionHref="route('beers.create')" />
         <x-pill-tabs
             :tabs="['all' => ['label' => 'All Beers', 'href' => route('beers.index')], 'favorites' => ['label' => 'Favorites', 'href' => route('beers.index', ['filter' => 'favorites'])], 'inventory' => 'Inventory']"
             active="inventory"
