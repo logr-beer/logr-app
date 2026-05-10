@@ -371,7 +371,7 @@ class BeerForm extends Component
             'release_year' => 'nullable|integer|min:1800|max:'.(date('Y') + 1),
             'brewer_master' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:5000',
-            'photo' => 'nullable|image|max:4096',
+            'photo' => 'nullable|image|max:10240',
         ];
 
         $validated = $this->validate($rules);

@@ -306,7 +306,7 @@
                     <x-photo-upload
                         wireModel="photo"
                         label="Photo"
-                        hint="JPG, PNG or WebP. Max 4MB."
+                        hint="JPG, PNG or WebP. Max 10MB."
                         error="photo"
                         :previews="$photo ? [$photo] : null"
                         :existingPhotos="$beer && $beer->photo_path ? [$beer->photo_path] : null"
