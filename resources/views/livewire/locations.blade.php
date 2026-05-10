@@ -3,11 +3,10 @@
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Locations</h1>
         <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-            {{-- Nav --}}
-            <div class="flex items-center gap-1 flex-shrink-0">
-                <a href="{{ route('locations.venues') }}" wire:navigate class="px-3 py-1.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">Venues</a>
-                <span class="px-3 py-1.5 text-sm font-medium rounded-lg bg-amber-500 text-white">Breweries</span>
-            </div>
+            <x-pill-tabs
+                :tabs="['venues' => ['label' => 'Venues', 'href' => route('locations.venues')], 'breweries' => 'Breweries']"
+                active="breweries"
+            />
 
             {{-- Search & Sort --}}
             <div class="flex items-center gap-2 sm:ml-auto">
