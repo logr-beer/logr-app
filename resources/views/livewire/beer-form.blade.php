@@ -4,11 +4,7 @@
             {{ $isEditing ? 'Edit Beer' : 'Add New Beer' }}
         </h1>
 
-        @if (session()->has('message'))
-            <div class="mb-4 p-4 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-sm">
-                {{ session('message') }}
-            </div>
-        @endif
+        <x-flash-message />
 
         {{-- Beer Search (Untappd / catalog.beer) --}}
         @if($hasApiKey && !$isEditing)
@@ -75,8 +71,7 @@
         <form wire:submit="save" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 max-w-4xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {{-- Name --}}
-                <div class="md:col-span-2">
-                    <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Beer Name *</label>
+                <x-form-field label="Beer Name" name="name" :required="true" span="full">
                     <input
                         wire:model="name"
                         type="text"
@@ -84,8 +79,7 @@
                         class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
                         placeholder="Enter beer name"
                     />
-                    @error('name') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
-                </div>
+                </x-form-field>
 
                 {{-- Brewery --}}
                 <div x-data="{ open: @entangle('showBreweryDropdown') }" @click.outside="open = false" class="relative md:col-span-2">

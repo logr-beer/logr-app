@@ -105,16 +105,12 @@
                 {{-- Collection Form --}}
                 @if($createTab === 'collection')
                     <form wire:submit="createCollection" class="space-y-4">
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+                        <x-form-field label="Name" name="name">
                             <input type="text" id="name" wire:model="name" placeholder="e.g. Summer Favorites, IPAs to Try..." class="w-full h-10 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-amber-500 focus:ring-amber-500" />
-                            @error('name') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description <span class="text-gray-400">(optional)</span></label>
+                        </x-form-field>
+                        <x-form-field label="Description" name="description" :optional="true">
                             <textarea id="description" wire:model="description" rows="2" placeholder="What's this collection about?" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-amber-500 focus:ring-amber-500"></textarea>
-                            @error('description') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
-                        </div>
+                        </x-form-field>
                         <div class="flex justify-end gap-3 pt-2">
                             <button type="button" wire:click="$set('showCreateModal', false)" class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">Cancel</button>
                             <button type="submit" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-lg transition-colors">Create Collection</button>
@@ -125,8 +121,7 @@
                 {{-- Dynamic Collection Form --}}
                 @if($createTab === 'dynamic')
                     <form wire:submit="createDynamicCollection" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rule</label>
+                        <x-form-field label="Rule">
                             <select wire:model.live="dynamicType" class="w-full h-10 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-amber-500 focus:ring-amber-500">
                                 <option value="">Select a rule...</option>
                                 <option value="year">Check-in Year</option>
@@ -139,65 +134,56 @@
                                 <option value="favorites">Favorites</option>
                                 <option value="oldest_in_stock">Oldest in Stock</option>
                             </select>
-                        </div>
+                        </x-form-field>
 
                         @if($dynamicType === 'year')
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Year</label>
+                            <x-form-field label="Year">
                                 <input type="number" wire:model="dynamicYear" min="2000" max="{{ date('Y') }}" placeholder="e.g. {{ date('Y') }}" class="w-full h-10 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-amber-500 focus:ring-amber-500" />
-                            </div>
+                            </x-form-field>
                         @elseif($dynamicType === 'style')
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Style</label>
+                            <x-form-field label="Style">
                                 <select wire:model="dynamicStyle" class="w-full h-10 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-amber-500 focus:ring-amber-500">
                                     <option value="">Select a style...</option>
-                                    @foreach(['IPA', 'Double IPA', 'Hazy IPA', 'Pale Ale', 'Stout', 'Imperial Stout', 'Porter', 'Lager', 'Pilsner', 'Sour', 'Wheat Beer', 'Saison', 'Belgian Tripel', 'Barleywine', 'Brown Ale', 'Amber Ale', 'Cider'] as $s)
+                                    @foreach(config('beer-styles.flat') as $s)
                                         <option value="{{ $s }}">{{ $s }}</option>
                                     @endforeach
                                 </select>
-                            </div>
+                            </x-form-field>
                         @elseif($dynamicType === 'rating')
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Minimum Rating</label>
+                            <x-form-field label="Minimum Rating">
                                 <input type="number" wire:model="dynamicMinRating" step="0.25" min="0.25" max="5" placeholder="e.g. 4.0" class="w-full h-10 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-amber-500 focus:ring-amber-500" />
-                            </div>
+                            </x-form-field>
                         @elseif($dynamicType === 'abv')
                             <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Min ABV %</label>
+                                <x-form-field label="Min ABV %">
                                     <input type="number" wire:model="dynamicMinAbv" step="0.1" min="0" max="30" placeholder="e.g. 5.0" class="w-full h-10 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-amber-500 focus:ring-amber-500" />
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max ABV %</label>
+                                </x-form-field>
+                                <x-form-field label="Max ABV %">
                                     <input type="number" wire:model="dynamicMaxAbv" step="0.1" min="0" max="30" placeholder="e.g. 10.0" class="w-full h-10 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-amber-500 focus:ring-amber-500" />
-                                </div>
+                                </x-form-field>
                             </div>
                         @elseif($dynamicType === 'brewery')
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Brewery Name</label>
+                            <x-form-field label="Brewery Name">
                                 <input type="text" wire:model="dynamicBrewery" placeholder="e.g. Sierra Nevada" class="w-full h-10 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-amber-500 focus:ring-amber-500" />
-                            </div>
+                            </x-form-field>
                         @elseif($dynamicType === 'serving_type')
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Serving Type</label>
+                            <x-form-field label="Serving Type">
                                 <select wire:model="dynamicServingType" class="w-full h-10 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-amber-500 focus:ring-amber-500">
                                     <option value="">Select a serving type...</option>
-                                    @foreach(['draft', 'can', 'bottle', 'crowler', 'growler', 'cask', 'taster'] as $s)
+                                    @foreach(config('logr.serving_types') as $s)
                                         <option value="{{ $s }}">{{ ucfirst($s) }}</option>
                                     @endforeach
                                 </select>
-                            </div>
+                            </x-form-field>
                         @elseif($dynamicType === 'venue')
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Venue Name</label>
+                            <x-form-field label="Venue Name">
                                 <input type="text" wire:model="dynamicVenue" placeholder="e.g. The Brewpub" class="w-full h-10 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-amber-500 focus:ring-amber-500" />
-                            </div>
+                            </x-form-field>
                         @endif
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description <span class="text-gray-400">(optional)</span></label>
+                        <x-form-field label="Description" :optional="true">
                             <textarea wire:model="description" rows="2" placeholder="Add a description..." class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-amber-500 focus:ring-amber-500"></textarea>
-                        </div>
+                        </x-form-field>
 
                         <div class="flex justify-end gap-3 pt-2">
                             <button type="button" wire:click="$set('showCreateModal', false)" class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">Cancel</button>

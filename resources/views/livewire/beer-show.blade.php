@@ -1,9 +1,5 @@
 <div>
-    @if (session()->has('message'))
-        <div class="mb-4 p-4 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-sm">
-            {{ session('message') }}
-        </div>
-    @endif
+    <x-flash-message />
 
     <x-back-link :href="route('beers.index')" label="Back to Library" />
 
