@@ -5,7 +5,7 @@
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Collections</h1>
             <button
                 wire:click="$set('showCreateModal', true)"
-                class="inline-flex items-center gap-1 px-2 py-1 bg-amber-500 hover:bg-amber-600 text-white text-xs font-medium rounded-md transition-colors flex-shrink-0"
+                class="inline-flex items-center gap-1 px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium rounded-md transition-colors flex-shrink-0"
             >
                 <x-icon name="plus" size="3.5" />
                 New
@@ -44,7 +44,7 @@
                         <h3 class="font-semibold text-sm text-gray-900 dark:text-white truncate">{{ $collection->name }}</h3>
                         <p class="text-xs text-gray-500 dark:text-gray-400">{{ $collection->beers_count }} {{ Str::plural('beer', $collection->beers_count) }}</p>
                         @if($collection->description)
-                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1 line-clamp-2">{{ $collection->description }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{{ $collection->description }}</p>
                         @endif
                     </div>
                 </a>
@@ -112,7 +112,7 @@
                         </x-form-field>
                         <div class="flex justify-end gap-3 pt-2">
                             <button type="button" wire:click="$set('showCreateModal', false)" class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">Cancel</button>
-                            <button type="submit" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-lg transition-colors">Create Collection</button>
+                            <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors">Create Collection</button>
                         </div>
                     </form>
                 @endif
@@ -187,7 +187,7 @@
                         <div class="flex justify-end gap-3 pt-2">
                             <button type="button" wire:click="$set('showCreateModal', false)" class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">Cancel</button>
                             @if($dynamicType)
-                                <button type="submit" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-lg transition-colors">Create Dynamic Collection</button>
+                                <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors">Create Dynamic Collection</button>
                             @endif
                         </div>
                     </form>

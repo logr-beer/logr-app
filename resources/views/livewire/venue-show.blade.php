@@ -59,12 +59,12 @@
                             wire:ignore
                         >
                             <div id="venue-picker-map" class="w-full h-[250px] rounded-lg border border-gray-300 dark:border-gray-600"></div>
-                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Drag the pin or click the map to set coordinates</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Drag the pin or click the map to set coordinates</p>
                         </div>
                     </div>
                 </div>
                 <div class="flex items-center gap-3 pt-2">
-                    <button type="submit" class="px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors">Save</button>
+                    <button type="submit" class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">Save</button>
                     <button type="button" wire:click="cancel" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">Cancel</button>
                     @unless(config('app.demo_mode'))
                         <button
@@ -87,7 +87,7 @@
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ $venue->displayLocation() }}</p>
                     @endif
                     @if($venue->address)
-                        <p class="text-sm text-gray-400 dark:text-gray-500 mt-0.5">{{ $venue->address }}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{{ $venue->address }}</p>
                     @endif
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
                         {{ $checkins->count() }} {{ Str::plural('check-in', $checkins->count()) }}
@@ -133,7 +133,7 @@
                                     </span>
                                     <p class="text-sm text-gray-500 dark:text-gray-400">{{ $checkin->beer->brewery?->name ?? 'Unknown Brewery' }}</p>
                                 </div>
-                                <time class="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap" datetime="{{ $checkin->created_at->toISOString() }}">
+                                <time class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap" datetime="{{ $checkin->created_at->toISOString() }}">
                                     {{ $checkin->created_at->diffForHumans() }}
                                 </time>
                             </div>

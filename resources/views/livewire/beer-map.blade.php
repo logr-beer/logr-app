@@ -12,7 +12,7 @@
         </div>
 
         @if($unmappedBreweries > 0)
-            <div class="text-xs text-gray-400 dark:text-gray-500">
+            <div class="text-xs text-gray-500 dark:text-gray-400">
                 Run <code class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">php artisan breweries:geocode</code> to map remaining breweries
             </div>
         @endif

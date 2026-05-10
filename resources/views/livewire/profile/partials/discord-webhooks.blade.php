@@ -71,7 +71,7 @@
                 </div>
                 <div class="shrink-0">
                     <x-input-label class="invisible">&nbsp;</x-input-label>
-                    <button type="button" wire:click="addWebhook" class="mt-1 inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-md shadow-sm hover:bg-amber-600 transition-colors">
+                    <button type="button" wire:click="addWebhook" class="mt-1 inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-amber-700 transition-colors">
                         <x-icon name="plus" size="4" />
                         Add
                     </button>

@@ -21,7 +21,7 @@
                         title="Look up coordinates for {{ $ungeocodedCount }} {{ Str::plural('brewery', $ungeocodedCount) }}"
                     >
                         <x-icon name="refresh" size="4" class="{{ $geocoding ? 'animate-spin' : '' }}" />
-                        <span class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-amber-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">{{ $ungeocodedCount }}</span>
+                        <span class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-amber-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center">{{ $ungeocodedCount }}</span>
                     </button>
                 @endif
             </div>

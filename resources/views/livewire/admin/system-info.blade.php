@@ -14,7 +14,7 @@
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Queue</h3>
                     @if($this->queueStats['pending'] > 0)
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-600 animate-pulse"></span>
                             Processing
                         </span>
                     @else
@@ -104,7 +104,7 @@
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Updates</h3>
                 </div>
                 <livewire:version-notice />
-                <div class="mt-3 text-xs text-gray-400 dark:text-gray-500">
+                <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
                     Version checks are cached for 4 hours. Click the refresh icon to check now.
                 </div>
             </div>

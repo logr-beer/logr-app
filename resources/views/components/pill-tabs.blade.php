@@ -8,7 +8,7 @@
             $href = is_array($tab) ? ($tab['href'] ?? null) : null;
             $badge = is_array($tab) ? ($tab['badge'] ?? null) : null;
             $classes = $isActive
-                ? 'bg-amber-500 text-white'
+                ? 'bg-amber-600 text-white'
                 : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700';
             $roundedClass = $loop->first ? 'rounded-l-[7px]' : ($loop->last ? 'rounded-r-[7px]' : '');
         @endphp
@@ -21,14 +21,14 @@
             <a href="{{ $href }}" wire:navigate class="px-3 py-1.5 text-sm font-medium transition-colors {{ $classes }} {{ $roundedClass }}">
                 {{ $label }}
                 @if($badge)
-                    <span class="ml-1 inline-flex items-center justify-center min-w-[1rem] h-4 px-1 text-[10px] font-bold rounded-full {{ $isActive ? 'bg-white/30' : 'bg-amber-500 text-white' }}">{{ $badge }}</span>
+                    <span class="ml-1 inline-flex items-center justify-center min-w-[1rem] h-4 px-1 text-[10px] font-bold rounded-full {{ $isActive ? 'bg-white/30' : 'bg-amber-600 text-white' }}">{{ $badge }}</span>
                 @endif
             </a>
         @else
             <button wire:click="{{ $wireModel ? "\$set('{$wireModel}', '{$key}')" : '' }}" class="px-3 py-1.5 text-sm font-medium transition-colors {{ $classes }} {{ $roundedClass }}">
                 {{ $label }}
                 @if($badge)
-                    <span class="ml-1 inline-flex items-center justify-center min-w-[1rem] h-4 px-1 text-[10px] font-bold rounded-full {{ $isActive ? 'bg-white/30' : 'bg-amber-500 text-white' }}">{{ $badge }}</span>
+                    <span class="ml-1 inline-flex items-center justify-center min-w-[1rem] h-4 px-1 text-[10px] font-bold rounded-full {{ $isActive ? 'bg-white/30' : 'bg-amber-600 text-white' }}">{{ $badge }}</span>
                 @endif
             </button>
         @endif

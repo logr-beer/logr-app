@@ -13,7 +13,7 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6">
             <button
                 wire:click="$set('location', '')"
-                class="p-3 rounded-lg text-left transition-colors {{ $location === '' ? 'bg-amber-500 text-white' : 'bg-white dark:bg-gray-800 shadow-sm hover:shadow-md text-gray-900 dark:text-white' }}"
+                class="p-3 rounded-lg text-left transition-colors {{ $location === '' ? 'bg-amber-600 text-white' : 'bg-white dark:bg-gray-800 shadow-sm hover:shadow-md text-gray-900 dark:text-white' }}"
             >
                 <p class="text-2xl font-bold">{{ $totalItems }}</p>
                 <p class="text-xs {{ $location === '' ? 'text-amber-100' : 'text-gray-500 dark:text-gray-400' }}">All Locations</p>
@@ -22,7 +22,7 @@
             @foreach($locationSummary as $loc)
                 <button
                     wire:click="$set('location', '{{ $loc->loc === 'Unassigned' ? '' : addslashes($loc->loc) }}')"
-                    class="p-3 rounded-lg text-left transition-colors {{ $location === $loc->loc ? 'bg-amber-500 text-white' : 'bg-white dark:bg-gray-800 shadow-sm hover:shadow-md text-gray-900 dark:text-white' }}"
+                    class="p-3 rounded-lg text-left transition-colors {{ $location === $loc->loc ? 'bg-amber-600 text-white' : 'bg-white dark:bg-gray-800 shadow-sm hover:shadow-md text-gray-900 dark:text-white' }}"
                 >
                     <p class="text-2xl font-bold">{{ $loc->total }}</p>
                     <p class="text-xs {{ $location === $loc->loc ? 'text-amber-100' : 'text-gray-500 dark:text-gray-400' }} truncate">{{ $loc->loc }}</p>

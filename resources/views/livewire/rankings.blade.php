@@ -126,7 +126,7 @@
                 </x-slot:icon>
             </x-section-heading>
             @if($styleBreakdown->isEmpty())
-                <p class="text-sm text-gray-400 dark:text-gray-500">No style data yet.</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">No style data yet.</p>
             @else
                 <div class="space-y-2">
                     @php $maxStyle = $styleBreakdown->max(); @endphp
@@ -134,7 +134,7 @@
                         <div class="flex items-center gap-3">
                             <span class="text-sm text-gray-700 dark:text-gray-300 w-32 truncate flex-shrink-0">{{ $style }}</span>
                             <div class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full h-5 overflow-hidden">
-                                <div class="bg-amber-500 h-full rounded-full flex items-center justify-end pr-2" style="width: {{ ($count / $maxStyle) * 100 }}%">
+                                <div class="bg-amber-600 h-full rounded-full flex items-center justify-end pr-2" style="width: {{ ($count / $maxStyle) * 100 }}%">
                                     <span class="text-[10px] font-bold text-white">{{ $count }}</span>
                                 </div>
                             </div>
@@ -152,7 +152,7 @@
                 </x-slot:icon>
             </x-section-heading>
             @if($servingTypes->isEmpty())
-                <p class="text-sm text-gray-400 dark:text-gray-500">No serving type data yet.</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">No serving type data yet.</p>
             @else
                 <div class="space-y-2">
                     @php $maxServing = $servingTypes->max('count'); @endphp
@@ -160,7 +160,7 @@
                         <div class="flex items-center gap-3">
                             <span class="text-sm text-gray-700 dark:text-gray-300 w-24 truncate flex-shrink-0">{{ ucfirst($type->serving_type) }}</span>
                             <div class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full h-5 overflow-hidden">
-                                <div class="bg-amber-500 h-full rounded-full flex items-center justify-end pr-2" style="width: {{ ($type->count / $maxServing) * 100 }}%">
+                                <div class="bg-amber-600 h-full rounded-full flex items-center justify-end pr-2" style="width: {{ ($type->count / $maxServing) * 100 }}%">
                                     <span class="text-[10px] font-bold text-white">{{ $type->count }}</span>
                                 </div>
                             </div>
@@ -178,7 +178,7 @@
                 </x-slot:icon>
             </x-section-heading>
             @if($ratingDistribution->isEmpty())
-                <p class="text-sm text-gray-400 dark:text-gray-500">No ratings yet.</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">No ratings yet.</p>
             @else
                 <div class="space-y-2">
                     @php $maxRating = $ratingDistribution->max(); @endphp
@@ -232,13 +232,13 @@
                 </x-slot:icon>
             </x-section-heading>
             @if($monthlyActivity->isEmpty())
-                <p class="text-sm text-gray-400 dark:text-gray-500">No check-ins yet.</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">No check-ins yet.</p>
             @else
                 <div class="flex items-end gap-1 h-32">
                     @php $maxMonth = $monthlyActivity->max(); @endphp
                     @foreach($monthlyActivity as $month => $count)
                         <div class="flex-1 flex flex-col items-center gap-1">
-                            <div class="w-full bg-amber-500 rounded-t" style="height: {{ $maxMonth > 0 ? ($count / $maxMonth) * 100 : 0 }}%"></div>
+                            <div class="w-full bg-amber-600 rounded-t" style="height: {{ $maxMonth > 0 ? ($count / $maxMonth) * 100 : 0 }}%"></div>
                             <span class="text-[9px] text-gray-400 dark:text-gray-500">{{ \Carbon\Carbon::parse($month . '-01')->format('M') }}</span>
                         </div>
                     @endforeach
@@ -254,7 +254,7 @@
                 </x-slot:icon>
             </x-section-heading>
             @if($countryBreakdown->isEmpty())
-                <p class="text-sm text-gray-400 dark:text-gray-500">No country data yet.</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">No country data yet.</p>
             @else
                 <div class="space-y-2">
                     @php $maxCountry = $countryBreakdown->max(); @endphp
@@ -262,7 +262,7 @@
                         <div class="flex items-center gap-3">
                             <span class="text-sm text-gray-700 dark:text-gray-300 w-28 truncate flex-shrink-0">{{ $country }}</span>
                             <div class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full h-5 overflow-hidden">
-                                <div class="bg-amber-500 h-full rounded-full flex items-center justify-end pr-2" style="width: {{ ($count / $maxCountry) * 100 }}%">
+                                <div class="bg-amber-600 h-full rounded-full flex items-center justify-end pr-2" style="width: {{ ($count / $maxCountry) * 100 }}%">
                                     <span class="text-[10px] font-bold text-white">{{ $count }}</span>
                                 </div>
                             </div>

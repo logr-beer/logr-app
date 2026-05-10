@@ -21,7 +21,7 @@
                         title="Look up coordinates for {{ $ungeocodedCount }} {{ Str::plural('venue', $ungeocodedCount) }}"
                     >
                         <x-icon name="refresh" size="4" class="{{ $geocoding ? 'animate-spin' : '' }}" />
-                        <span class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-amber-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">{{ $ungeocodedCount }}</span>
+                        <span class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-amber-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center">{{ $ungeocodedCount }}</span>
                     </button>
                 @endif
             </div>
@@ -61,7 +61,7 @@
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ $venue->displayLocation() }}</p>
                             @endif
                             @if($venue->address)
-                                <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate">{{ $venue->address }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{{ $venue->address }}</p>
                             @endif
                         </div>
                         <div class="flex items-center gap-2 flex-shrink-0">

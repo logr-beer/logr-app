@@ -44,7 +44,7 @@
                                         </div>
                                         <div class="flex items-center gap-2 flex-shrink-0">
                                             @if($result['style'] ?? null)
-                                                <span class="text-xs text-gray-400 dark:text-gray-500">{{ $result['style'] }}</span>
+                                                <span class="text-xs text-gray-500 dark:text-gray-400">{{ $result['style'] }}</span>
                                             @endif
                                             @if($result['abv'] ?? null)
                                                 <span class="text-xs font-medium text-amber-600 dark:text-amber-400">{{ $result['abv'] }}%</span>
@@ -158,7 +158,7 @@
                         @if(count($style) > 0)
                             <div class="flex flex-wrap gap-1 flex-1 min-w-0">
                                 @foreach($style as $s)
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-400/50 dark:border-amber-500/40 rounded-full text-xs font-medium">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-600/10 text-amber-600 dark:text-amber-400 border border-amber-400/50 dark:border-amber-500/40 rounded-full text-xs font-medium">
                                         {{ $s }}
                                         <span
                                             @click.stop="$wire.set('style', {{ json_encode(array_values(array_diff($style, [$s]))) }})"
@@ -530,7 +530,7 @@
                 </a>
                 <button
                     type="submit"
-                    class="inline-flex items-center gap-2 px-6 py-2.5 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50"
+                    class="inline-flex items-center gap-2 px-6 py-2.5 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50"
                     wire:loading.attr="disabled"
                 >
                     <svg wire:loading wire:target="save" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>

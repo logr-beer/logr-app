@@ -377,11 +377,11 @@ new class extends Component
 
             @if($untappd_username && !$demoMode)
                 <div class="flex flex-wrap items-center gap-3">
-                    <button type="button" wire:click="scrapeProfile" {{ $scraping ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
+                    <button type="button" wire:click="scrapeProfile" {{ $scraping ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50">
                         @if($scraping) <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> @endif
                         Scrape Public
                     </button>
-                    <button type="button" wire:click="scrapeVenues" {{ $scrapingVenues ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
+                    <button type="button" wire:click="scrapeVenues" {{ $scrapingVenues ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50">
                         @if($scrapingVenues) <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> @endif
                         Scrape Venues
                     </button>
@@ -435,7 +435,7 @@ new class extends Component
                         </div>
                         <div class="shrink-0">
                             <x-input-label class="invisible">&nbsp;</x-input-label>
-                            <button type="button" wire:click="addFeed" class="mt-1 inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-md shadow-sm hover:bg-amber-600 transition-colors">
+                            <button type="button" wire:click="addFeed" class="mt-1 inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-amber-700 transition-colors">
                                 <x-icon name="plus" size="4" />
                                 Add
                             </button>
@@ -448,7 +448,7 @@ new class extends Component
             {{-- Sync Feeds --}}
             @if(count($rssFeeds) && !$demoMode)
                 <div class="flex flex-wrap items-center gap-3">
-                    <button type="button" wire:click="syncRss" {{ $syncing ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
+                    <button type="button" wire:click="syncRss" {{ $syncing ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50">
                         @if($syncing) <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> @endif
                         Sync All Feeds
                     </button>
@@ -500,7 +500,7 @@ new class extends Component
         <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
             <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Venues</h3>
             <p class="text-xs text-gray-500 dark:text-gray-400">Geocode venues without coordinates using OpenStreetMap/Nominatim.</p>
-            <button type="button" wire:click="geocodeVenues" {{ $geocoding || $demoMode ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
+            <button type="button" wire:click="geocodeVenues" {{ $geocoding || $demoMode ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50">
                 @if($geocoding) <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> @endif
                 Geocode Venues
             </button>

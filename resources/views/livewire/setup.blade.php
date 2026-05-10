@@ -30,7 +30,7 @@
                         class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
                     <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Enable location geocoding</span>
                     <span></span>
-                    <p class="text-xs text-gray-400 dark:text-gray-500">Automatically look up coordinates for breweries and venues using OpenStreetMap's Nominatim API. This sends city/state data to an external service.</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Automatically look up coordinates for breweries and venues using OpenStreetMap's Nominatim API. This sends city/state data to an external service.</p>
                 </label>
 
                 <label class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 cursor-pointer">
@@ -38,7 +38,7 @@
                         class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
                     <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Load demo data</span>
                     <span></span>
-                    <p class="text-xs text-gray-400 dark:text-gray-500">Pre-populate with sample beers, breweries, check-ins, and collections.</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Pre-populate with sample beers, breweries, check-ins, and collections.</p>
                 </label>
             </div>
 
@@ -131,7 +131,7 @@
             @endif
 
             <div class="pt-2">
-                <button type="submit" class="w-full px-5 py-2.5 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors">
+                <button type="submit" class="w-full px-5 py-2.5 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">
                     Create Account
                 </button>
             </div>

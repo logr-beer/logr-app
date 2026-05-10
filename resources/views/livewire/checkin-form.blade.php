@@ -64,7 +64,7 @@
                         @endif
 
                         @if(strlen($beerQuery) >= 2 && count($beerSuggestions) === 0)
-                            <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">No beers found matching "{{ $beerQuery }}".</p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">No beers found matching "{{ $beerQuery }}".</p>
                         @endif
                     @endif
                     @error('selectedBeerId') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
@@ -114,7 +114,7 @@
                         @endif
 
                         @if(strlen($venueQuery) >= 2 && count($venueSuggestions) === 0)
-                            <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">No matches — "{{ $venueQuery }}" will be created as a new venue.</p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">No matches — "{{ $venueQuery }}" will be created as a new venue.</p>
                         @endif
                     @endif
                 </div>
@@ -213,7 +213,7 @@
                             hover:file:bg-amber-100 dark:hover:file:bg-amber-900/30
                             file:cursor-pointer file:transition-colors"
                     />
-                    <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Up to 10MB per photo. Multiple photos allowed.</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Up to 10MB per photo. Multiple photos allowed.</p>
                     @error('photos.*') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
 
                     {{-- Photo previews --}}
@@ -275,7 +275,7 @@
                     >Cancel</a>
                     <button
                         type="submit"
-                        class="inline-flex items-center gap-2 px-6 py-2.5 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50"
+                        class="inline-flex items-center gap-2 px-6 py-2.5 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50"
                         wire:loading.attr="disabled"
                     >
                         <svg wire:loading wire:target="submitCheckin" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>

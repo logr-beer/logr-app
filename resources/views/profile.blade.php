@@ -34,11 +34,11 @@
                             </header>
 
                             <div class="mt-6 space-y-3">
-                                <a href="{{ route('beers.export') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-amber-500 text-white hover:bg-amber-600 transition-colors w-full justify-center sm:w-auto sm:justify-start">
+                                <a href="{{ route('beers.export') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-amber-600 text-white hover:bg-amber-700 transition-colors w-full justify-center sm:w-auto sm:justify-start">
                                     <x-icon name="download" size="4" />
                                     Export Beers
                                 </a>
-                                <a href="{{ route('checkins.export') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-amber-500 text-white hover:bg-amber-600 transition-colors w-full justify-center sm:w-auto sm:justify-start">
+                                <a href="{{ route('checkins.export') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-amber-600 text-white hover:bg-amber-700 transition-colors w-full justify-center sm:w-auto sm:justify-start">
                                     <x-icon name="download" size="4" />
                                     Export Check-Ins
                                 </a>

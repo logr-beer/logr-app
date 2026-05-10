@@ -143,7 +143,7 @@
                                         <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->storage_location }}</span>
                                         <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">&times; {{ $item->quantity }}</span>
                                         @if($item->purchase_location || $item->date_acquired || $item->is_gift)
-                                            <div class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 flex items-center gap-1.5">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 flex items-center gap-1.5">
                                                 @if($item->is_gift)
                                                     <span class="inline-flex items-center px-1.5 py-0.5 bg-pink-100 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400 rounded text-[10px] font-medium">Gift</span>
                                                 @endif
@@ -160,7 +160,7 @@
                             @endforeach
                         </div>
                     @else
-                        <p class="text-sm text-gray-400 dark:text-gray-500 mb-4">None in storage.</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">None in storage.</p>
                     @endif
 
                     <div x-show="open" x-cloak x-transition class="pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -218,7 +218,7 @@
                             </div>
                         </div>
                         <div class="mt-3 flex items-center justify-between">
-                            <button wire:click="addToFridge" @click="open = false" class="inline-flex items-center gap-2 px-5 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors">Add to Inventory</button>
+                            <button wire:click="addToFridge" @click="open = false" class="inline-flex items-center gap-2 px-5 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">Add to Inventory</button>
                             @if(!empty(auth()->user()->getData('discord_webhooks')) || !empty(auth()->user()->getData('discord_bots')))
                                 <label class="inline-flex items-center gap-2 cursor-pointer">
                                     <input wire:model="sharePurchaseToDiscord" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
@@ -256,7 +256,7 @@
                             @endforeach
                         </div>
                     @else
-                        <p class="text-sm text-gray-400 dark:text-gray-500 mb-4">Not in any collection.</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Not in any collection.</p>
                     @endif
 
                     @if($availableCollections->isNotEmpty())
@@ -269,7 +269,7 @@
                                     :options="collect(['' => 'Add to collection...'])->merge($availableCollections->pluck('name', 'id'))->all()"
                                 />
                             </div>
-                            <button wire:click="addToCollection" class="px-4 py-2.5 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors">Add</button>
+                            <button wire:click="addToCollection" class="px-4 py-2.5 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">Add</button>
                         </div>
                     @endif
                 </div>
@@ -328,7 +328,7 @@
                                     </div>
                                 @endif
                                 @if(strlen($venueQuery) >= 2 && count($venueSuggestions) === 0)
-                                    <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">No matches — "{{ $venueQuery }}" will be created as a new venue.</p>
+                                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">No matches — "{{ $venueQuery }}" will be created as a new venue.</p>
                                 @endif
                             @endif
                         </div>
@@ -362,7 +362,7 @@
                                 <span class="text-sm text-gray-500 dark:text-gray-400">Share to Discord</span>
                             </label>
                         @endif
-                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50" wire:loading.attr="disabled">
+                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50" wire:loading.attr="disabled">
                             <svg wire:loading wire:target="submitCheckin" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
                             Check In
                         </button>

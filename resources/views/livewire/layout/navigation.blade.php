@@ -54,11 +54,11 @@ new class extends Component
 
             <!-- Add Beer + Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6 gap-4">
-                <a href="{{ route('checkins.create') }}" wire:navigate class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-amber-500 hover:bg-amber-600 transition">
+                <a href="{{ route('checkins.create') }}" wire:navigate class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700 transition">
                     <x-icon name="plus-circle" size="4" class="me-1" />
                     Check In
                 </a>
-                <a href="{{ route('beers.create') }}" wire:navigate class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-amber-500 hover:bg-amber-600 transition">
+                <a href="{{ route('beers.create') }}" wire:navigate class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700 transition">
                     <x-icon name="plus" size="4" class="me-1" />
                     Add Beer
                 </a>
