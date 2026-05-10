@@ -45,52 +45,32 @@
     @if($items->count())
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
             @foreach($items as $item)
-                <div class="group relative bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                    <a href="{{ route('beers.show', $item->beer) }}" wire:navigate class="block">
-                        <div class="aspect-square bg-gray-100 dark:bg-gray-700 overflow-hidden relative">
-                            @if($item->beer->photo_path)
-                                <img src="{{ Storage::url($item->beer->photo_path) }}" alt="{{ $item->beer->name }}" class="w-full h-full object-cover">
-                            @else
-                                <div class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
-                                    <x-application-logo-filled class="w-12 h-12 stroke-current" />
-                                </div>
-                            @endif
-
-                            {{-- Quantity badge --}}
-                            <div class="absolute top-1.5 right-1.5 bg-black/70 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                                &times;{{ $item->quantity }}
-                            </div>
-
-                            {{-- Gift badge --}}
-                            @if($item->is_gift)
-                                <div class="absolute top-1.5 left-1.5 bg-pink-500/80 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                                    Gift
-                                </div>
-                            @endif
-                        </div>
-                    </a>
-
+                @php
+                    $itemBadges = [];
+                    if ($item->is_gift) {
+                        $itemBadges[] = ['label' => 'Gift', 'position' => 'left', 'style' => 'pink'];
+                    }
+                    if ($item->beer->abv) {
+                        $itemBadges[] = ['label' => $item->beer->abv . '%', 'position' => 'left', 'style' => 'dark', 'icon' => 'flask'];
+                    }
+                    $itemBadges[] = ['label' => '×' . $item->quantity, 'position' => 'right', 'style' => 'dark'];
+                @endphp
+                <div class="relative">
+                    <x-beer-card
+                        :beer="$item->beer"
+                        :badges="$itemBadges"
+                        :subtitle="$item->storage_location"
+                        :date="$item->date_acquired"
+                        dateLabel="Acquired"
+                    />
                     {{-- Decrement button --}}
                     <button
                         wire:click="removeItem({{ $item->id }})"
-                        class="absolute bottom-[3.25rem] right-1.5 p-1 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all"
+                        class="absolute bottom-[3.25rem] right-1.5 p-1 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all z-10"
                         title="Remove one"
                     >
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/></svg>
                     </button>
-
-                    <div class="p-2">
-                        <h3 class="font-semibold text-xs text-gray-900 dark:text-white truncate">{{ $item->beer->name }}</h3>
-                        <p class="text-[10px] text-gray-500 dark:text-gray-400 truncate">{{ $item->beer->brewery?->name ?? 'Unknown Brewery' }}</p>
-                        <div class="flex items-center gap-1.5 mt-1">
-                            @if($item->storage_location)
-                                <span class="text-[10px] text-amber-600 dark:text-amber-400 truncate">{{ $item->storage_location }}</span>
-                            @endif
-                            @if($item->date_acquired)
-                                <span class="text-[10px] text-gray-400">{{ $item->date_acquired->format('M j') }}</span>
-                            @endif
-                        </div>
-                    </div>
                 </div>
             @endforeach
         </div>

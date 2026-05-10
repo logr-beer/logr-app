@@ -34,6 +34,12 @@ class InventoryIndex extends Component
         }
     }
 
+    public function toggleFavorite(int $beerId): void
+    {
+        $beer = \App\Models\Beer::findOrFail($beerId);
+        $beer->update(['is_favorite' => ! $beer->is_favorite]);
+    }
+
     public function deleteItem(int $inventoryId)
     {
         if (config('app.demo_mode')) {

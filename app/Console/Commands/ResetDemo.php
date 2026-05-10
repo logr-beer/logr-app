@@ -15,7 +15,13 @@ class ResetDemo extends Command
     {
         $this->info('Resetting demo database...');
 
-        Artisan::call('migrate:fresh', ['--force' => true, '--seed' => true, '--seeder' => 'Database\\Seeders\\DemoSeeder']);
+        Artisan::call('migrate:fresh', ['--force' => true]);
+        $this->info(Artisan::output());
+
+        Artisan::call('db:seed', ['--force' => true]);
+        $this->info(Artisan::output());
+
+        Artisan::call('db:seed', ['--force' => true, '--class' => 'Database\\Seeders\\DemoSeeder']);
         $this->info(Artisan::output());
 
         $this->info('Demo reset complete.');
