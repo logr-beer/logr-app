@@ -20,13 +20,22 @@
     @else
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
             @foreach($checkins as $checkin)
+                @php
+                    $checkinBadges = [];
+                    if ($checkin->serving_type) {
+                        $checkinBadges[] = ['label' => ucfirst($checkin->serving_type), 'position' => 'left', 'style' => 'light'];
+                    }
+                    if ($checkin->rating) {
+                        $checkinBadges[] = ['label' => number_format($checkin->rating, 1) . ' ★', 'position' => 'right', 'style' => 'dark'];
+                    }
+                @endphp
                 <x-beer-card
                     :beer="$checkin->beer"
                     :href="route('checkins.edit', $checkin)"
                     :date="$checkin->created_at"
                     dateLabel="Checked in"
                     :showFavorite="false"
-                    :subtitle="$checkin->serving_type ? ucfirst($checkin->serving_type) : null"
+                    :badges="$checkinBadges"
                     :selectable="true"
                     :selected="in_array($checkin->id, $selected)"
                     :selectId="$checkin->id"
