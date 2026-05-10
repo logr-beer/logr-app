@@ -93,9 +93,9 @@
     @if($showFavorite)
         <button
             wire:click.prevent.stop="toggleFavorite({{ $beer->id }})"
-            class="absolute top-2 right-2 z-10 group/fav w-5 h-5 flex items-center justify-center rounded-full {{ $beer->is_favorite ? 'bg-black/50' : 'bg-black/50 opacity-0 group-hover:opacity-100' }} text-white shadow-lg transition-all"
+            class="absolute top-1.5 right-1.5 z-10 group/fav w-6 h-6 flex items-center justify-center rounded-full {{ $beer->is_favorite ? 'bg-black/50' : 'bg-black/50 opacity-0 group-hover:opacity-100' }} text-white shadow-lg transition-all"
         >
-            <x-icon name="heart" size="3" :solid="$beer->is_favorite" class="{{ $beer->is_favorite ? 'text-amber-400' : 'transition-[fill] duration-150 group-hover/fav:fill-amber-400 group-hover/fav:duration-[250ms]' }}" />
+            <x-icon name="heart" size="3.5" :solid="$beer->is_favorite" class="{{ $beer->is_favorite ? 'text-amber-400' : 'transition-[fill] duration-150 group-hover/fav:fill-amber-400 group-hover/fav:duration-[250ms]' }}" />
         </button>
     @endif
 
