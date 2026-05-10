@@ -13,7 +13,7 @@ class CollectionIndex extends Component
 {
     public string $search = '';
 
-    public string $collectionFilter = 'all'; // all, curated, smart
+    public string $collectionFilter = 'all'; // all, curated, dynamic
 
     public string $sortBy = 'newest'; // newest, name, count
 
@@ -21,7 +21,7 @@ class CollectionIndex extends Component
 
     public bool $showCreateModal = false;
 
-    public string $createTab = 'collection'; // collection, smart
+    public string $createTab = 'collection'; // collection, dynamic
 
     public string $name = '';
 
@@ -33,6 +33,18 @@ class CollectionIndex extends Component
     public string $dynamicStyle = '';
 
     public ?float $dynamicMinRating = null;
+
+    public ?int $dynamicYear = null;
+
+    public string $dynamicBrewery = '';
+
+    public ?float $dynamicMinAbv = null;
+
+    public ?float $dynamicMaxAbv = null;
+
+    public string $dynamicServingType = '';
+
+    public string $dynamicVenue = '';
 
     protected function rules(): array
     {
@@ -66,6 +78,14 @@ class CollectionIndex extends Component
         $description = '';
 
         switch ($this->dynamicType) {
+            case 'year':
+                if (! $this->dynamicYear) {
+                    return;
+                }
+                $rules = ['year' => (int) $this->dynamicYear];
+                $name = $this->dynamicYear.' Check-ins';
+                $description = "Beers checked in during {$this->dynamicYear}.";
+                break;
             case 'style':
                 if (! $this->dynamicStyle) {
                     return;
@@ -79,6 +99,47 @@ class CollectionIndex extends Component
                 $rules = ['min_rating' => $min];
                 $name = $min.'+ Stars';
                 $description = "Beers rated {$min} or higher.";
+                break;
+            case 'abv':
+                $rules = [];
+                $parts = [];
+                if ($this->dynamicMinAbv) {
+                    $rules['min_abv'] = $this->dynamicMinAbv;
+                    $parts[] = "{$this->dynamicMinAbv}%+";
+                }
+                if ($this->dynamicMaxAbv) {
+                    $rules['max_abv'] = $this->dynamicMaxAbv;
+                    $parts[] = "up to {$this->dynamicMaxAbv}%";
+                }
+                if (empty($rules)) {
+                    return;
+                }
+                $name = 'ABV '.implode(' ', $parts);
+                $description = 'Beers filtered by ABV range.';
+                break;
+            case 'brewery':
+                if (! $this->dynamicBrewery) {
+                    return;
+                }
+                $rules = ['brewery' => $this->dynamicBrewery];
+                $name = $this->dynamicBrewery;
+                $description = "All beers from {$this->dynamicBrewery}.";
+                break;
+            case 'serving_type':
+                if (! $this->dynamicServingType) {
+                    return;
+                }
+                $rules = ['serving_type' => $this->dynamicServingType];
+                $name = ucfirst($this->dynamicServingType).' Beers';
+                $description = "Beers served on {$this->dynamicServingType}.";
+                break;
+            case 'venue':
+                if (! $this->dynamicVenue) {
+                    return;
+                }
+                $rules = ['venue' => $this->dynamicVenue];
+                $name = $this->dynamicVenue;
+                $description = "Beers checked in at {$this->dynamicVenue}.";
                 break;
             case 'favorites':
                 $rules = ['favorites' => true];
@@ -99,7 +160,7 @@ class CollectionIndex extends Component
             'rules' => $rules,
         ]);
 
-        $this->reset('dynamicType', 'dynamicStyle', 'dynamicMinRating', 'description');
+        $this->reset('dynamicType', 'dynamicStyle', 'dynamicMinRating', 'dynamicYear', 'dynamicBrewery', 'dynamicMinAbv', 'dynamicMaxAbv', 'dynamicServingType', 'dynamicVenue', 'description');
         $this->showCreateModal = false;
     }
 

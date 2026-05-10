@@ -26,7 +26,7 @@
                     :date="$checkin->created_at"
                     dateLabel="Checked in"
                     :showFavorite="false"
-                    :servingType="$checkin->serving_type"
+                    :subtitle="$checkin->serving_type ? ucfirst($checkin->serving_type) : null"
                     :selectable="true"
                     :selected="in_array($checkin->id, $selected)"
                     :selectId="$checkin->id"

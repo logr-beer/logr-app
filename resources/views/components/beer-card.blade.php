@@ -10,9 +10,6 @@
     // Default badges if none provided
     if ($badges === null) {
         $badges = [];
-        if ($servingType) {
-            $badges[] = ['label' => ucfirst($servingType), 'position' => 'left', 'style' => 'light'];
-        }
         if ($beer->abv) {
             $badges[] = ['label' => $beer->abv . '%', 'position' => 'left', 'style' => 'dark', 'icon' => 'flask'];
         }

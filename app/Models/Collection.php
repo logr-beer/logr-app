@@ -68,6 +68,34 @@ class Collection extends Model
                 ->where('storage_location', $rules['storage_location']));
         }
 
+        if (isset($rules['brewery'])) {
+            $query->whereHas('brewery', fn ($q) => $q->where('name', 'like', '%'.$rules['brewery'].'%'));
+        }
+
+        if (isset($rules['min_abv'])) {
+            $query->where('abv', '>=', $rules['min_abv']);
+        }
+
+        if (isset($rules['max_abv'])) {
+            $query->where('abv', '<=', $rules['max_abv']);
+        }
+
+        if (isset($rules['serving_type'])) {
+            $beerIds = Checkin::where('user_id', $this->user_id)
+                ->where('serving_type', $rules['serving_type'])
+                ->distinct()
+                ->pluck('beer_id');
+            $query->whereIn('id', $beerIds);
+        }
+
+        if (isset($rules['venue'])) {
+            $beerIds = Checkin::where('user_id', $this->user_id)
+                ->whereHas('venue', fn ($q) => $q->where('name', 'like', '%'.$rules['venue'].'%'))
+                ->distinct()
+                ->pluck('beer_id');
+            $query->whereIn('id', $beerIds);
+        }
+
         return $query;
     }
 

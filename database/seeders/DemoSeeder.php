@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Beer;
 use App\Models\Brewery;
 use App\Models\Checkin;
+use App\Models\Collection;
 use App\Models\Inventory;
 use App\Models\User;
 use App\Models\Venue;
@@ -125,6 +126,7 @@ class DemoSeeder extends Seeder
         $this->command?->info('Breweries: '.count($breweryCache).', Beers: '.count($beerCache).', Venues: '.count($venueCache));
 
         $this->seedInventory($user, $beerCache);
+        $this->seedCollections($user, $beerCache);
     }
 
     private function seedInventory(User $user, array $beerCache): void
@@ -149,5 +151,62 @@ class DemoSeeder extends Seeder
         }
 
         $this->command?->info("Inventory: {$inventoryCount} beers across ".count($locations).' locations');
+    }
+
+    private function seedCollections(User $user, array $beerCache): void
+    {
+        $allBeers = collect($beerCache)->values();
+
+        $styleGroups = [
+            'IPA Collection' => ['IPA', 'Hazy IPA', 'Double IPA', 'West Coast IPA', 'DDH IPA', 'Imperial IPA', 'Fresh Hop IPA', 'East Coast IPA', 'Triple IPA'],
+            'Dark & Roasty' => ['Stout', 'Imperial Stout', 'Oatmeal Stout', 'Brown Porter', 'Robust Porter', 'Coffee Stout', 'Pastry Stout', 'Schwarzbier'],
+            'Belgian & Farmhouse' => ['Belgian', 'Belgian Blonde', 'Belgian Golden Ale', 'Belgian Dark Ale', 'Quadrupel', 'Belgian-Style Dark Strong Ale', 'Belgian Wheat'],
+            'Easy Drinkers' => ['Pale Ale', 'Blonde Ale', 'Blonde', 'Cream Ale', 'Kolsch-Style Ale', 'Pilsner', 'Hefeweizen', 'Wheat Ale', 'Shandy'],
+        ];
+
+        $descriptions = [
+            'IPA Collection' => 'All the hop-forward beers in the log — hazy, west coast, double, and everything in between.',
+            'Dark & Roasty' => 'Stouts, porters, and dark ales for cold nights and cozy vibes.',
+            'Belgian & Farmhouse' => 'Belgian styles from blondes to quads.',
+            'Easy Drinkers' => 'Light, approachable beers perfect for a sunny afternoon.',
+        ];
+
+        $collectionCount = 0;
+
+        foreach ($styleGroups as $name => $styles) {
+            $matchingBeers = $allBeers->filter(function ($beer) use ($styles) {
+                $beerStyles = is_array($beer->style) ? $beer->style : [];
+
+                foreach ($beerStyles as $beerStyle) {
+                    foreach ($styles as $targetStyle) {
+                        if (stripos($beerStyle, $targetStyle) !== false) {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            });
+
+            if ($matchingBeers->isEmpty()) {
+                continue;
+            }
+
+            $collection = Collection::create([
+                'user_id' => $user->id,
+                'name' => $name,
+                'description' => $descriptions[$name],
+                'is_dynamic' => false,
+            ]);
+
+            $matchingBeers->values()->each(function ($beer, $index) use ($collection) {
+                $collection->beers()->attach($beer->id, ['sort_order' => $index]);
+            });
+
+            $collectionCount++;
+            $this->command?->info("Collection '{$name}': {$matchingBeers->count()} beers");
+        }
+
+        $this->command?->info("Collections: {$collectionCount} created");
     }
 }
