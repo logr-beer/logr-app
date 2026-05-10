@@ -208,9 +208,8 @@
                             file:mr-4 file:py-2 file:px-4
                             file:rounded-lg file:border-0
                             file:text-sm file:font-medium
-                            file:bg-amber-50 file:text-amber-700
-                            dark:file:bg-amber-900/20 dark:file:text-amber-400
-                            hover:file:bg-amber-100 dark:hover:file:bg-amber-900/30
+                            file:bg-amber-600 file:text-white
+                            hover:file:bg-amber-700
                             file:cursor-pointer file:transition-colors"
                     />
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Up to 10MB per photo. Multiple photos allowed.</p>

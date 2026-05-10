@@ -321,7 +321,7 @@
                                 type="file"
                                 id="photo"
                                 accept="image/*"
-                                class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber-50 file:text-amber-700 dark:file:bg-amber-900/30 dark:file:text-amber-400 hover:file:bg-amber-100 dark:hover:file:bg-amber-900/50"
+                                class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber-600 file:text-white hover:file:bg-amber-700"
                             />
                             <p class="mt-1 text-xs text-gray-400">JPG, PNG or WebP. Max 4MB.</p>
                             @error('photo') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
@@ -426,7 +426,7 @@
                             type="file"
                             accept="image/*"
                             multiple
-                            class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 dark:file:bg-amber-900/20 dark:file:text-amber-400"
+                            class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber-600 file:text-white hover:file:bg-amber-700"
                         />
                         @if($checkinPhotos)
                             <div class="flex gap-2 mt-2">
