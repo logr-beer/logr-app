@@ -20,10 +20,7 @@
             />
 
             {{-- Search (full width on mobile) --}}
-            <div class="relative w-full sm:w-56 sm:ml-auto">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Search collections..." class="w-full pl-9 pr-4 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-amber-500 focus:border-amber-500" />
-            </div>
+            <x-search-input wire:model.live.debounce.300ms="search" placeholder="Search collections..." class="w-full sm:w-56 sm:ml-auto" />
 
             <x-sort-control :options="['newest' => 'Newest', 'name' => 'Name', 'count' => 'Beers']" />
         </div>
@@ -81,11 +78,12 @@
 
     {{-- Empty state --}}
     @if($collections->isEmpty() && $dynamicCollections->isEmpty())
-        <div class="text-center py-16 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-            <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-1.243 1.007-2.25 2.25-2.25h13.5"/></svg>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ $search ? 'No collections found' : 'No collections yet' }}</h3>
-            <p class="text-gray-500 dark:text-gray-400">{{ $search ? 'Try a different search term.' : 'Create your first collection to start organizing your beers.' }}</p>
-        </div>
+        <x-empty-state
+            :card="true"
+            icon='<path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-1.243 1.007-2.25 2.25-2.25h13.5"/>'
+            :title="$search ? 'No collections found' : 'No collections yet'"
+            :message="$search ? 'Try a different search term.' : 'Create your first collection to start organizing your beers.'"
+        />
     @endif
 
     {{-- Create Collection Modal --}}

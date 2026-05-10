@@ -10,15 +10,7 @@
 
             {{-- Search & Sort --}}
             <div class="flex items-center gap-2 sm:ml-auto">
-                <div class="relative flex-1 min-w-0">
-                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-                    <input
-                        wire:model.live.debounce.300ms="search"
-                        type="text"
-                        placeholder="Search venues..."
-                        class="w-full pl-9 pr-4 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-amber-500 focus:border-amber-500"
-                    />
-                </div>
+                <x-search-input wire:model.live.debounce.300ms="search" placeholder="Search venues..." class="flex-1 min-w-0" />
                 <x-sort-control :options="['checkins' => 'Check-ins', 'name' => 'Name', 'recent' => 'Recent']" />
 
                 {{-- Geocode button --}}
@@ -91,11 +83,11 @@
             {{ $venues->links() }}
         </div>
     @else
-        <div class="text-center py-16">
-            <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
-            <p class="text-gray-500 dark:text-gray-400 text-lg">No venues yet.</p>
-            <p class="text-gray-400 dark:text-gray-500 text-sm mt-1">Venues will appear here when you check in at locations.</p>
-        </div>
+        <x-empty-state
+            icon='<path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>'
+            title="No venues yet"
+            message="Venues will appear here when you check in at locations."
+        />
     @endif
 </div>
 

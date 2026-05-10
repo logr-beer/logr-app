@@ -1,22 +1,10 @@
 <div>
     {{-- Stats --}}
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-        <a href="{{ route('checkins.index') }}" wire:navigate class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200">
-            <p class="text-2xl font-bold text-amber-500">{{ $stats['total_checkins'] }}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Check-ins</p>
-        </a>
-        <a href="{{ route('beers.index') }}" wire:navigate class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200">
-            <p class="text-2xl font-bold text-amber-500">{{ $stats['library_count'] }}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">In Library</p>
-        </a>
-        <a href="{{ route('beers.inventory') }}" wire:navigate class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200">
-            <p class="text-2xl font-bold text-amber-500">{{ $stats['in_fridge'] }}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">In Stock</p>
-        </a>
-        <a href="{{ route('stats') }}" wire:navigate class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200">
-            <p class="text-2xl font-bold text-amber-500">{{ $stats['avg_rating'] ? number_format($stats['avg_rating'], 2) . ' ★' : '—' }}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Avg Rating</p>
-        </a>
+        <x-stat :value="$stats['total_checkins']" label="Check-ins" :href="route('checkins.index')" />
+        <x-stat :value="$stats['library_count']" label="In Library" :href="route('beers.index')" />
+        <x-stat :value="$stats['in_fridge']" label="In Stock" :href="route('beers.inventory')" />
+        <x-stat :value="$stats['avg_rating'] ? number_format($stats['avg_rating'], 2) . ' ★' : '—'" label="Avg Rating" :href="route('stats')" />
     </div>
 
     {{-- Recently Added --}}
