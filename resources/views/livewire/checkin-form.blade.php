@@ -99,6 +99,7 @@
                         <x-custom-select
                             wireModel="serving_type"
                             placeholder="Select..."
+                            size="lg"
                             :options="['' => 'Select...', 'draft' => 'Draft', 'bottle' => 'Bottle', 'can' => 'Can', 'crowler' => 'Crowler', 'growler' => 'Growler', 'cask' => 'Cask']"
                         />
                         @error('serving_type') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror

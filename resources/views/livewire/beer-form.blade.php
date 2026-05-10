@@ -355,6 +355,7 @@
                         <x-custom-select
                             wireModel="checkinRating"
                             placeholder="No rating"
+                            size="lg"
                             :options="collect(range(1, 10))->mapWithKeys(fn ($i) => [($i * 0.5) => ($i * 0.5) . ' ' . str_repeat('★', (int)($i * 0.5)) . (($i % 2) ? '½' : '')])->prepend('No rating', '')->all()"
                         />
                     </div>
@@ -363,6 +364,7 @@
                         <x-custom-select
                             wireModel="checkinServingType"
                             placeholder="—"
+                            size="lg"
                             :options="['' => '—', 'draft' => 'Draft', 'bottle' => 'Bottle', 'can' => 'Can', 'crowler' => 'Crowler', 'growler' => 'Growler', 'cask' => 'Cask']"
                         />
                     </div>
