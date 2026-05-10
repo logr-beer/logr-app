@@ -77,16 +77,16 @@
                 </div>
 
                 <div class="flex flex-wrap gap-4 mt-6">
-                    @if($beer->style)
-                        @foreach($beer->style as $s)
-                            <div class="px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-lg text-sm font-medium">{{ $s }}</div>
-                        @endforeach
-                    @endif
                     @if($beer->abv)
                         <div class="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm"><span class="font-medium">{{ $beer->abv }}%</span> ABV</div>
                     @endif
                     @if($beer->ibu)
                         <div class="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm"><span class="font-medium">{{ $beer->ibu }}</span> IBU</div>
+                    @endif
+                    @if($beer->style)
+                        @foreach($beer->style as $s)
+                            <div class="px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-lg text-sm font-medium">{{ $s }}</div>
+                        @endforeach
                     @endif
                     @if($beer->release_year)
                         <div class="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium">{{ $beer->release_year }}</div>
