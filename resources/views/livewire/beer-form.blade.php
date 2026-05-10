@@ -72,7 +72,7 @@
         </div>
         @endif
 
-        <form wire:submit="save" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+        <form wire:submit="save" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 max-w-4xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {{-- Name --}}
                 <div class="md:col-span-2">
