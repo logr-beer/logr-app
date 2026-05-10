@@ -338,20 +338,14 @@
                             @error('notes') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Photos</label>
-                            <input wire:model="checkinPhotos" type="file" multiple accept="image/*" class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber-600 file:text-white hover:file:bg-amber-700 file:cursor-pointer file:transition-colors" />
-                            @error('checkinPhotos.*') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
-                            @if($checkinPhotos)
-                                <div class="flex flex-wrap gap-3 mt-3">
-                                    @foreach($checkinPhotos as $index => $photo)
-                                        <div class="relative group">
-                                            <img src="{{ $photo->temporaryUrl() }}" alt="Preview" class="w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-600" />
-                                            <button type="button" wire:click="removeCheckinPhoto({{ $index }})" class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">&times;</button>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @endif
-                            <div wire:loading wire:target="checkinPhotos" class="mt-2 text-sm text-amber-500">Uploading photos...</div>
+                            <x-photo-upload
+                                wireModel="checkinPhotos"
+                                :multiple="true"
+                                label="Photos"
+                                error="checkinPhotos.*"
+                                :previews="$checkinPhotos"
+                                removeAction="removeCheckinPhoto"
+                            />
                         </div>
                     </div>
                     <div class="mt-4 flex items-center justify-end gap-3">

@@ -303,30 +303,14 @@
 
                 {{-- Photo Upload --}}
                 <div class="md:col-span-2">
-                    <label for="photo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Photo</label>
-                    <div class="flex items-start gap-4">
-                        {{-- Preview --}}
-                        <div class="w-24 h-32 rounded-lg bg-gray-100 dark:bg-gray-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                            @if($photo)
-                                <img src="{{ $photo->temporaryUrl() }}" alt="Preview" class="w-full h-full object-cover" />
-                            @elseif($beer && $beer->photo_path)
-                                <img src="{{ Storage::url($beer->photo_path) }}" alt="{{ $beer->name }}" class="w-full h-full object-cover" />
-                            @else
-                                <x-icon name="image" size="8" class="text-gray-400" />
-                            @endif
-                        </div>
-                        <div class="flex-1">
-                            <input
-                                wire:model="photo"
-                                type="file"
-                                id="photo"
-                                accept="image/*"
-                                class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber-600 file:text-white hover:file:bg-amber-700"
-                            />
-                            <p class="mt-1 text-xs text-gray-400">JPG, PNG or WebP. Max 4MB.</p>
-                            @error('photo') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
-                        </div>
-                    </div>
+                    <x-photo-upload
+                        wireModel="photo"
+                        label="Photo"
+                        hint="JPG, PNG or WebP. Max 4MB."
+                        error="photo"
+                        :previews="$photo ? [$photo] : null"
+                        :existingPhotos="$beer && $beer->photo_path ? [$beer->photo_path] : null"
+                    />
                 </div>
             </div>
 
@@ -419,23 +403,14 @@
                     </div>
 
                     {{-- Photos --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Photos</label>
-                        <input
-                            wire:model="checkinPhotos"
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber-600 file:text-white hover:file:bg-amber-700"
-                        />
-                        @if($checkinPhotos)
-                            <div class="flex gap-2 mt-2">
-                                @foreach($checkinPhotos as $p)
-                                    <img src="{{ $p->temporaryUrl() }}" class="w-16 h-16 rounded-lg object-cover" />
-                                @endforeach
-                            </div>
-                        @endif
-                    </div>
+                    <x-photo-upload
+                        wireModel="checkinPhotos"
+                        :multiple="true"
+                        label="Photos"
+                        hint="Up to 10MB per photo. Multiple photos allowed."
+                        error="checkinPhotos.*"
+                        :previews="$checkinPhotos"
+                    />
                 </div>
             </div>
             @endif

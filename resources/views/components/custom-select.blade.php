@@ -46,7 +46,7 @@
             <button
                 type="button"
                 x-on:click="value = '{{ $value }}'; open = false"
-                class="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-amber-50 hover:text-amber-700 dark:hover:bg-amber-900/20 dark:hover:text-amber-400 transition-colors"
+                class="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-amber-100 hover:text-amber-800 dark:hover:bg-amber-900/40 dark:hover:text-amber-300 transition-colors"
             >
                 {{ $label }}
             </button>
