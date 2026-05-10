@@ -46,6 +46,9 @@
     {{-- Floating Action Bar (visible when any cards are selected) --}}
     @if(count($selected) > 0)
         <x-floating-action-bar :count="count($selected)">
+            <button wire:click="favoriteSelected" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap">
+                <x-icon name="heart" size="4" /> Favorite
+            </button>
             <button wire:click="openCollectionModal" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap">
                 <x-icon name="folder-plus" size="4" /> Collection
             </button>

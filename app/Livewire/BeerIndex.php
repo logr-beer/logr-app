@@ -163,6 +163,18 @@ class BeerIndex extends Component
         $beer->update(['is_favorite' => ! $beer->is_favorite]);
     }
 
+    public function favoriteSelected(): void
+    {
+        Beer::whereIn('id', $this->selected)->update(['is_favorite' => true]);
+        $this->selected = [];
+    }
+
+    public function unfavoriteSelected(): void
+    {
+        Beer::whereIn('id', $this->selected)->update(['is_favorite' => false]);
+        $this->selected = [];
+    }
+
     public function render()
     {
         $collections = Collection::where('user_id', auth()->id())

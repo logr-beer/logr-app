@@ -78,16 +78,16 @@
             @if($showFavorite)
                 <div
                     x-show="heartPop"
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0 scale-50"
+                    x-transition:enter="transition ease-out duration-[250ms]"
+                    x-transition:enter-start="opacity-0 scale-75"
                     x-transition:enter-end="opacity-100 scale-100"
-                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave="transition ease-in duration-[250ms]"
                     x-transition:leave-start="opacity-100 scale-100"
-                    x-transition:leave-end="opacity-0 scale-150"
+                    x-transition:leave-end="opacity-0 scale-[2]"
                     class="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
                     x-cloak
                 >
-                    <svg class="w-16 h-16 text-red-500/70 drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-20 h-20 text-amber-500/60 drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/>
                     </svg>
                 </div>
