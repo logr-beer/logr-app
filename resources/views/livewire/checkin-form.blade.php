@@ -7,7 +7,7 @@
         </a>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 max-w-2xl mx-auto">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
         <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-6">
             @if($checkinId)
                 <svg class="w-5 h-5 inline-block mr-1 text-amber-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/></svg>
@@ -76,50 +76,6 @@
                     @error('selectedBeerId') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {{-- Rating --}}
-                    <div>
-                        <label for="rating" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rating</label>
-                        <input
-                            wire:model="rating"
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            max="5"
-                            id="rating"
-                            placeholder="0 - 5 (optional)"
-                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
-                        />
-                        @error('rating') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
-                    </div>
-
-                    {{-- Serving Type --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Serving Type</label>
-                        <x-custom-select
-                            wireModel="serving_type"
-                            placeholder="Select..."
-                            size="lg"
-                            :options="['' => 'Select...', 'draft' => 'Draft', 'bottle' => 'Bottle', 'can' => 'Can', 'crowler' => 'Crowler', 'growler' => 'Growler', 'cask' => 'Cask']"
-                        />
-                        @error('serving_type') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
-                    </div>
-                </div>
-
-                {{-- Date (shown in edit mode or can be toggled) --}}
-                @if($checkinId)
-                    <div>
-                        <label for="checkin_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
-                        <input
-                            wire:model="checkin_date"
-                            type="datetime-local"
-                            id="checkin_date"
-                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
-                        />
-                        @error('checkin_date') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
-                    </div>
-                @endif
-
                 {{-- Venue --}}
                 <div x-data="{ open: false }" @click.outside="open = false" class="relative">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Venue</label>
@@ -168,6 +124,49 @@
                         @endif
                     @endif
                 </div>
+
+                {{-- Rating & Serving --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="rating" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rating</label>
+                        <input
+                            wire:model="rating"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            max="5"
+                            id="rating"
+                            placeholder="0 - 5 (optional)"
+                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
+                        />
+                        @error('rating') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Serving Type</label>
+                        <x-custom-select
+                            wireModel="serving_type"
+                            placeholder="Select..."
+                            size="lg"
+                            :options="['' => 'Select...', 'draft' => 'Draft', 'bottle' => 'Bottle', 'can' => 'Can', 'crowler' => 'Crowler', 'growler' => 'Growler', 'cask' => 'Cask']"
+                        />
+                        @error('serving_type') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
+                {{-- Date (edit mode only) --}}
+                @if($checkinId)
+                    <div>
+                        <label for="checkin_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                        <input
+                            wire:model="checkin_date"
+                            type="datetime-local"
+                            id="checkin_date"
+                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
+                        />
+                        @error('checkin_date') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                    </div>
+                @endif
 
                 {{-- Notes --}}
                 <div>

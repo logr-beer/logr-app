@@ -88,7 +88,7 @@
                 </div>
 
                 {{-- Brewery --}}
-                <div x-data="{ open: @entangle('showBreweryDropdown') }" @click.outside="open = false" class="relative">
+                <div x-data="{ open: @entangle('showBreweryDropdown') }" @click.outside="open = false" class="relative md:col-span-2">
                     <label for="brewery_search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Brewery</label>
                     <div class="relative">
                         <input
@@ -349,44 +349,98 @@
                     <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Check in this beer</span>
                 </label>
 
-                <div x-show="showCheckin" x-cloak x-transition class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rating</label>
-                        <x-custom-select
-                            wireModel="checkinRating"
-                            placeholder="No rating"
-                            size="lg"
-                            :options="collect(range(1, 10))->mapWithKeys(fn ($i) => [($i * 0.5) => ($i * 0.5) . ' ' . str_repeat('★', (int)($i * 0.5)) . (($i % 2) ? '½' : '')])->prepend('No rating', '')->all()"
-                        />
+                <div x-show="showCheckin" x-cloak x-transition class="mt-4 space-y-4">
+                    {{-- Venue --}}
+                    <div x-data="{ venueOpen: false }" @click.outside="venueOpen = false" class="relative">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Venue</label>
+                        @if($checkinVenueId)
+                            <div class="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg">
+                                <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                                <span class="text-sm font-medium text-amber-700 dark:text-amber-400 flex-1">{{ $checkinVenueName }}</span>
+                                <button type="button" wire:click="clearCheckinVenue" class="text-amber-400 hover:text-amber-600 dark:hover:text-amber-300">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        @else
+                            <input
+                                wire:model.live.debounce.300ms="checkinVenue"
+                                @focus="venueOpen = true"
+                                @input="venueOpen = true"
+                                type="text"
+                                placeholder="Type a venue name..."
+                                class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
+                            />
+                            @if(count($this->checkinVenueSuggestions) > 0)
+                                <div x-show="venueOpen" x-transition class="absolute z-30 mt-1 w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                    @foreach($this->checkinVenueSuggestions as $venue)
+                                        <button
+                                            type="button"
+                                            wire:click="selectCheckinVenue({{ $venue['id'] }})"
+                                            @click="venueOpen = false"
+                                            class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-2"
+                                        >
+                                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                                            <span class="text-gray-900 dark:text-white">{{ $venue['name'] }}</span>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @endif
+                        @endif
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Serving</label>
-                        <x-custom-select
-                            wireModel="checkinServingType"
-                            placeholder="—"
-                            size="lg"
-                            :options="['' => '—', 'draft' => 'Draft', 'bottle' => 'Bottle', 'can' => 'Can', 'crowler' => 'Crowler', 'growler' => 'Growler', 'cask' => 'Cask']"
-                        />
+
+                    {{-- Rating & Serving --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rating</label>
+                            <input
+                                wire:model="checkinRating"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                max="5"
+                                placeholder="0 - 5 (optional)"
+                                class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Serving</label>
+                            <x-custom-select
+                                wireModel="checkinServingType"
+                                placeholder="—"
+                                size="lg"
+                                :options="['' => '—', 'draft' => 'Draft', 'bottle' => 'Bottle', 'can' => 'Can', 'crowler' => 'Crowler', 'growler' => 'Growler', 'cask' => 'Cask']"
+                            />
+                        </div>
                     </div>
+
+                    {{-- Notes --}}
                     <div>
-                        <label for="checkinVenue" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Venue</label>
-                        <input
-                            wire:model="checkinVenue"
-                            type="text"
-                            id="checkinVenue"
-                            placeholder="e.g. Home, The Local Taproom..."
-                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
-                        />
-                    </div>
-                    <div class="md:col-span-2">
-                        <label for="checkinNotes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
                         <textarea
                             wire:model="checkinNotes"
-                            id="checkinNotes"
                             rows="2"
                             placeholder="Tasting notes..."
                             class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
                         ></textarea>
+                    </div>
+
+                    {{-- Photos --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Photos</label>
+                        <input
+                            wire:model="checkinPhotos"
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 dark:file:bg-amber-900/20 dark:file:text-amber-400"
+                        />
+                        @if($checkinPhotos)
+                            <div class="flex gap-2 mt-2">
+                                @foreach($checkinPhotos as $p)
+                                    <img src="{{ $p->temporaryUrl() }}" class="w-16 h-16 rounded-lg object-cover" />
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

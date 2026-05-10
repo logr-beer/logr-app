@@ -66,7 +66,13 @@ class BeerForm extends Component
 
     public string $checkinVenue = '';
 
+    public ?int $checkinVenueId = null;
+
+    public string $checkinVenueName = '';
+
     public string $checkinNotes = '';
+
+    public $checkinPhotos = [];
 
     // Beer search
     public string $beerSearch = '';
@@ -257,6 +263,38 @@ class BeerForm extends Component
         $this->showBreweryDropdown = false;
     }
 
+    // -- Checkin venue autocomplete --
+
+    public function getCheckinVenueSuggestionsProperty(): array
+    {
+        if (strlen($this->checkinVenue) < 2 || $this->checkinVenueId) {
+            return [];
+        }
+
+        return Venue::where('name', 'like', '%'.$this->checkinVenue.'%')
+            ->orderBy('name')
+            ->limit(8)
+            ->get()
+            ->toArray();
+    }
+
+    public function selectCheckinVenue(int $venueId): void
+    {
+        $venue = Venue::find($venueId);
+        if ($venue) {
+            $this->checkinVenueId = $venue->id;
+            $this->checkinVenueName = $venue->name;
+            $this->checkinVenue = '';
+        }
+    }
+
+    public function clearCheckinVenue(): void
+    {
+        $this->checkinVenueId = null;
+        $this->checkinVenueName = '';
+        $this->checkinVenue = '';
+    }
+
     private function fetchBreweryResults(): array
     {
         $local = Brewery::where('name', 'like', "%{$this->brewerySearch}%")
@@ -376,9 +414,9 @@ class BeerForm extends Component
 
             // Create check-in if requested
             if ($this->addCheckin) {
-                $venue = null;
-                if (trim($this->checkinVenue)) {
-                    $venue = Venue::firstOrCreate(['name' => trim($this->checkinVenue)]);
+                $venueId = $this->checkinVenueId;
+                if (! $venueId && trim($this->checkinVenue)) {
+                    $venueId = Venue::firstOrCreate(['name' => trim($this->checkinVenue)])->id;
                 }
 
                 $checkin = Checkin::create([
@@ -386,9 +424,20 @@ class BeerForm extends Component
                     'beer_id' => $beer->id,
                     'rating' => $this->checkinRating,
                     'serving_type' => $this->checkinServingType ?: null,
-                    'venue_id' => $venue?->id,
+                    'venue_id' => $venueId,
                     'notes' => trim($this->checkinNotes) ?: null,
                 ]);
+
+                // Store checkin photos
+                if ($this->checkinPhotos) {
+                    foreach ($this->checkinPhotos as $photo) {
+                        $path = $photo->store('checkin-photos', 'public');
+                        \App\Models\CheckinPhoto::create([
+                            'checkin_id' => $checkin->id,
+                            'photo_path' => $path,
+                        ]);
+                    }
+                }
 
                 event(new CheckinCreated($checkin, auth()->user()));
             }
