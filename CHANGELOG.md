@@ -4,6 +4,39 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.15] - 2026-05-10
+
+### Added
+- Reusable pill-tabs component used across Beers, Collections, Locations, and Venues
+- Custom Alpine dropdown component replacing native selects (with sm/lg size variants)
+- Configurable badge system on beer cards (position, style, icons)
+- Flask icon for ABV badges and stats page
+- Glass icon for serving type on stats page
+- Favorites filter on beer index
+- Location filter tabs (All / Missing Location / With Location) for breweries and venues
+- Missing location warning icon on brewery and venue cards
+- Venue autocomplete and photo upload on beer form's inline check-in
+- Cancel button on check-in form
+
+### Changed
+- Card grid switched to 4 columns with 4:3 aspect ratio images
+- Beer card text sizes increased for larger cards
+- Beer card layout: ABV + serving bottom-left, rating bottom-right, heart top-right (amber)
+- Dashboard collections split into "By Year" and "By Location" rows sorted by beer count
+- Dashboard shows accurate counts for dynamic collections with "Smart" badge
+- Recently Checked In cards show check-in date instead of import date
+- Check-in form field order: Beer, Venue, Rating/Serving, Notes, Photos
+- Beer detail hero tags unified to consistent amber style
+- Beer detail pills reordered: ABV, IBU, then styles
+- Collections button uses amber style, "New" button moved next to title
+- Beer show displays dynamic collections with badge (no remove button)
+- Inventory and collections icons changed to amber
+- Sort control uses custom dropdown with separate arrow button
+- Locations pages use shared pill-tabs for Venues/Breweries navigation
+- Forms constrained to max-w-4xl, submit buttons aligned to bottom-right
+- Renamed "Library" to "All Beers"
+- Default map center set to Chicago, IL
+
 ## [0.1.14] - 2026-05-09
 
 ### Added
@@ -138,6 +171,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Database purge and reset tools
 - System info page with version and dependency details
 
+[0.1.15]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.15
 [0.1.14]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.14
 [0.1.13]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.13
 [0.1.12]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.12
