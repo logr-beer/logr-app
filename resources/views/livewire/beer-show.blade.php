@@ -40,9 +40,9 @@
                             title="{{ $beer->is_favorite ? 'Remove from favorites' : 'Add to favorites' }}"
                         >
                             @if($beer->is_favorite)
-                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/></svg>
+                                <x-icon name="heart" size="6" :solid="true" />
                             @else
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path class="transition-[fill] duration-150 group-hover/fav:fill-red-500 group-hover/fav:duration-[250ms]" stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
+                                <x-icon name="heart" size="6" class="transition-[fill] duration-150 group-hover/fav:fill-red-500 group-hover/fav:duration-[250ms]" />
                             @endif
                         </button>
                         <a
@@ -70,7 +70,7 @@
                 <div class="flex flex-wrap gap-2 mt-6">
                     @if($beer->abv)
                         <div class="inline-flex items-center gap-1.5 {{ $tagClass }}">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/></svg>
+                            <x-icon name="flask" size="4" />
                             {{ $beer->abv }}% ABV
                         </div>
                     @endif
@@ -95,7 +95,7 @@
                     @endif
                     @if($totalQty > 0)
                         <div class="inline-flex items-center gap-1.5 {{ $tagClass }}">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
+                            <x-icon name="list" size="4" />
                             {{ $totalQty }} in stock
                         </div>
                     @endif
@@ -112,7 +112,7 @@
                             <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-lg text-xs font-medium">
                                 <a href="{{ route('collections.show', $collection) }}" wire:navigate class="hover:underline">{{ $collection->name }}</a>
                                 <button wire:click="removeFromCollection({{ $collection->id }})" class="ml-0.5 text-purple-400 hover:text-purple-600 dark:hover:text-purple-300" title="Remove from collection">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    <x-icon name="x-mark" size="3" />
                                 </button>
                             </span>
                         @endforeach
@@ -126,7 +126,7 @@
                 <div x-data="{ open: false }" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                            <svg class="w-5 h-5 inline-block mr-1 text-amber-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
+                            <x-icon name="list" size="5" class="inline-block mr-1 text-amber-500" />
                             Inventory
                         </h2>
                         <button @click="open = !open" class="text-sm text-amber-500 hover:text-amber-600 font-medium">
@@ -154,7 +154,7 @@
                                         @endif
                                     </div>
                                     <button wire:click="removeFromFridge({{ $item->id }})" class="p-1.5 text-gray-400 hover:text-red-500 transition-colors" title="Remove one">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/></svg>
+                                        <x-icon name="minus" size="4" />
                                     </button>
                                 </div>
                             @endforeach
@@ -168,7 +168,7 @@
                             <div x-data="{ locOpen: false }" @click.outside="locOpen = false" class="relative">
                                 <label for="storageLocation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Storage Location</label>
                                 <div class="relative">
-                                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+                                    <x-icon name="search" size="4" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                     <input
                                         wire:model.live.debounce.200ms="storageLocation"
                                         @focus="locOpen = true"
@@ -189,7 +189,7 @@
                                                 @click="locOpen = false"
                                                 class="w-full text-left px-4 py-2.5 text-sm hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors flex items-center gap-2"
                                             >
-                                                <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
+                                                <x-icon name="list" size="4" class="text-gray-400 flex-shrink-0" />
                                                 <span class="text-gray-900 dark:text-white">{{ $loc }}</span>
                                             </button>
                                         @endforeach
@@ -233,7 +233,7 @@
                 {{-- Collections --}}
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
                     <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                        <svg class="w-5 h-5 inline-block mr-1 text-amber-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-1.243 1.007-2.25 2.25-2.25h13.5"/></svg>
+                        <x-icon name="collection" size="5" class="inline-block mr-1 text-amber-500" />
                         Collections
                     </h2>
 
@@ -249,7 +249,7 @@
                                     </div>
                                     @unless($collection->is_dynamic)
                                         <button wire:click="removeFromCollection({{ $collection->id }})" class="p-1.5 text-gray-400 hover:text-red-500 transition-colors" title="Remove from collection">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            <x-icon name="x-mark" size="4" />
                                         </button>
                                     @endunless
                                 </div>
@@ -278,7 +278,7 @@
             {{-- Check-ins: form + history --}}
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
                 <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                    <svg class="w-5 h-5 inline-block mr-1 text-amber-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                    <x-icon name="plus-circle" size="5" class="inline-block mr-1 text-amber-500" />
                     Check-ins
                 </h2>
 
@@ -304,10 +304,10 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Venue</label>
                             @if($selectedVenueId)
                                 <div class="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg">
-                                    <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                                    <x-icon name="map-pin" size="4" class="text-amber-500 flex-shrink-0" />
                                     <span class="text-sm font-medium text-amber-700 dark:text-amber-400 flex-1">{{ $selectedVenueName }}</span>
                                     <button type="button" wire:click="clearVenue" class="text-amber-400 hover:text-amber-600 dark:hover:text-amber-300">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        <x-icon name="x-mark" size="4" />
                                     </button>
                                 </div>
                             @else
@@ -316,7 +316,7 @@
                                     <div x-show="venueOpen" x-transition class="absolute z-30 mt-1 w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                                         @foreach($venueSuggestions as $venue)
                                             <button type="button" wire:click="selectVenue({{ $venue->id }})" @click="venueOpen = false" class="w-full text-left px-4 py-2.5 text-sm hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors flex items-center gap-2">
-                                                <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                                                <x-icon name="map-pin" size="4" class="text-gray-400 flex-shrink-0" />
                                                 <div>
                                                     <span class="text-gray-900 dark:text-white">{{ $venue->name }}</span>
                                                     @if($venue->displayLocation())
@@ -391,13 +391,13 @@
                                         @endif
                                         @if($checkin->venue || $checkin->location)
                                             <span class="text-gray-400 text-xs flex items-center gap-1">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                                                <x-icon name="map-pin" size="3" />
                                                 {{ $checkin->venue?->name ?? $checkin->location }}
                                             </span>
                                         @endif
                                         @if($checkin->untappd_id && str_starts_with($checkin->untappd_id, 'http'))
                                             <span class="text-yellow-500 dark:text-yellow-400" title="Imported from Untappd" onclick="event.preventDefault(); window.open('{{ $checkin->untappd_id }}', '_blank');">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+                                                <x-icon name="external-link" size="3.5" />
                                             </span>
                                         @endif
                                     </div>
@@ -413,7 +413,7 @@
                     </div>
                 @else
                     <div class="text-center py-8">
-                        <svg class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                        <x-icon name="clock" size="12" class="text-gray-300 dark:text-gray-600 mx-auto mb-3" />
                         <p class="text-gray-500 dark:text-gray-400">No check-ins yet. Be the first!</p>
                     </div>
                 @endif

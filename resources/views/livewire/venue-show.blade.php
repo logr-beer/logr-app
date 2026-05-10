@@ -40,7 +40,7 @@
                                 @error('longitude') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                             </div>
                             <button type="button" wire:click="lookupCoordinates" class="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 border border-amber-300 dark:border-amber-700 rounded-lg transition-colors">
-                                <svg class="w-4 h-4" wire:loading.class="animate-spin" wire:target="lookupCoordinates" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                                <x-icon name="map-pin" size="4" wire:loading.class="animate-spin" wire:target="lookupCoordinates" />
                                 Lookup
                             </button>
                         </div>
@@ -79,7 +79,7 @@
         @else
             <div class="flex items-start gap-4">
                 <div class="flex-shrink-0 w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                    <x-icon name="map-pin" size="6" class="text-amber-600 dark:text-amber-400" />
                 </div>
                 <div class="flex-1">
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $venue->name }}</h1>
@@ -94,7 +94,7 @@
                     </p>
                 </div>
                 <button wire:click="edit" class="flex-shrink-0 p-2 text-gray-400 hover:text-amber-500 dark:hover:text-amber-400 transition-colors" title="Edit venue">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/></svg>
+                    <x-icon name="pencil" size="5" />
                 </button>
             </div>
         @endif
@@ -103,7 +103,7 @@
     {{-- Check-ins --}}
     @if($checkins->isEmpty())
         <div class="text-center py-16 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-            <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+            <x-icon name="check-circle" size="16" class="text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <p class="text-gray-500 dark:text-gray-400 text-lg">No check-ins at this venue yet.</p>
         </div>
     @else
@@ -143,9 +143,9 @@
                                 <div class="flex items-center gap-0.5 mt-2">
                                     @for($i = 1; $i <= 5; $i++)
                                         @if($i <= $checkin->rating)
-                                            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z"/></svg>
+                                            <x-icon name="star" size="4" :solid="true" class="text-amber-400" />
                                         @else
-                                            <svg class="w-4 h-4 text-gray-300 dark:text-gray-600" fill="currentColor" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z"/></svg>
+                                            <x-icon name="star" size="4" :solid="true" class="text-gray-300 dark:text-gray-600" />
                                         @endif
                                     @endfor
                                     <span class="ml-1 text-sm font-medium text-gray-600 dark:text-gray-400">{{ number_format($checkin->rating, 1) }}</span>

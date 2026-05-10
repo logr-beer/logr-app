@@ -55,11 +55,11 @@ new class extends Component
             <!-- Add Beer + Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6 gap-4">
                 <a href="{{ route('checkins.create') }}" wire:navigate class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-amber-500 hover:bg-amber-600 transition">
-                    <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                    <x-icon name="plus-circle" size="4" class="me-1" />
                     Check In
                 </a>
                 <a href="{{ route('beers.create') }}" wire:navigate class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-amber-500 hover:bg-amber-600 transition">
-                    <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                    <x-icon name="plus" size="4" class="me-1" />
                     Add Beer
                 </a>
                 <x-dropdown align="right" width="48">
@@ -69,9 +69,7 @@ new class extends Component
                             <span class="ms-2"><livewire:queue-indicator /></span>
 
                             <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
+                                <x-icon name="chevron-down" size="4" />
                             </div>
                         </button>
                     </x-slot>

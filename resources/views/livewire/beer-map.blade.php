@@ -29,7 +29,7 @@
         </div>
     @else
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 text-center">
-            <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m0-8.25a1.5 1.5 0 0 1 3 0V15m3-12.75V15"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+            <x-icon name="map-pin" size="16" class="text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <p class="text-gray-500 dark:text-gray-400 text-lg">No breweries with coordinates yet.</p>
             <p class="text-gray-400 dark:text-gray-500 text-sm mt-2">Import beers with brewery locations, then run <code class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">php artisan breweries:geocode</code> to populate the map.</p>
         </div>

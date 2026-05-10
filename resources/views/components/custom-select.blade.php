@@ -28,7 +28,7 @@
         class="w-full flex items-center justify-between gap-2 {{ $sizeClasses }} bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:ring-amber-500 focus:border-amber-500 focus:ring-1 focus:outline-none transition-colors"
     >
         <span x-text="label" class="truncate"></span>
-        <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform" :class="open && 'rotate-180'" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+        <x-icon name="chevron-down" size="4" class="text-gray-400 flex-shrink-0 transition-transform" ::class="{ 'rotate-180': open }" />
     </button>
 
     <div

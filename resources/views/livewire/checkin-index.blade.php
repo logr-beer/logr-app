@@ -11,7 +11,6 @@
     @if($checkins->isEmpty())
         <x-empty-state
             :card="true"
-            icon='<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>'
             title="No check-ins yet"
             message="Check in to a beer to start tracking your tastings."
         />

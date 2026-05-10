@@ -12,7 +12,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
                 <label for="beer_search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Search to auto-fill</label>
                 <div class="relative">
-                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+                    <x-icon name="search" size="4" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                         wire:model.live.debounce.400ms="beerSearch"
                         @focus="if ($wire.beerSearch.length >= 2) open = true"
@@ -96,7 +96,7 @@
                         />
                         @if($brewery_id)
                             <button type="button" wire:click="clearBrewery" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                <x-icon name="x-mark" size="4" />
                             </button>
                         @endif
                     </div>
@@ -164,7 +164,7 @@
                                             @click.stop="$wire.set('style', {{ json_encode(array_values(array_diff($style, [$s]))) }})"
                                             class="cursor-pointer text-amber-400 hover:text-amber-600 dark:hover:text-amber-300"
                                         >
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            <x-icon name="x-mark" size="3" />
                                         </span>
                                     </span>
                                 @endforeach
@@ -172,7 +172,7 @@
                         @else
                             <span class="text-gray-400 dark:text-gray-500">Select styles...</span>
                         @endif
-                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0 ml-2 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                        <x-icon name="chevron-down" size="4" class="text-gray-400 flex-shrink-0 ml-2 transition-transform" ::class="{ 'rotate-180': open }" />
                     </button>
 
                     {{-- Dropdown panel --}}
@@ -312,7 +312,7 @@
                             @elseif($beer && $beer->photo_path)
                                 <img src="{{ Storage::url($beer->photo_path) }}" alt="{{ $beer->name }}" class="w-full h-full object-cover" />
                             @else
-                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3 3h18a1.5 1.5 0 0 1 1.5 1.5v15A1.5 1.5 0 0 1 21 21H3a1.5 1.5 0 0 1-1.5-1.5v-15A1.5 1.5 0 0 1 3 3Zm13.125 9.75a1.125 1.125 0 1 1-2.25 0 1.125 1.125 0 0 1 2.25 0Z"/></svg>
+                                <x-icon name="image" size="8" class="text-gray-400" />
                             @endif
                         </div>
                         <div class="flex-1">
@@ -349,10 +349,10 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Venue</label>
                         @if($checkinVenueId)
                             <div class="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg">
-                                <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                                <x-icon name="map-pin" size="4" class="text-amber-500 flex-shrink-0" />
                                 <span class="text-sm font-medium text-amber-700 dark:text-amber-400 flex-1">{{ $checkinVenueName }}</span>
                                 <button type="button" wire:click="clearCheckinVenue" class="text-amber-400 hover:text-amber-600 dark:hover:text-amber-300">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    <x-icon name="x-mark" size="4" />
                                 </button>
                             </div>
                         @else
@@ -373,7 +373,7 @@
                                             @click="venueOpen = false"
                                             class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-2"
                                         >
-                                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                                            <x-icon name="map-pin" size="4" class="text-gray-400 flex-shrink-0" />
                                             <span class="text-gray-900 dark:text-white">{{ $venue['name'] }}</span>
                                         </button>
                                     @endforeach
@@ -516,7 +516,7 @@
                         wire:confirm="Are you sure you want to delete this beer? All check-ins, inventory, and collection links will be removed."
                         class="inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 bg-white dark:bg-gray-700 border border-red-300 dark:border-red-500/40 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                     >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
+                        <x-icon name="trash" size="4" />
                         Delete
                     </button>
                 @endif
