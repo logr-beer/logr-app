@@ -34,7 +34,7 @@
         x-init="init()"
         class="mb-6"
     >
-        <div id="venue-map" class="w-full h-[400px] rounded-xl shadow-sm border border-gray-200 dark:border-gray-700" wire:ignore></div>
+        <div id="venue-map" class="w-full h-[400px] rounded-xl shadow-sm border border-gray-200 dark:border-gray-700" wire:ignore aria-hidden="true" tabindex="-1"></div>
     </div>
 
     {{-- Filter tabs --}}

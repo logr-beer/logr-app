@@ -14,12 +14,13 @@
         }"
         x-on:click.outside="open = false"
         x-on:keydown.escape.window="open = false"
+        x-on:focusout="if (!$el.contains($event.relatedTarget)) open = false"
         class="relative"
     >
         <button
             type="button"
             x-on:click="open = !open"
-            class="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-lg border-r-0 text-sm text-gray-700 dark:text-gray-300 focus:ring-amber-500 focus:border-amber-500 focus:ring-1 focus:outline-none transition-colors"
+            class="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-lg border-r-0 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors"
         >
             <span x-text="label" class="truncate"></span>
             <x-icon name="chevron-down" size="4" class="text-gray-400 flex-shrink-0 transition-transform" ::class="{ 'rotate-180': open }" />
@@ -49,7 +50,7 @@
     </div>
     <button
         wire:click="$set('{{ $directionField }}', '{{ $this->{$directionField} === 'asc' ? 'desc' : 'asc' }}')"
-        class="inline-flex items-center px-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-r-lg text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors"
+        class="inline-flex items-center px-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-r-lg text-gray-500 dark:text-gray-400 hover:text-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors"
         title="{{ $this->{$directionField} === 'asc' ? 'Ascending' : 'Descending' }}"
     >
         @if($this->{$directionField} === 'asc')

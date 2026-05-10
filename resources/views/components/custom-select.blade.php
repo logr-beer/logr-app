@@ -19,6 +19,7 @@
     }"
     x-on:click.outside="open = false"
     x-on:keydown.escape.window="open = false"
+    x-on:focusout="if (!$el.contains($event.relatedTarget)) open = false"
     class="relative"
 >
     <button

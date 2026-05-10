@@ -47,7 +47,7 @@
                 type="file"
                 {{ $multiple ? 'multiple' : '' }}
                 accept="image/*"
-                class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber-600 file:text-white hover:file:bg-amber-700 file:cursor-pointer file:transition-colors"
+                class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber-600 file:text-white hover:file:bg-amber-700 file:cursor-pointer file:transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-lg"
             />
             @if($hint)
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $hint }}</p>
