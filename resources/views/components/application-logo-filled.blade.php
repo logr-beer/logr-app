@@ -10,13 +10,14 @@
                 transition: clip-path 0.25s ease-out;
             }
             svg:hover .beer-fill-{{ $clipId }},
-            .group:hover .beer-fill-{{ $clipId }} {
+            .group:hover .beer-fill-{{ $clipId }},
+            .group:focus-within .beer-fill-{{ $clipId }} {
                 clip-path: inset(0 0 0 0);
             }
             .bubble-{{ $clipId }} { opacity: 0; fill: rgba(255, 255, 255, 0.3); }
-            svg:hover .bubble-{{ $clipId }} { animation: rise1-{{ $clipId }} 2s ease-in infinite; }
-            svg:hover .bubble-2-{{ $clipId }} { animation: rise2-{{ $clipId }} 2.3s ease-in infinite; animation-delay: 0.3s; }
-            svg:hover .bubble-3-{{ $clipId }} { animation: rise3-{{ $clipId }} 1.8s ease-in infinite; animation-delay: 0.6s; }
+            svg:hover .bubble-{{ $clipId }}, .group:focus-within .bubble-{{ $clipId }} { animation: rise1-{{ $clipId }} 2s ease-in infinite; }
+            svg:hover .bubble-2-{{ $clipId }}, .group:focus-within .bubble-2-{{ $clipId }} { animation: rise2-{{ $clipId }} 2.3s ease-in infinite; animation-delay: 0.3s; }
+            svg:hover .bubble-3-{{ $clipId }}, .group:focus-within .bubble-3-{{ $clipId }} { animation: rise3-{{ $clipId }} 1.8s ease-in infinite; animation-delay: 0.6s; }
             .group:hover .bubble-{{ $clipId }} { animation: rise1-{{ $clipId }} 2s ease-in infinite; }
             .group:hover .bubble-2-{{ $clipId }} { animation: rise2-{{ $clipId }} 2.3s ease-in infinite; animation-delay: 0.3s; }
             .group:hover .bubble-3-{{ $clipId }} { animation: rise3-{{ $clipId }} 1.8s ease-in infinite; animation-delay: 0.6s; }
