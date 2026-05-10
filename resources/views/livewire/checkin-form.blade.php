@@ -274,6 +274,11 @@
                         </label>
                     @endif
 
+                    <a
+                        href="{{ route('checkins.index') }}"
+                        wire:navigate
+                        class="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                    >Cancel</a>
                     <button
                         type="submit"
                         class="inline-flex items-center gap-2 px-6 py-2.5 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50"
