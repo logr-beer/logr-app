@@ -6,11 +6,11 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Import Type</label>
-                <select wire:model.live="importType" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 shadow-sm">
-                    <option value="checkins">Check-ins Only</option>
-                    <option value="inventory">Inventory Only</option>
-                    <option value="both">Check-ins + Inventory</option>
-                </select>
+                <x-custom-select
+                    wireModel="importType"
+                    size="lg"
+                    :options="['checkins' => 'Check-ins Only', 'inventory' => 'Inventory Only', 'both' => 'Check-ins + Inventory']"
+                />
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     @if ($importType === 'checkins')
                         Import beer check-in history (ratings, dates, venues, notes).
@@ -68,11 +68,11 @@
                         </div>
                         <x-icon name="arrow-right" size="5" class="text-gray-400 shrink-0" />
                         <div class="w-1/2">
-                            <select wire:model="mapping.{{ $header }}" class="w-full text-sm rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 shadow-sm">
-                                @foreach ($availableFields as $value => $label)
-                                    <option value="{{ $value }}">{{ $label }}</option>
-                                @endforeach
-                            </select>
+                            <x-custom-select
+                                wireModel="mapping.{{ $header }}"
+                                placeholder="Skip"
+                                :options="$availableFields"
+                            />
                         </div>
                     </div>
                 @endforeach
