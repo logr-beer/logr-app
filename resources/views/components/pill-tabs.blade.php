@@ -1,6 +1,6 @@
 @props(['tabs', 'active', 'wireModel' => null])
 
-<div class="inline-flex items-center rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
+<div class="inline-flex items-stretch rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
     @foreach($tabs as $key => $tab)
         @php
             $isActive = $active === $key;
@@ -10,21 +10,18 @@
             $classes = $isActive
                 ? 'bg-amber-500 text-white'
                 : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700';
+            $borderClass = !$loop->first ? 'border-l border-gray-300 dark:border-gray-600' : '';
         @endphp
 
-        @if(!$loop->first)
-            <div class="w-px self-stretch bg-gray-300 dark:bg-gray-600"></div>
-        @endif
-
         @if($href)
-            <a href="{{ $href }}" wire:navigate class="px-3 py-1.5 text-sm font-medium transition-colors {{ $classes }}">
+            <a href="{{ $href }}" wire:navigate class="px-3 py-1.5 text-sm font-medium transition-colors {{ $classes }} {{ $borderClass }}">
                 {{ $label }}
                 @if($badge)
                     <span class="ml-1 inline-flex items-center justify-center min-w-[1rem] h-4 px-1 text-[10px] font-bold rounded-full {{ $isActive ? 'bg-white/30' : 'bg-amber-500 text-white' }}">{{ $badge }}</span>
                 @endif
             </a>
         @else
-            <button wire:click="{{ $wireModel ? "\$set('{$wireModel}', '{$key}')" : '' }}" class="px-3 py-1.5 text-sm font-medium transition-colors {{ $classes }}">
+            <button wire:click="{{ $wireModel ? "\$set('{$wireModel}', '{$key}')" : '' }}" class="px-3 py-1.5 text-sm font-medium transition-colors {{ $classes }} {{ $borderClass }}">
                 {{ $label }}
                 @if($badge)
                     <span class="ml-1 inline-flex items-center justify-center min-w-[1rem] h-4 px-1 text-[10px] font-bold rounded-full {{ $isActive ? 'bg-white/30' : 'bg-amber-500 text-white' }}">{{ $badge }}</span>
