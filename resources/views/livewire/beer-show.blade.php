@@ -203,7 +203,7 @@
                                 </div>
                                 <div>
                                     <label for="purchaseDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date Acquired</label>
-                                    <input wire:model="purchaseDate" type="date" id="purchaseDate" class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500" />
+                                    <input wire:model="purchaseDate" type="date" id="purchaseDate" class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500 dark:[color-scheme:dark]" />
                                 </div>
                             </div>
                             <div>

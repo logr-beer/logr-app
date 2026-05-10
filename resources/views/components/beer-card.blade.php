@@ -109,8 +109,7 @@
             <p class="text-sm text-amber-600 dark:text-amber-400 line-clamp-1 mt-1">{{ implode(', ', $beer->style) }}</p>
         @endif
         @if($displayDate)
-            <time class="flex items-center gap-1 mt-auto pt-1 text-xs text-gray-500 dark:text-gray-400" datetime="{{ $displayDate->toISOString() }}">
-                <x-icon name="calendar" size="3" class="text-gray-400 dark:text-gray-500" />
+            <time class="block mt-auto pt-1 text-xs text-gray-500 dark:text-gray-400" datetime="{{ $displayDate->toISOString() }}">
                 {{ $displayDateLabel }} {{ $displayDate->diffForHumans() }}
             </time>
         @endif
