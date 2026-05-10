@@ -98,8 +98,10 @@
         >
             <x-icon name="heart" size="3.5" :solid="$beer->is_favorite" class="{{ $beer->is_favorite ? 'text-amber-400' : 'transition-[fill] duration-150 group-hover/fav:fill-amber-400 group-hover/fav:duration-[250ms]' }}" />
         </button>
-        {{-- Keyboard hint (visible on focus) --}}
-        <span class="absolute top-1.5 right-1.5 z-10 hidden group-focus-within:flex w-6 h-6 items-center justify-center rounded-full bg-black/60 text-white text-xs font-bold shadow-lg pointer-events-none group-hover:hidden" aria-hidden="true">F</span>
+        {{-- Keyboard hint (visible on focus, hidden if already favorited) --}}
+        @unless($beer->is_favorite)
+            <span class="absolute top-1.5 right-1.5 z-10 hidden group-focus-within:flex w-6 h-6 items-center justify-center rounded-full bg-black/60 text-white text-xs font-bold shadow-lg pointer-events-none group-hover:hidden" aria-hidden="true">F</span>
+        @endunless
     @endif
 
     {{-- Info --}}
