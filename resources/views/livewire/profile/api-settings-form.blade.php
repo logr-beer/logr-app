@@ -323,7 +323,7 @@ new class extends Component
                 <div>
                     <x-input-label for="logr_db_token" value="API Token" />
                     <input wire:model.live="logr_db_token" id="logr_db_token" type="text" autocomplete="off" {{ $demoMode ? 'disabled' : '' }}
-                        class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm {{ $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Bearer token for the Logr DB API.</p>
                 </div>
                 <button type="button" wire:click="testLogrDb" {{ $demoMode ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50">
@@ -344,7 +344,7 @@ new class extends Component
             <div>
                 <x-input-label for="catalog_beer_api_key" value="API Key" />
                 <input wire:model.live="catalog_beer_api_key" id="catalog_beer_api_key" type="text" autocomplete="off" {{ $demoMode ? 'disabled' : '' }}
-                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
+                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm {{ $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     Get a free API key at <span class="font-medium">catalog.beer</span>.
                     @if(config('services.catalog_beer.key'))
@@ -372,7 +372,7 @@ new class extends Component
                 </div>
                 <input wire:model.live="untappd_username" id="untappd_username" type="text" autocomplete="off" placeholder="e.g. username"
                     {{ config('services.untappd.username') || $demoMode ? 'disabled' : '' }}
-                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ config('services.untappd.username') || $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
+                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm {{ config('services.untappd.username') || $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
             </div>
 
             @if($untappd_username && !$demoMode)
@@ -426,12 +426,12 @@ new class extends Component
                         <div class="w-36">
                             <x-input-label for="newFeedLabel" value="Label" />
                             <input wire:model="newFeedLabel" id="newFeedLabel" type="text" placeholder="e.g. Main"
-                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" />
+                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm" />
                         </div>
                         <div class="flex-1">
                             <x-input-label for="newFeedUrl" value="RSS URL" />
                             <input wire:model="newFeedUrl" id="newFeedUrl" type="url" placeholder="https://untappd.com/rss/user/..."
-                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" />
+                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm" />
                         </div>
                         <div class="shrink-0">
                             <x-input-label class="invisible">&nbsp;</x-input-label>
@@ -474,7 +474,7 @@ new class extends Component
                         </div>
                         <input wire:model.live="untappd_client_id" id="untappd_client_id" type="text" autocomplete="off"
                             {{ config('services.untappd.api_key') || $demoMode ? 'disabled' : '' }}
-                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ config('services.untappd.api_key') || $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
+                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm {{ config('services.untappd.api_key') || $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
                     </div>
                     <div>
                         <div class="flex items-center justify-between">
@@ -485,7 +485,7 @@ new class extends Component
                         </div>
                         <input wire:model.live="untappd_client_secret" id="untappd_client_secret" type="text" autocomplete="off"
                             {{ config('services.untappd.api_secret') || $demoMode ? 'disabled' : '' }}
-                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ config('services.untappd.api_secret') || $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
+                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm {{ config('services.untappd.api_secret') || $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
                         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Register at <span class="font-medium">untappd.com/api/docs</span>.</p>
                     </div>
                     <button type="button" wire:click="testUntappd" {{ $demoMode ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50">
