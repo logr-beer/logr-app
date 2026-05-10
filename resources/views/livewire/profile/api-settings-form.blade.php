@@ -398,10 +398,10 @@ new class extends Component
                         <x-env-badge name="UNTAPPD_RSS_FEEDS" />
                     @endif
                 </div>
-                <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-xs text-blue-700 dark:text-blue-400 space-y-1.5">
+                <div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-xs text-amber-700 dark:text-amber-400 space-y-1.5">
                     <p>To find your RSS feed URL:</p>
                     <ol class="list-decimal list-inside space-y-0.5 ml-1">
-                        <li>Go to <a href="https://untappd.com/account/settings" target="_blank" rel="noopener" class="font-medium underline hover:text-blue-800 dark:hover:text-blue-300">untappd.com/account/settings</a> and scroll down to "RSS Feed"</li>
+                        <li>Go to <a href="https://untappd.com/account/settings" target="_blank" rel="noopener" class="font-medium underline hover:text-amber-800 dark:hover:text-amber-300">untappd.com/account/settings</a> and scroll down to "RSS Feed"</li>
                         <li>Copy the RSS feed URL shown on the page</li>
                     </ol>
                     <p class="pt-1">For the <strong>Label</strong>, use something descriptive like your Untappd display name or "Main" if you only have one feed.</p>
@@ -509,7 +509,7 @@ new class extends Component
 
         @unless($demoMode)
             <div class="flex items-center gap-4">
-                <x-primary-button>Save</x-primary-button>
+                <x-primary-button><x-icon name="check" size="4" /> Save</x-primary-button>
                 <x-action-message class="me-3" on="api-settings-updated">Saved.</x-action-message>
             </div>
         @endunless
