@@ -101,7 +101,7 @@
                 <p class="text-gray-500 dark:text-gray-400">No beers in this collection yet. Search above to add some.</p>
             </div>
         @else
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 @foreach($beers as $beer)
                     <div class="group relative rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg transition-shadow">
                         <a href="{{ route('beers.show', $beer) }}" wire:navigate>

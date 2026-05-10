@@ -171,7 +171,7 @@ class BeerIndex extends Component
             ->get();
 
         return view('livewire.beer-index', [
-            'beers' => $this->getCurrentQuery()->paginate(24),
+            'beers' => $this->getCurrentQuery()->paginate(12),
             'styles' => $this->getStyles(),
             'collections' => $collections,
         ]);

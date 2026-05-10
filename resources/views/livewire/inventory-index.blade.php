@@ -10,7 +10,7 @@
 
     {{-- Location Summary Cards --}}
     @if($locationSummary->isNotEmpty())
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6">
             <button
                 wire:click="$set('location', '')"
                 class="p-3 rounded-lg text-left transition-colors {{ $location === '' ? 'bg-amber-500 text-white' : 'bg-white dark:bg-gray-800 shadow-sm hover:shadow-md text-gray-900 dark:text-white' }}"
@@ -43,7 +43,7 @@
 
     {{-- Inventory Grid --}}
     @if($items->count())
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             @foreach($items as $item)
                 @php
                     $itemBadges = [];

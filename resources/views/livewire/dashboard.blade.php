@@ -32,7 +32,7 @@
     @if($yearCollections->isNotEmpty())
     <div class="mb-8">
         <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">By Year</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             @foreach($yearCollections as $collection)
                 @include('livewire.partials.collection-card', ['collection' => $collection])
             @endforeach
@@ -44,7 +44,7 @@
     @if($locationCollections->isNotEmpty())
     <div class="mb-8">
         <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">By Location</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             @foreach($locationCollections as $collection)
                 @include('livewire.partials.collection-card', ['collection' => $collection])
             @endforeach

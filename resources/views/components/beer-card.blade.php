@@ -24,7 +24,7 @@
 
 <div class="group relative flex flex-col rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg hover:scale-[1.025] transition-all duration-150 hover:duration-[250ms] {{ $selected ? 'ring-2 ring-amber-500 ring-offset-2 dark:ring-offset-gray-900' : '' }}">
     <a href="{{ $link }}" wire:navigate>
-        <div class="aspect-square bg-gray-100 dark:bg-gray-700 overflow-hidden relative">
+        <div class="aspect-[4/3] bg-gray-100 dark:bg-gray-700 overflow-hidden relative">
             @if($beer->photo_path)
                 <img src="{{ Storage::url($beer->photo_path) }}" alt="{{ $beer->name }}" class="w-full h-full object-cover">
             @else
