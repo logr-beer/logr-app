@@ -1,7 +1,16 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Collections</h1>
+        <div class="flex items-center gap-3 mb-3">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Collections</h1>
+            <button
+                wire:click="$set('showCreateModal', true)"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-lg transition-colors flex-shrink-0"
+            >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                New
+            </button>
+        </div>
         <div class="flex flex-col sm:flex-row sm:items-center gap-3">
             {{-- Tabs --}}
             <x-pill-tabs
@@ -16,18 +25,7 @@
                 <input wire:model.live.debounce.300ms="search" type="text" placeholder="Search collections..." class="w-full pl-9 pr-4 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-amber-500 focus:border-amber-500" />
             </div>
 
-            <div class="flex items-center gap-2 w-full sm:w-auto">
-                <x-sort-control :options="['newest' => 'Newest', 'name' => 'Name', 'count' => 'Beers']" />
-
-                {{-- + New button --}}
-                <button
-                    wire:click="$set('showCreateModal', true)"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-lg transition-colors flex-shrink-0"
-                >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                    New
-                </button>
-            </div>
+            <x-sort-control :options="['newest' => 'Newest', 'name' => 'Name', 'count' => 'Beers']" />
         </div>
     </div>
 
