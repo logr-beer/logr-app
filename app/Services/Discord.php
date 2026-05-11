@@ -41,15 +41,16 @@ class Discord
         }
 
         if ($checkin->venue) {
-            $description .= "\n\nVenue: {$checkin->venue->name}";
+            $description .= "\n\n**Venue:**\n{$checkin->venue->name}";
         } elseif ($checkin->location) {
-            $description .= "\n\nLocation: {$checkin->location}";
+            $description .= "\n\n**Location:**\n{$checkin->location}";
+        }
+
+        if ($beer->style) {
+            $description .= "\n\n**Style:**\n" . implode(', ', $beer->style);
         }
 
         $fields = [];
-        if ($beer->style) {
-            $fields[] = ['name' => 'Style', 'value' => implode(', ', $beer->style), 'inline' => false];
-        }
         if ($beer->abv) {
             $fields[] = ['name' => 'ABV', 'value' => "{$beer->abv}%", 'inline' => true];
         }
