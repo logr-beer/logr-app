@@ -103,31 +103,27 @@ class Discord
         $inventory->loadMissing(['beer.brewery']);
         $beer = $inventory->beer;
 
-        $description = '';
+        $description = "**{$beer->name}**";
         if ($beer->brewery) {
-            $description .= "by **{$beer->brewery->name}**\n";
+            $description .= " by {$beer->brewery->name}";
         }
-
-        if ($beer->style) {
-            $description .= "\n**Style:**\n" . implode(', ', $beer->style);
+        $description .= "\n\nQuantity: **{$inventory->quantity}**";
+        if ($inventory->storage_location) {
+            $description .= "\nStorage: {$inventory->storage_location}";
         }
-
-        $fromLine = $inventory->quantity;
         if ($inventory->purchase_location) {
-            $fromLine .= " from {$inventory->purchase_location}";
+            $description .= "\nFrom: {$inventory->purchase_location}";
         }
-        $description .= "\n\n**Added:**\n{$fromLine}";
-
         if ($inventory->is_gift) {
             $description .= "\n\nThis was a gift!";
         }
 
         $fields = [];
+        if ($beer->style) {
+            $fields[] = ['name' => 'Style', 'value' => implode(', ', $beer->style), 'inline' => true];
+        }
         if ($beer->abv) {
             $fields[] = ['name' => 'ABV', 'value' => "{$beer->abv}%", 'inline' => true];
-        }
-        if ($beer->ibu) {
-            $fields[] = ['name' => 'IBU', 'value' => (string) $beer->ibu, 'inline' => true];
         }
 
         $embed = [
