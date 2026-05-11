@@ -4,6 +4,11 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.1] - 2026-05-11
+
+### Fixed
+- Setting::get() no longer crashes when the settings table doesn't exist (fixes 500 during demo:reset)
+
 ## [0.2.0] - 2026-05-11
 
 ### Added
@@ -215,6 +220,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Database purge and reset tools
 - System info page with version and dependency details
 
+[0.2.1]: https://github.com/logr-beer/logr-app/releases/tag/v0.2.1
 [0.2.0]: https://github.com/logr-beer/logr-app/releases/tag/v0.2.0
 [0.1.15]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.15
 [0.1.14]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.14
