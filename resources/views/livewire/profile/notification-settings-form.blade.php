@@ -130,6 +130,7 @@ new class extends Component
                     'fields' => [
                         ['name' => 'Style', 'value' => 'Double IPA, IPA, Pale Ale', 'inline' => true],
                         ['name' => 'ABV', 'value' => '8.0%', 'inline' => true],
+                        ['name' => "\u{200b}", 'value' => "\u{200b}", 'inline' => false],
                         ['name' => 'IBU', 'value' => '100', 'inline' => true],
                         ['name' => 'Serving', 'value' => 'Draft', 'inline' => true],
                     ],

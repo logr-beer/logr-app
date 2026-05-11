@@ -53,6 +53,9 @@ class Discord
         if ($beer->abv) {
             $fields[] = ['name' => 'ABV', 'value' => "{$beer->abv}%", 'inline' => true];
         }
+        if ($beer->ibu || $checkin->serving_type) {
+            $fields[] = ['name' => "\u{200b}", 'value' => "\u{200b}", 'inline' => false];
+        }
         if ($beer->ibu) {
             $fields[] = ['name' => 'IBU', 'value' => (string) $beer->ibu, 'inline' => true];
         }
