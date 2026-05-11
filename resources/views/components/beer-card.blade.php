@@ -23,11 +23,11 @@
 @endphp
 
 <div
-    x-data="{ heartPop: false }"
-    @if($showFavorite) x-on:favorite-toggled-{{ $beer->id }}.window="heartPop = true; setTimeout(() => heartPop = false, 500)" @endif
+    x-data="{ heartAnim: '' }"
+    @if($showFavorite) x-on:favorite-toggled-{{ $beer->id }}.window="heartAnim = $event.detail?.action || 'favorite'; setTimeout(() => heartAnim = '', 600)" @endif
     class="group relative flex flex-col rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg hover:scale-[1.025] transition-all duration-150 hover:duration-[250ms] {{ $selected ? 'ring-2 ring-amber-500 ring-offset-2 dark:ring-offset-gray-900' : '' }} focus-within:ring-2 focus-within:ring-amber-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900"
 >
-    <a href="{{ $link }}" wire:navigate class="focus:outline-none" @if($showFavorite) @keydown.f.prevent="$wire.toggleFavorite({{ $beer->id }}); $dispatch('favorite-toggled-{{ $beer->id }}')" @endif>
+    <a href="{{ $link }}" wire:navigate class="focus:outline-none" @if($showFavorite) @keydown.f.prevent="$dispatch('favorite-toggled-{{ $beer->id }}', { action: {{ $beer->is_favorite ? '\'unfavorite\'' : '\'favorite\'' }} }); $wire.toggleFavorite({{ $beer->id }})" @endif @if($selectable) @keydown.s.prevent="$wire.toggleSelected({{ $itemId }})" @endif>
         <div class="aspect-[4/3] bg-gray-100 dark:bg-gray-700 overflow-hidden relative">
             @if($beer->photo_path)
                 <img src="{{ Storage::url($beer->photo_path) }}" alt="{{ $beer->name }}" class="w-full h-full object-cover">
@@ -74,20 +74,25 @@
                     @endforeach
                 </div>
             @endif
-            {{-- Heart pop overlay --}}
+            {{-- Heart animation overlays --}}
             @if($showFavorite)
+                <style>
+                    @keyframes heart-expand {
+                        0% { opacity: 1; transform: scale(0.3); }
+                        100% { opacity: 0; transform: scale(2.5); }
+                    }
+                    @keyframes heart-shrink {
+                        0% { opacity: 0.7; transform: scale(2.5); }
+                        100% { opacity: 0; transform: scale(0.3); }
+                    }
+                </style>
                 <div
-                    x-show="heartPop"
-                    x-transition:enter="transition ease-out duration-[150ms]"
-                    x-transition:enter-start="opacity-0"
-                    x-transition:enter-end="opacity-90"
-                    x-transition:leave="transition ease-out duration-[400ms]"
-                    x-transition:leave-start="opacity-90 scale-100"
-                    x-transition:leave-end="opacity-0 scale-[2.5]"
+                    x-show="heartAnim !== ''"
+                    :class="heartAnim === 'favorite' ? 'animate-[heart-expand_500ms_ease-out_forwards]' : 'animate-[heart-shrink_500ms_ease-in_forwards]'"
                     class="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
                     x-cloak
                 >
-                    <svg class="w-3/4 h-3/4 text-amber-500/40 drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-3/4 h-3/4 text-amber-500/70 drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/>
                     </svg>
                 </div>
@@ -99,6 +104,7 @@
     @if($selectable)
         <button
             wire:click.prevent.stop="toggleSelected({{ $itemId }})"
+            tabindex="-1"
             class="absolute top-2 left-2 z-20 {{ $selected ? '' : 'opacity-0 group-hover:opacity-100' }} transition-opacity"
         >
             @if($selected)
@@ -115,7 +121,7 @@
     @if($showFavorite)
         <button
             wire:click.prevent.stop="toggleFavorite({{ $beer->id }})"
-            x-on:click="$dispatch('favorite-toggled-{{ $beer->id }}')"
+            x-on:click="$dispatch('favorite-toggled-{{ $beer->id }}', { action: '{{ $beer->is_favorite ? 'unfavorite' : 'favorite' }}' })"
             tabindex="-1"
             class="absolute top-1.5 right-1.5 z-10 group/fav w-6 h-6 flex items-center justify-center rounded-full {{ $beer->is_favorite ? 'bg-black/50' : 'bg-black/50 opacity-0 group-hover:opacity-100' }} text-white shadow-lg transition-all"
         >
@@ -125,6 +131,11 @@
         @unless($beer->is_favorite)
             <span class="absolute top-1.5 right-1.5 z-10 hidden group-focus-within:flex w-6 h-6 items-center justify-center rounded-full bg-black/60 text-white text-xs font-bold shadow-lg pointer-events-none group-hover:hidden" aria-hidden="true">F</span>
         @endunless
+    @endif
+
+    {{-- Select keyboard hint --}}
+    @if($selectable && !$selected)
+        <span class="absolute top-2 left-2 z-10 hidden group-focus-within:flex w-5 h-5 items-center justify-center rounded-full bg-black/60 text-white text-[10px] font-bold shadow-lg pointer-events-none group-hover:hidden" aria-hidden="true">S</span>
     @endif
 
     {{-- Info --}}

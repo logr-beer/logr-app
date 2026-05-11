@@ -377,11 +377,11 @@ new class extends Component
 
             @if($untappd_username && !$demoMode)
                 <div class="flex flex-wrap items-center gap-3">
-                    <x-primary-button type="button" wire:click="scrapeProfile" {{ $scraping ? 'disabled' : '' }}>
+                    <x-primary-button type="button" wire:click="scrapeProfile" :disabled="$scraping">
                         @if($scraping) <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> @endif
                         Scrape Public
                     </x-primary-button>
-                    <x-primary-button type="button" wire:click="scrapeVenues" {{ $scrapingVenues ? 'disabled' : '' }}>
+                    <x-primary-button type="button" wire:click="scrapeVenues" :disabled="$scrapingVenues">
                         @if($scrapingVenues) <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> @endif
                         Scrape Venues
                     </x-primary-button>
@@ -447,7 +447,7 @@ new class extends Component
             {{-- Sync Feeds --}}
             @if(count($rssFeeds) && !$demoMode)
                 <div class="flex flex-wrap items-center gap-3">
-                    <x-primary-button type="button" wire:click="syncRss" {{ $syncing ? 'disabled' : '' }}>
+                    <x-primary-button type="button" wire:click="syncRss" :disabled="$syncing">
                         @if($syncing) <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> @endif
                         Sync All Feeds
                     </x-primary-button>
@@ -499,7 +499,7 @@ new class extends Component
         <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
             <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Venues</h3>
             <p class="text-xs text-gray-500 dark:text-gray-400">Geocode venues without coordinates using OpenStreetMap/Nominatim.</p>
-            <x-primary-button type="button" wire:click="geocodeVenues" {{ $geocoding || $demoMode ? 'disabled' : '' }}>
+            <x-primary-button type="button" wire:click="geocodeVenues" :disabled="$geocoding || $demoMode">
                 @if($geocoding) <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> @endif
                 Geocode Venues
             </x-primary-button>

@@ -36,14 +36,15 @@
                             class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
                         />
 
-                        @if(count($beerSuggestions) > 0)
-                            <div x-show="open" x-transition class="absolute z-30 mt-1 w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        @if(count($beerSuggestions) > 0 || count($apiResults) > 0)
+                            <div x-show="open" x-transition class="absolute z-30 mt-1 w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-72 overflow-y-auto">
+                                {{-- Local results --}}
                                 @foreach($beerSuggestions as $beer)
                                     <button
                                         type="button"
                                         wire:click="selectBeer({{ $beer->id }})"
                                         @click="open = false"
-                                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors flex items-center gap-3"
+                                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-amber-100 hover:text-amber-800 dark:hover:bg-amber-900/40 dark:hover:text-amber-300 transition-colors flex items-center gap-3"
                                     >
                                         @if($beer->photo_path)
                                             <img src="{{ Storage::url($beer->photo_path) }}" alt="" class="w-8 h-8 rounded object-cover flex-shrink-0" />
@@ -52,19 +53,61 @@
                                                 <x-application-logo-filled class="w-6 h-6 stroke-current text-gray-400" />
                                             </div>
                                         @endif
-                                        <div>
+                                        <div class="flex-1 min-w-0">
                                             <span class="text-gray-900 dark:text-white font-medium">{{ $beer->name }}</span>
                                             @if($beer->brewery)
                                                 <span class="text-gray-500 dark:text-gray-400 text-xs block">{{ $beer->brewery->name }}</span>
                                             @endif
                                         </div>
+                                        <span class="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">In Library</span>
                                     </button>
                                 @endforeach
-                            </div>
-                        @endif
 
-                        @if(strlen($beerQuery) >= 2 && count($beerSuggestions) === 0)
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">No beers found matching "{{ $beerQuery }}".</p>
+                                {{-- API results --}}
+                                @if(count($apiResults) > 0)
+                                    @if(count($beerSuggestions) > 0)
+                                        <div class="border-t border-gray-200 dark:border-gray-600 px-4 py-1.5">
+                                            <span class="text-[10px] font-medium uppercase tracking-wider text-gray-400 dark:text-gray-500">Search Results</span>
+                                        </div>
+                                    @endif
+                                    @foreach($apiResults as $result)
+                                        @php $resultKey = $result['bid'] ?? $result['id']; @endphp
+                                        @php $breweryName = $result['brewery_name'] ?? $result['brewery']['name'] ?? $result['brewer']['name'] ?? null; @endphp
+                                        <button
+                                            type="button"
+                                            wire:click="importAndSelectBeer('{{ $resultKey }}')"
+                                            @click="open = false"
+                                            class="w-full text-left px-4 py-2.5 text-sm hover:bg-amber-100 hover:text-amber-800 dark:hover:bg-amber-900/40 dark:hover:text-amber-300 transition-colors flex items-center gap-3"
+                                        >
+                                            <div class="w-8 h-8 rounded bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+                                                <x-icon name="plus" size="4" class="text-amber-600 dark:text-amber-400" />
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <span class="text-gray-900 dark:text-white font-medium">{{ $result['name'] }}</span>
+                                                @if($breweryName)
+                                                    <span class="text-gray-500 dark:text-gray-400 text-xs block">{{ $breweryName }}</span>
+                                                @endif
+                                            </div>
+                                            @if($result['abv'] ?? null)
+                                                <span class="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">{{ $result['abv'] }}%</span>
+                                            @endif
+                                        </button>
+                                    @endforeach
+                                @endif
+
+                                <div wire:loading wire:target="beerQuery" class="px-4 py-2.5 text-sm text-gray-500 dark:text-gray-400">
+                                    Searching...
+                                </div>
+                            </div>
+                        @elseif(strlen($beerQuery) >= 2)
+                            <div class="absolute z-30 mt-1 w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg" x-show="open">
+                                <div wire:loading wire:target="beerQuery" class="px-4 py-2.5 text-sm text-gray-500 dark:text-gray-400">
+                                    Searching...
+                                </div>
+                                <div wire:loading.remove wire:target="beerQuery" class="px-4 py-2.5 text-sm text-gray-500 dark:text-gray-400">
+                                    No beers found matching "{{ $beerQuery }}".
+                                </div>
+                            </div>
                         @endif
                     @endif
                     @error('selectedBeerId') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
