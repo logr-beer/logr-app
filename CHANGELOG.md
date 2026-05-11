@@ -4,6 +4,50 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-05-11
+
+### Added
+- 18 shared Blade components: icon (36 icons), primary-button, search-input, empty-state, back-link, floating-action-bar, stat, card, section-heading, form-field, badge, flash-message, size-toggle, ranked-list, photo-upload, page-header
+- Check-in form now searches external APIs (LogrDB/Untappd/catalog.beer) in addition to local library
+- Heart favorite animation on beer cards (expand on favorite, shrink on unfavorite)
+- Batch favorite via multi-select floating action bar
+- Keyboard shortcuts on beer cards: F to favorite, S to select
+- Expandable plus button on page headers (Beers, Check-ins, Collections)
+- Beer logo animates on keyboard focus
+- Amber focus rings on all interactive elements (nav, cards, dropdowns, tabs, buttons, links)
+- Konami code easter egg
+
+### Changed
+- All indigo/blurple colors replaced with amber brand color
+- Button contrast improved: amber-500 to amber-600 (WCAG AA compliant)
+- Muted text contrast improved: gray-400 to gray-500 for readable content
+- Discord logo updated to Clyde mascot
+- All amber buttons consolidated into shared primary-button component
+- All file input buttons use solid amber style
+- Empty states use animated beer glass logo
+- 120+ inline SVGs replaced with shared icon component
+- Centralized beer styles, serving types, and user agent to config
+- Maps skip keyboard navigation (aria-hidden)
+- Dropdowns and selects close on tab-out
+- Nav links use compact spacing with inset focus ring
+- Photo upload max standardized to 10MB across all forms
+- Dark mode date picker icons now visible
+
+### Fixed
+- Mass assignment vulnerability: removed is_admin from User $fillable
+- Data leakage: beer export now filtered by authenticated user
+- Open redirect: Discord OAuth redirect URL validated
+- Admin routes (api, notifications, logr, discord) now behind admin middleware
+- OpenBreweryDb handles non-array API responses
+- PurgeData deletes correct storage directories (beers, checkin-photos)
+- Duplicate ungeocoded query in Locations render removed
+- API settings disabled attribute syntax on Blade components
+
+### Removed
+- Unused collections/create route and view
+- Unused BeerMap component and view
+- Unused service configs (postmark, resend, ses, slack)
+
 ## [0.1.15] - 2026-05-10
 
 ### Added
@@ -171,6 +215,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Database purge and reset tools
 - System info page with version and dependency details
 
+[0.2.0]: https://github.com/logr-beer/logr-app/releases/tag/v0.2.0
 [0.1.15]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.15
 [0.1.14]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.14
 [0.1.13]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.13
