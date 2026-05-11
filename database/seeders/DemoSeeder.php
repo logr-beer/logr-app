@@ -184,6 +184,12 @@ class DemoSeeder extends Seeder
         $this->command?->info("Imported {$count} checkins ({$csvPath})");
         $this->command?->info('Breweries: '.count($breweryCache).', Beers: '.count($beerCache).', Venues: '.count($venueCache));
 
+        // Favorite ~15% of beers randomly
+        $beers = collect($beerCache)->values();
+        $favorites = $beers->random((int) ceil($beers->count() * 0.15));
+        $favorites->each(fn (Beer $beer) => $beer->update(['is_favorite' => true]));
+        $this->command?->info("Favorited {$favorites->count()} beers.");
+
         $this->seedInventory($user, $beerCache);
         $this->seedCollections($user, $beerCache);
     }
