@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Beer;
 use App\Models\Brewery;
 use App\Models\Checkin;
+use App\Models\CheckinPhoto;
 use App\Models\Collection;
 use App\Models\Inventory;
 use App\Models\User;
@@ -58,6 +59,35 @@ class DemoSeeder extends Seeder
         $venueCache = [];
         $count = 0;
 
+        // Unsplash beer photos (used as beer labels)
+        $beerPhotos = [
+            'https://images.unsplash.com/photo-1643307282439-08cb542c6edf?w=400&h=500&fit=crop',
+            'https://images.unsplash.com/photo-1710758029150-d855c4357fa1?w=400&h=500&fit=crop',
+            'https://images.unsplash.com/photo-1705968598798-7623ccf9c75e?w=400&h=500&fit=crop',
+            'https://images.unsplash.com/photo-1627627045944-a6171e94783a?w=400&h=500&fit=crop',
+            'https://images.unsplash.com/photo-1701396632939-0e74c9c2aee7?w=400&h=500&fit=crop',
+            'https://images.unsplash.com/photo-1545690520-676a9809eea8?w=400&h=500&fit=crop',
+            'https://images.unsplash.com/photo-1679592726581-82d88e5908d2?w=400&h=500&fit=crop',
+            'https://images.unsplash.com/photo-1705968598857-b5a8aba9b41a?w=400&h=500&fit=crop',
+            'https://images.unsplash.com/photo-1710757753582-205287ce872d?w=400&h=500&fit=crop',
+            'https://images.unsplash.com/photo-1681163166160-376f9bab5770?w=400&h=500&fit=crop',
+            'https://images.unsplash.com/photo-1730390772423-e701d895e0bb?w=400&h=500&fit=crop',
+            'https://images.unsplash.com/photo-1705968598781-0cf4da315aaa?w=400&h=500&fit=crop',
+            'https://images.unsplash.com/photo-1723623121806-7a31e9a7b28e?w=400&h=500&fit=crop',
+            'https://images.unsplash.com/photo-1613412596744-93641adbb8e6?w=400&h=500&fit=crop',
+        ];
+
+        // Unsplash check-in photos (beer in social settings)
+        $checkinPhotos = [
+            'https://images.unsplash.com/photo-1575037614876-c38a4c44f5b8?w=600&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=600&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1571613316887-6f8d5cc08e3d?w=600&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=600&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1518099074172-2e91c8ca2555?w=600&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1505075106905-fb052892c116?w=600&h=400&fit=crop',
+        ];
+        $beerPhotoIndex = 0;
+
         while (($row = fgetcsv($handle)) !== false) {
             $data = array_combine($headers, $row);
 
@@ -85,7 +115,9 @@ class DemoSeeder extends Seeder
                 $beerAttrs = [
                     'style' => $data['style'] ? [$data['style']] : null,
                     'abv' => $data['abv'] ?: null,
+                    'photo_path' => $beerPhotos[$beerPhotoIndex % count($beerPhotos)],
                 ];
+                $beerPhotoIndex++;
 
                 if (! empty($data['catalog_beer_id'])) {
                     $beerCache[$beerKey] = Beer::firstOrCreate(
@@ -125,7 +157,7 @@ class DemoSeeder extends Seeder
 
             $checkinDate = Carbon::parse($data['date']);
 
-            Checkin::create([
+            $checkin = Checkin::create([
                 'user_id' => $user->id,
                 'beer_id' => $beer->id,
                 'venue_id' => $venueId,
@@ -135,6 +167,14 @@ class DemoSeeder extends Seeder
                 'created_at' => $checkinDate->setTime(rand(12, 22), rand(0, 59)),
                 'updated_at' => $checkinDate,
             ]);
+
+            // Add a check-in photo to ~20% of check-ins
+            if (rand(1, 5) === 1) {
+                CheckinPhoto::create([
+                    'checkin_id' => $checkin->id,
+                    'photo_path' => $checkinPhotos[array_rand($checkinPhotos)],
+                ]);
+            }
 
             $count++;
         }

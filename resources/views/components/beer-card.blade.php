@@ -30,7 +30,7 @@
     <a href="{{ $link }}" wire:navigate class="focus:outline-none" @if($showFavorite) @keydown.f.prevent="$dispatch('favorite-toggled-{{ $beer->id }}', { action: {{ $beer->is_favorite ? '\'unfavorite\'' : '\'favorite\'' }} }); $wire.toggleFavorite({{ $beer->id }})" @endif @if($selectable) @keydown.s.prevent="$wire.toggleSelected({{ $itemId }})" @endif>
         <div class="aspect-[4/3] bg-gray-100 dark:bg-gray-700 overflow-hidden relative">
             @if($beer->photo_path)
-                <img src="{{ Storage::url($beer->photo_path) }}" alt="{{ $beer->name }}" class="w-full h-full object-cover">
+                <img src="{{ $beer->photo_url }}" alt="{{ $beer->name }}" class="w-full h-full object-cover">
             @else
                 <div class="w-full h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
                     <x-application-logo-filled class="w-16 h-16 stroke-current" />

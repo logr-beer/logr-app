@@ -30,7 +30,7 @@
             @elseif($existingPhotos && count($existingPhotos))
                 @foreach($existingPhotos as $photo)
                     <div class="w-20 h-24 rounded-lg overflow-hidden flex-shrink-0">
-                        <img src="{{ Storage::url($photo) }}" alt="Photo" class="w-full h-full object-cover" />
+                        <img src="{{ str_starts_with($photo, 'http') ? $photo : Storage::url($photo) }}" alt="Photo" class="w-full h-full object-cover" />
                     </div>
                 @endforeach
             @else

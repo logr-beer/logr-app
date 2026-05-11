@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -53,6 +54,15 @@ class Beer extends Model
             $q->where('name', 'like', "%{$search}%")
                 ->orWhereHas('brewery', fn ($b) => $b->where('name', 'like', "%{$search}%"));
         });
+    }
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        if (! $this->photo_path) {
+            return null;
+        }
+
+        return str_starts_with($this->photo_path, 'http') ? $this->photo_path : Storage::url($this->photo_path);
     }
 
     public function averageRating(): float

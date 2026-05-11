@@ -115,7 +115,7 @@
                         <div class="flex-shrink-0">
                             <div class="w-16 h-20 rounded-lg bg-gray-100 dark:bg-gray-700 overflow-hidden">
                                 @if($checkin->beer->photo_path)
-                                    <img src="{{ Storage::url($checkin->beer->photo_path) }}" alt="{{ $checkin->beer->name }}" class="w-full h-full object-cover">
+                                    <img src="{{ $checkin->beer->photo_url }}" alt="{{ $checkin->beer->name }}" class="w-full h-full object-cover">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
                                         <x-application-logo-filled class="w-12 h-12 stroke-current" />
@@ -168,7 +168,7 @@
                             @if($checkin->photos->isNotEmpty())
                                 <div class="flex gap-2 mt-3 overflow-x-auto">
                                     @foreach($checkin->photos as $photo)
-                                        <img src="{{ Storage::url($photo->photo_path) }}" alt="Check-in photo" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+                                        <img src="{{ $photo->photo_url }}" alt="Check-in photo" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
                                     @endforeach
                                 </div>
                             @endif

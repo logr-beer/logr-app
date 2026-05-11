@@ -94,6 +94,11 @@
                             </a>
                         </div>
                     </div>
+                    @if(config('app.demo_mode'))
+                        <p class="text-center text-[10px] text-gray-400 dark:text-gray-500 mt-3">
+                            Demo images from <a href="https://unsplash.com" target="_blank" rel="noopener" class="underline hover:text-gray-500 dark:hover:text-gray-400">Unsplash</a>
+                        </p>
+                    @endif
                 </div>
             </footer>
         </div>

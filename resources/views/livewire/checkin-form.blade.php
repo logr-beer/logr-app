@@ -47,7 +47,7 @@
                                         class="w-full text-left px-4 py-2.5 text-sm hover:bg-amber-100 hover:text-amber-800 dark:hover:bg-amber-900/40 dark:hover:text-amber-300 transition-colors flex items-center gap-3"
                                     >
                                         @if($beer->photo_path)
-                                            <img src="{{ Storage::url($beer->photo_path) }}" alt="" class="w-8 h-8 rounded object-cover flex-shrink-0" />
+                                            <img src="{{ $beer->photo_url }}" alt="" class="w-8 h-8 rounded object-cover flex-shrink-0" />
                                         @else
                                             <div class="w-8 h-8 rounded bg-gray-100 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
                                                 <x-application-logo-filled class="w-6 h-6 stroke-current text-gray-400" />
@@ -225,7 +225,7 @@
                         <div class="flex flex-wrap gap-3">
                             @foreach($existingPhotos as $photo)
                                 <div class="relative group">
-                                    <img src="{{ Storage::url($photo['path']) }}" alt="Checkin photo" class="w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-600" />
+                                    <img src="{{ str_starts_with($photo['path'], 'http') ? $photo['path'] : Storage::url($photo['path']) }}" alt="Checkin photo" class="w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-600" />
                                     <button
                                         type="button"
                                         wire:click="removeExistingPhoto({{ $photo['id'] }})"

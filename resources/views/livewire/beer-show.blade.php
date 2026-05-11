@@ -11,7 +11,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
                 <div class="aspect-[3/4] bg-gray-100 dark:bg-gray-700">
                     @if($beer->photo_path)
-                        <img src="{{ Storage::url($beer->photo_path) }}" alt="{{ $beer->name }}" class="w-full h-full object-cover" />
+                        <img src="{{ $beer->photo_url }}" alt="{{ $beer->name }}" class="w-full h-full object-cover" />
                     @else
                         <div class="w-full h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
                             <x-application-logo-filled class="w-28 h-28 stroke-current" />
