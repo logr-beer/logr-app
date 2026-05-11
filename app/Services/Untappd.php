@@ -30,7 +30,7 @@ class Untappd
         ]);
 
         $response = Http::accept('application/json')
-            ->withHeaders(['User-Agent' => 'Logr/1.0'])
+            ->withHeaders(['User-Agent' => config('logr.user_agent')])
             ->get("{$this->baseUrl}{$endpoint}", $params);
 
         if ($response->failed()) {

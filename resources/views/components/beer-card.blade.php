@@ -22,13 +22,17 @@
     $rightBadges = collect($badges)->where('position', 'right')->values();
 @endphp
 
-<div class="group relative flex flex-col rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg hover:scale-[1.025] transition-all duration-150 hover:duration-[250ms] {{ $selected ? 'ring-2 ring-amber-500 ring-offset-2 dark:ring-offset-gray-900' : '' }}">
-    <a href="{{ $link }}" wire:navigate>
+<div
+    x-data="{ heartAnim: '' }"
+    @if($showFavorite) x-on:favorite-toggled-{{ $beer->id }}.window="heartAnim = $event.detail?.action || 'favorite'; setTimeout(() => heartAnim = '', 600)" @endif
+    class="group relative flex flex-col rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg hover:scale-[1.025] transition-all duration-150 hover:duration-[250ms] {{ $selected ? 'ring-2 ring-amber-500 ring-offset-2 dark:ring-offset-gray-900' : '' }} focus-within:ring-2 focus-within:ring-amber-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900"
+>
+    <a href="{{ $link }}" wire:navigate class="focus:outline-none" @if($showFavorite) @keydown.f.prevent="$dispatch('favorite-toggled-{{ $beer->id }}', { action: {{ $beer->is_favorite ? '\'unfavorite\'' : '\'favorite\'' }} }); $wire.toggleFavorite({{ $beer->id }})" @endif @if($selectable) @keydown.s.prevent="$wire.toggleSelected({{ $itemId }})" @endif>
         <div class="aspect-[4/3] bg-gray-100 dark:bg-gray-700 overflow-hidden relative">
             @if($beer->photo_path)
                 <img src="{{ Storage::url($beer->photo_path) }}" alt="{{ $beer->name }}" class="w-full h-full object-cover">
             @else
-                <div class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+                <div class="w-full h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
                     <x-application-logo-filled class="w-16 h-16 stroke-current" />
                 </div>
             @endif
@@ -46,9 +50,9 @@
                         @endphp
                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs {{ $badgeClasses }}">
                             @if(($badge['icon'] ?? null) === 'flask')
-                                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/></svg>
+                                <x-icon name="flask" size="2.5" />
                             @elseif(($badge['icon'] ?? null) === 'glass')
-                                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 21h6a1 1 0 0 0 1-1v-3.625c0-1.397.29-2.775.845-4.025l.31-.7c.556-1.25.845-2.253.845-3.65v-4a1 1 0 0 0-1-1h-10a1 1 0 0 0-1 1v4c0 1.397.29 2.4.845 3.65l.31.7a9.931 9.931 0 0 1 .845 4.025V20a1 1 0 0 0 1 1"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 8h12"/></svg>
+                                <x-icon name="glass" size="2.5" />
                             @endif
                             {{ $badge['label'] }}
                         </span>
@@ -70,6 +74,29 @@
                     @endforeach
                 </div>
             @endif
+            {{-- Heart animation overlays --}}
+            @if($showFavorite)
+                <style>
+                    @keyframes heart-expand {
+                        0% { opacity: 1; transform: scale(0.3); }
+                        100% { opacity: 0; transform: scale(2.5); }
+                    }
+                    @keyframes heart-shrink {
+                        0% { opacity: 0.7; transform: scale(2.5); }
+                        100% { opacity: 0; transform: scale(0.3); }
+                    }
+                </style>
+                <div
+                    x-show="heartAnim !== ''"
+                    :class="heartAnim === 'favorite' ? 'animate-[heart-expand_500ms_ease-out_forwards]' : 'animate-[heart-shrink_500ms_ease-in_forwards]'"
+                    class="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
+                    x-cloak
+                >
+                    <svg class="w-3/4 h-3/4 text-amber-500/70 drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/>
+                    </svg>
+                </div>
+            @endif
         </div>
     </a>
 
@@ -77,10 +104,11 @@
     @if($selectable)
         <button
             wire:click.prevent.stop="toggleSelected({{ $itemId }})"
+            tabindex="-1"
             class="absolute top-2 left-2 z-20 {{ $selected ? '' : 'opacity-0 group-hover:opacity-100' }} transition-opacity"
         >
             @if($selected)
-                <div class="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center shadow-lg">
+                <div class="w-5 h-5 rounded-full bg-amber-600 flex items-center justify-center shadow-lg">
                     <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
                 </div>
             @else
@@ -93,14 +121,21 @@
     @if($showFavorite)
         <button
             wire:click.prevent.stop="toggleFavorite({{ $beer->id }})"
-            class="absolute top-2 right-2 z-10 group/fav w-5 h-5 flex items-center justify-center rounded-full {{ $beer->is_favorite ? 'bg-black/50' : 'bg-black/50 opacity-0 group-hover:opacity-100' }} text-white shadow-lg transition-all"
+            x-on:click="$dispatch('favorite-toggled-{{ $beer->id }}', { action: '{{ $beer->is_favorite ? 'unfavorite' : 'favorite' }}' })"
+            tabindex="-1"
+            class="absolute top-1.5 right-1.5 z-10 group/fav w-6 h-6 flex items-center justify-center rounded-full {{ $beer->is_favorite ? 'bg-black/50' : 'bg-black/50 opacity-0 group-hover:opacity-100' }} text-white shadow-lg transition-all"
         >
-            @if($beer->is_favorite)
-                <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/></svg>
-            @else
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path class="transition-[fill] duration-150 group-hover/fav:fill-amber-400 group-hover/fav:duration-[250ms]" stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
-            @endif
+            <x-icon name="heart" size="3.5" :solid="$beer->is_favorite" class="{{ $beer->is_favorite ? 'text-amber-400' : 'transition-[fill] duration-150 group-hover/fav:fill-amber-400 group-hover/fav:duration-[250ms]' }}" />
         </button>
+        {{-- Keyboard hint (visible on focus, hidden if already favorited) --}}
+        @unless($beer->is_favorite)
+            <span class="absolute top-1.5 right-1.5 z-10 hidden group-focus-within:flex w-6 h-6 items-center justify-center rounded-full bg-black/60 text-white text-xs font-bold shadow-lg pointer-events-none group-hover:hidden" aria-hidden="true">F</span>
+        @endunless
+    @endif
+
+    {{-- Select keyboard hint --}}
+    @if($selectable && !$selected)
+        <span class="absolute top-2 left-2 z-10 hidden group-focus-within:flex w-5 h-5 items-center justify-center rounded-full bg-black/60 text-white text-[10px] font-bold shadow-lg pointer-events-none group-hover:hidden" aria-hidden="true">S</span>
     @endif
 
     {{-- Info --}}
@@ -113,7 +148,7 @@
             <p class="text-sm text-amber-600 dark:text-amber-400 line-clamp-1 mt-1">{{ implode(', ', $beer->style) }}</p>
         @endif
         @if($displayDate)
-            <time class="block mt-auto pt-1 text-xs text-gray-400 dark:text-gray-500" datetime="{{ $displayDate->toISOString() }}">
+            <time class="block mt-auto pt-1 text-xs text-gray-500 dark:text-gray-400" datetime="{{ $displayDate->toISOString() }}">
                 {{ $displayDateLabel }} {{ $displayDate->diffForHumans() }}
             </time>
         @endif

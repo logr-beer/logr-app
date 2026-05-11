@@ -371,7 +371,7 @@ class BeerForm extends Component
             'release_year' => 'nullable|integer|min:1800|max:'.(date('Y') + 1),
             'brewer_master' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:5000',
-            'photo' => 'nullable|image|max:4096',
+            'photo' => 'nullable|image|max:10240',
         ];
 
         $validated = $this->validate($rules);
@@ -577,17 +577,6 @@ class BeerForm extends Component
 
     private function getStyles(): array
     {
-        return [
-            'Hoppy' => ['IPA', 'Double IPA', 'Hazy IPA', 'Session IPA', 'Pale Ale', 'American Pale Ale'],
-            'Light & Crisp' => ['Lager', 'Pilsner', 'Helles', 'Cream Ale', 'Blonde Ale', 'Golden Ale', 'Kölsch'],
-            'Dark & Malty' => ['Stout', 'Imperial Stout', 'Milk Stout', 'Pastry Stout', 'Porter', 'Brown Ale', 'Schwarzbier'],
-            'Amber & Red' => ['Amber Ale', 'Red Ale', 'ESB', 'Bitter', 'Mild', 'Altbier', 'Scotch Ale'],
-            'Wheat' => ['Wheat Beer', 'Hefeweizen', 'Witbier'],
-            'Belgian' => ['Belgian Blonde', 'Belgian Dubbel', 'Belgian Tripel', 'Belgian Quad', 'Saison', 'Farmhouse Ale'],
-            'Sour & Wild' => ['Sour', 'Gose', 'Berliner Weisse', 'Lambic', 'Gueuze', 'Fruit Beer'],
-            'German' => ['Bock', 'Doppelbock', 'Märzen', 'Dunkel', 'Rauchbier'],
-            'Strong' => ['Barleywine'],
-            'Other' => ['Cider', 'Mead', 'Seltzer', 'Other'],
-        ];
+        return config('beer-styles.grouped');
     }
 }

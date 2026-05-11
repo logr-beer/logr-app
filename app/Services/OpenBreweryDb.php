@@ -19,7 +19,7 @@ class OpenBreweryDb
             return [];
         }
 
-        return collect($response->json())->map(fn (array $brewery) => [
+        return collect($response->json())->filter(fn ($brewery) => is_array($brewery))->map(fn (array $brewery) => [
             'id' => $brewery['id'],
             'name' => $brewery['name'],
             'city' => $brewery['city'] ?? null,

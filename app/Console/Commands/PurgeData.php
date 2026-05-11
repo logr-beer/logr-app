@@ -70,8 +70,8 @@ class PurgeData extends Command
         Venue::create(['name' => 'Home']);
 
         // Clean up uploaded files
-        Storage::deleteDirectory('photos');
-        Storage::deleteDirectory('logos');
+        Storage::disk('public')->deleteDirectory('beers');
+        Storage::disk('public')->deleteDirectory('checkin-photos');
 
         $this->info('All data purged. User accounts preserved.');
     }

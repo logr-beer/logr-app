@@ -10,12 +10,6 @@ class LogrCallbackController extends Controller
 {
     public function redirect()
     {
-        $user = Auth::user();
-
-        if (! $user->is_admin) {
-            return redirect()->route('admin.notifications')->with('error', 'Only admins can connect the Discord bot.');
-        }
-
         $hubUrl = rtrim(config('services.logr.discord_url'), '/');
         $callbackUrl = route('logr.callback');
 
@@ -45,11 +39,6 @@ class LogrCallbackController extends Controller
         session()->forget('logr_state');
 
         $user = Auth::user();
-
-        if (! $user->is_admin) {
-            return redirect()->route('admin.notifications')->with('error', 'Only admins can connect the Discord bot.');
-        }
-
         $hubUrl = rtrim(config('services.logr.discord_url'), '/');
         $bots = Setting::get('discord_bots', []);
 

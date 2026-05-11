@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Concerns\ManagesJobStatus;
 use App\Models\User;
 use App\Services\UntappdScraper;
 use Illuminate\Bus\Queueable;
@@ -9,12 +10,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class ScrapeUntappdVenues implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, ManagesJobStatus, Queueable, SerializesModels;
 
     public int $timeout = 120;
 
@@ -24,22 +24,22 @@ class ScrapeUntappdVenues implements ShouldQueue
 
     public function __construct(public User $user) {}
 
+    protected function statusCacheKey(): string
+    {
+        return "venue_scrape_status_{$this->user->id}";
+    }
+
     public function handle(UntappdScraper $scraper): void
     {
-        $cacheKey = "venue_scrape_status_{$this->user->id}";
-
         try {
-            Cache::put($cacheKey, ['status' => 'running', 'message' => 'Scraping venues...'], now()->addMinutes(10));
+            $this->setStatusRunning('Scraping venues...');
 
             $result = $scraper->scrapeUserVenues($this->user);
 
             if ($result['error']) {
-                Cache::put($cacheKey, ['status' => 'error', 'message' => 'Error: '.$result['error']], now()->addMinutes(10));
+                $this->setStatusError('Error: '.$result['error']);
             } else {
-                Cache::put($cacheKey, [
-                    'status' => 'done',
-                    'message' => "Imported {$result['imported']} venue(s), skipped {$result['skipped']} already imported. Geocoding...",
-                ], now()->addMinutes(10));
+                $this->setStatusDone("Imported {$result['imported']} venue(s), skipped {$result['skipped']} already imported. Geocoding...");
 
                 // Geocode any venues that have addresses but no coordinates
                 GeocodeVenues::dispatch();
@@ -58,9 +58,6 @@ class ScrapeUntappdVenues implements ShouldQueue
             'user_id' => $this->user->id,
         ]);
 
-        Cache::put("venue_scrape_status_{$this->user->id}", [
-            'status' => 'error',
-            'message' => 'Venue scraping failed: '.$exception->getMessage(),
-        ], now()->addMinutes(10));
+        $this->setStatusError('Venue scraping failed: '.$exception->getMessage());
     }
 }

@@ -163,6 +163,18 @@ class BeerIndex extends Component
         $beer->update(['is_favorite' => ! $beer->is_favorite]);
     }
 
+    public function favoriteSelected(): void
+    {
+        Beer::whereIn('id', $this->selected)->update(['is_favorite' => true]);
+        $this->selected = [];
+    }
+
+    public function unfavoriteSelected(): void
+    {
+        Beer::whereIn('id', $this->selected)->update(['is_favorite' => false]);
+        $this->selected = [];
+    }
+
     public function render()
     {
         $collections = Collection::where('user_id', auth()->id())
@@ -186,10 +198,7 @@ class BeerIndex extends Component
         }
 
         if ($this->search) {
-            $query->where(function ($q) {
-                $q->where('name', 'like', '%'.$this->search.'%')
-                    ->orWhereHas('brewery', fn ($b) => $b->where('name', 'like', '%'.$this->search.'%'));
-            });
+            $query->search($this->search);
         }
 
         if ($this->style) {
@@ -212,21 +221,6 @@ class BeerIndex extends Component
 
     private function getStyles(): array
     {
-        return [
-            'IPA', 'Double IPA', 'Hazy IPA', 'Session IPA',
-            'Pale Ale', 'American Pale Ale',
-            'Lager', 'Pilsner', 'Helles',
-            'Stout', 'Imperial Stout', 'Milk Stout', 'Pastry Stout',
-            'Porter', 'Brown Ale', 'Amber Ale', 'Red Ale',
-            'Wheat Beer', 'Hefeweizen', 'Witbier',
-            'Belgian Blonde', 'Belgian Dubbel', 'Belgian Tripel', 'Belgian Quad',
-            'Saison', 'Farmhouse Ale',
-            'Sour', 'Gose', 'Berliner Weisse', 'Lambic', 'Gueuze',
-            'Fruit Beer', 'Barleywine', 'Scotch Ale',
-            'ESB', 'Bitter', 'Mild', 'Kölsch', 'Altbier',
-            'Bock', 'Doppelbock', 'Märzen', 'Dunkel', 'Schwarzbier', 'Rauchbier',
-            'Cream Ale', 'Blonde Ale', 'Golden Ale',
-            'Cider', 'Mead', 'Seltzer', 'Other',
-        ];
+        return config('beer-styles.flat');
     }
 }

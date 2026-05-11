@@ -9,9 +9,11 @@ Route::get('setup', \App\Livewire\Setup::class)->name('setup');
 Route::middleware(['auth'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
     Route::view('profile', 'profile')->name('profile');
-    Route::view('admin/api', 'admin.api')->name('admin.api');
-    Route::view('admin/notifications', 'admin.notifications')->name('admin.notifications');
-    Route::get('admin/system', \App\Livewire\Admin\SystemInfo::class)->name('admin.system')->middleware('admin');
+    Route::middleware('admin')->group(function () {
+        Route::view('admin/api', 'admin.api')->name('admin.api');
+        Route::view('admin/notifications', 'admin.notifications')->name('admin.notifications');
+        Route::get('admin/system', \App\Livewire\Admin\SystemInfo::class)->name('admin.system');
+    });
 
     Route::view('beers', 'beers.index')->name('beers.index');
     Route::view('beers/create', 'beers.create')->name('beers.create');
@@ -21,12 +23,11 @@ Route::middleware(['auth'])->group(function () {
     Route::view('beers/{beer}/edit', 'beers.edit')->name('beers.edit');
 
     Route::view('collections', 'collections.index')->name('collections.index');
-    Route::view('collections/create', 'collections.create')->name('collections.create');
     Route::view('collections/{collection}', 'collections.show')->name('collections.show');
 
     Route::view('checkins', 'checkins.index')->name('checkins.index');
     Route::view('checkins/create', 'checkins.create')->name('checkins.create');
-    Route::get('checkins/{checkin}/edit', fn ($checkin) => view('checkins.edit', ['checkin' => $checkin]))->name('checkins.edit');
+    Route::view('checkins/{checkin}/edit', 'checkins.edit')->name('checkins.edit');
     Route::get('checkins/export', [\App\Http\Controllers\ExportController::class, 'checkins'])->name('checkins.export');
     Route::view('locations/venues', 'venues.index')->name('locations.venues');
     Route::view('locations/venues/{venue}', 'venues.show')->name('venues.show');
@@ -34,12 +35,14 @@ Route::middleware(['auth'])->group(function () {
     Route::view('stats', 'rankings')->name('stats');
     Route::view('import', 'import')->name('import');
 
-    Route::get('logr/connect', [\App\Http\Controllers\LogrCallbackController::class, 'redirect'])->name('logr.connect');
-    Route::get('logr/callback', [\App\Http\Controllers\LogrCallbackController::class, 'callback'])->name('logr.callback');
+    Route::middleware('admin')->group(function () {
+        Route::get('logr/connect', [\App\Http\Controllers\LogrCallbackController::class, 'redirect'])->name('logr.connect');
+        Route::get('logr/callback', [\App\Http\Controllers\LogrCallbackController::class, 'callback'])->name('logr.callback');
 
-    Route::get('discord/link', [\App\Http\Controllers\DiscordOAuthController::class, 'redirect'])->name('discord.link');
-    Route::get('discord/callback', [\App\Http\Controllers\DiscordOAuthController::class, 'callback'])->name('discord.callback');
-    Route::post('discord/unlink', [\App\Http\Controllers\DiscordOAuthController::class, 'unlink'])->name('discord.unlink');
+        Route::get('discord/link', [\App\Http\Controllers\DiscordOAuthController::class, 'redirect'])->name('discord.link');
+        Route::get('discord/callback', [\App\Http\Controllers\DiscordOAuthController::class, 'callback'])->name('discord.callback');
+        Route::post('discord/unlink', [\App\Http\Controllers\DiscordOAuthController::class, 'unlink'])->name('discord.unlink');
+    });
 });
 
 require __DIR__.'/auth.php';

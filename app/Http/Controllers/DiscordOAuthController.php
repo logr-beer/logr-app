@@ -35,7 +35,13 @@ class DiscordOAuthController extends Controller
             return redirect()->route('admin.notifications')->with('error', 'Failed to start Discord linking.');
         }
 
-        return redirect($response->json('link_url'));
+        $linkUrl = $response->json('link_url');
+
+        if (! $linkUrl || ! filter_var($linkUrl, FILTER_VALIDATE_URL) || ! str_starts_with($linkUrl, 'https://')) {
+            return redirect()->route('admin.notifications')->with('error', 'Invalid redirect URL received.');
+        }
+
+        return redirect($linkUrl);
     }
 
     public function callback(Request $request)

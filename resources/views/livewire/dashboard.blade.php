@@ -1,22 +1,10 @@
 <div>
     {{-- Stats --}}
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-        <a href="{{ route('checkins.index') }}" wire:navigate class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200">
-            <p class="text-2xl font-bold text-amber-500">{{ $stats['total_checkins'] }}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Check-ins</p>
-        </a>
-        <a href="{{ route('beers.index') }}" wire:navigate class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200">
-            <p class="text-2xl font-bold text-amber-500">{{ $stats['library_count'] }}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">In Library</p>
-        </a>
-        <a href="{{ route('beers.inventory') }}" wire:navigate class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200">
-            <p class="text-2xl font-bold text-amber-500">{{ $stats['in_fridge'] }}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">In Stock</p>
-        </a>
-        <a href="{{ route('stats') }}" wire:navigate class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200">
-            <p class="text-2xl font-bold text-amber-500">{{ $stats['avg_rating'] ? number_format($stats['avg_rating'], 2) . ' ★' : '—' }}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Avg Rating</p>
-        </a>
+        <x-stat :value="$stats['total_checkins']" label="Check-ins" :href="route('checkins.index')" />
+        <x-stat :value="$stats['library_count']" label="In Library" :href="route('beers.index')" />
+        <x-stat :value="$stats['in_fridge']" label="In Stock" :href="route('beers.inventory')" />
+        <x-stat :value="$stats['avg_rating'] ? number_format($stats['avg_rating'], 2) . ' ★' : '—'" label="Avg Rating" :href="route('stats')" />
     </div>
 
     {{-- Recently Added --}}
@@ -61,7 +49,7 @@
         <ul class="space-y-3 mb-8">
             <li class="flex items-start gap-3 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
                 <span class="mt-0.5 text-amber-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                    <x-icon name="plus" size="5" />
                 </span>
                 <div>
                     <a href="{{ route('beers.create') }}" wire:navigate class="font-semibold text-gray-900 dark:text-white hover:text-amber-500 transition-colors">Add your first beer</a>
@@ -70,7 +58,7 @@
             </li>
             <li class="flex items-start gap-3 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
                 <span class="mt-0.5 text-amber-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
+                    <x-icon name="upload" size="5" />
                 </span>
                 <div>
                     <a href="{{ route('import') }}" wire:navigate class="font-semibold text-gray-900 dark:text-white hover:text-amber-500 transition-colors">Import from CSV</a>
@@ -79,7 +67,7 @@
             </li>
             <li class="flex items-start gap-3 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
                 <span class="mt-0.5 text-amber-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/></svg>
+                    <x-icon name="flask" size="5" />
                 </span>
                 <div>
                     <button wire:click="loadDemoData" wire:confirm="This will populate your account with example beers, check-ins, and collections. Continue?" class="font-semibold text-gray-900 dark:text-white hover:text-amber-500 transition-colors text-left">Load example data</button>

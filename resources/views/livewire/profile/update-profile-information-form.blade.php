@@ -68,7 +68,7 @@ new class extends Component
 
         @unless(config('app.demo_mode'))
             <div class="flex items-center gap-4">
-                <x-primary-button>{{ __('Save') }}</x-primary-button>
+                <x-primary-button><x-icon name="check" size="4" /> {{ __('Save') }}</x-primary-button>
 
                 <x-action-message class="me-3" on="profile-updated">
                     {{ __('Saved.') }}

@@ -218,7 +218,7 @@ class BeerShow extends Component
     {
         $validated = $this->validate([
             'rating' => 'nullable|numeric|min:0|max:5',
-            'serving_type' => 'nullable|string|in:draft,bottle,can,crowler,growler,cask',
+            'serving_type' => 'nullable|string|in:'.implode(',', config('logr.serving_types')),
             'venueQuery' => 'nullable|string|max:255',
             'notes' => 'nullable|string|max:2000',
             'checkinPhotos.*' => 'nullable|image|max:10240',

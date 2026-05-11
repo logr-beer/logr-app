@@ -6,11 +6,11 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Import Type</label>
-                <select wire:model.live="importType" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 shadow-sm">
-                    <option value="checkins">Check-ins Only</option>
-                    <option value="inventory">Inventory Only</option>
-                    <option value="both">Check-ins + Inventory</option>
-                </select>
+                <x-custom-select
+                    wireModel="importType"
+                    size="lg"
+                    :options="['checkins' => 'Check-ins Only', 'inventory' => 'Inventory Only', 'both' => 'Check-ins + Inventory']"
+                />
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     @if ($importType === 'checkins')
                         Import beer check-in history (ratings, dates, venues, notes).
@@ -26,10 +26,10 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">CSV File</label>
                 <input type="file" wire:model="csvFile" accept=".csv,.txt"
                     class="block w-full text-sm text-gray-500 dark:text-gray-400
-                        file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-amber-50 file:text-amber-700 dark:file:bg-amber-900 dark:file:text-amber-200
-                        hover:file:bg-amber-100 dark:hover:file:bg-amber-800" />
+                        file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+                        file:text-sm file:font-medium
+                        file:bg-amber-600 file:text-white
+                        hover:file:bg-amber-700" />
                 @error('csvFile') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                 <div wire:loading wire:target="csvFile" class="text-sm text-gray-500 dark:text-gray-400 mt-2">Reading file...</div>
             </div>
@@ -66,13 +66,13 @@
                         <div class="w-1/3">
                             <span class="text-sm font-mono text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ $header }}</span>
                         </div>
-                        <svg class="w-5 h-5 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+                        <x-icon name="arrow-right" size="5" class="text-gray-400 shrink-0" />
                         <div class="w-1/2">
-                            <select wire:model="mapping.{{ $header }}" class="w-full text-sm rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 shadow-sm">
-                                @foreach ($availableFields as $value => $label)
-                                    <option value="{{ $value }}">{{ $label }}</option>
-                                @endforeach
-                            </select>
+                            <x-custom-select
+                                wireModel="mapping.{{ $header }}"
+                                placeholder="Skip"
+                                :options="$availableFields"
+                            />
                         </div>
                     </div>
                 @endforeach
@@ -106,9 +106,7 @@
             @endif
 
             <div class="flex justify-end">
-                <button wire:click="startPreview" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-md transition">
-                    Continue
-                </button>
+                <x-primary-button type="button" wire:click="startPreview">Continue</x-primary-button>
             </div>
         </div>
     @endif
@@ -152,9 +150,7 @@
                 <button wire:click="backToMap" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 font-medium rounded-md transition">
                     Go Back
                 </button>
-                <button wire:click="runImport" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-md transition">
-                    Import {{ $totalRows }} Rows
-                </button>
+                <x-primary-button type="button" wire:click="runImport">Import {{ $totalRows }} Rows</x-primary-button>
             </div>
         </div>
     @endif
@@ -207,9 +203,7 @@
             @endif
 
             <div class="flex gap-3">
-                <button wire:click="resetImport" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-md transition">
-                    Import Another File
-                </button>
+                <x-primary-button type="button" wire:click="resetImport">Import Another File</x-primary-button>
                 <a href="{{ route('beers.index') }}" wire:navigate class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 font-medium rounded-md transition">
                     View Beers
                 </a>

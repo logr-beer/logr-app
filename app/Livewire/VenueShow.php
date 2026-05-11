@@ -131,7 +131,7 @@ class VenueShow extends Component
                 $params['limit'] = 1;
 
                 $response = Http::withHeaders([
-                    'User-Agent' => 'Logr/1.0 (personal beer tracker)',
+                    'User-Agent' => config('logr.user_agent'),
                 ])
                     ->timeout(10)
                     ->get('https://nominatim.openstreetmap.org/search', $params);

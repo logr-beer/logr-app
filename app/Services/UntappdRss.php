@@ -51,7 +51,7 @@ class UntappdRss
             return ['imported' => 0, 'skipped' => 0, 'error' => 'No RSS URL configured.'];
         }
 
-        $response = Http::withHeaders(['User-Agent' => 'Logr/1.0'])
+        $response = Http::withHeaders(['User-Agent' => config('logr.user_agent')])
             ->timeout(30)
             ->get($url);
 
@@ -133,7 +133,7 @@ class UntappdRss
             // Download and save photo if present
             if ($parsed['photo_url']) {
                 try {
-                    $photoResponse = Http::withHeaders(['User-Agent' => 'Logr/1.0'])
+                    $photoResponse = Http::withHeaders(['User-Agent' => config('logr.user_agent')])
                         ->timeout(15)
                         ->get($parsed['photo_url']);
 

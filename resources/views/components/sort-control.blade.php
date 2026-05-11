@@ -14,15 +14,16 @@
         }"
         x-on:click.outside="open = false"
         x-on:keydown.escape.window="open = false"
+        x-on:focusout="if (!$el.contains($event.relatedTarget)) open = false"
         class="relative"
     >
         <button
             type="button"
             x-on:click="open = !open"
-            class="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-lg border-r-0 text-sm text-gray-700 dark:text-gray-300 focus:ring-amber-500 focus:border-amber-500 focus:ring-1 focus:outline-none transition-colors"
+            class="relative flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-lg border-r-0 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:z-10 transition-colors"
         >
             <span x-text="label" class="truncate"></span>
-            <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform" :class="open && 'rotate-180'" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+            <x-icon name="chevron-down" size="4" class="text-gray-400 flex-shrink-0 transition-transform" ::class="{ 'rotate-180': open }" />
         </button>
 
         <div
@@ -49,13 +50,13 @@
     </div>
     <button
         wire:click="$set('{{ $directionField }}', '{{ $this->{$directionField} === 'asc' ? 'desc' : 'asc' }}')"
-        class="inline-flex items-center px-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-r-lg text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors"
+        class="relative inline-flex items-center px-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-r-lg text-gray-500 dark:text-gray-400 hover:text-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:z-10 transition-colors"
         title="{{ $this->{$directionField} === 'asc' ? 'Ascending' : 'Descending' }}"
     >
         @if($this->{$directionField} === 'asc')
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"/></svg>
+            <x-icon name="arrow-up" size="4" />
         @else
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"/></svg>
+            <x-icon name="arrow-down" size="4" />
         @endif
     </button>
 </div>

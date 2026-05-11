@@ -82,10 +82,7 @@ class CheckinIndex extends Component
             ->with(['beer.brewery', 'photos', 'venue']);
 
         if ($this->search) {
-            $query->whereHas('beer', function ($q) {
-                $q->where('name', 'like', '%'.$this->search.'%')
-                    ->orWhereHas('brewery', fn ($b) => $b->where('name', 'like', '%'.$this->search.'%'));
-            });
+            $query->whereHas('beer', fn ($q) => $q->search($this->search));
         }
 
         $dir = $this->sortDirection === 'asc' ? 'asc' : 'desc';

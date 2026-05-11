@@ -4,9 +4,14 @@ namespace App\Livewire;
 
 use App\Events\CheckinCreated;
 use App\Models\Beer;
+use App\Models\Brewery;
 use App\Models\Checkin;
 use App\Models\CheckinPhoto;
 use App\Models\Venue;
+use App\Services\CatalogBeer;
+use App\Services\LogrDb;
+use App\Services\Untappd;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -114,6 +119,97 @@ class CheckinForm extends Component
         $this->beerQuery = '';
     }
 
+    public function importAndSelectBeer(string $cacheKey): void
+    {
+        $data = Cache::get("beer_api_{$cacheKey}");
+        if (! $data) {
+            return;
+        }
+
+        // Find or create brewery
+        $breweryId = null;
+        $breweryData = $data['brewery'] ?? $data['brewer'] ?? null;
+        if (! empty($breweryData['name'])) {
+            $brewery = Brewery::firstOrCreate(
+                ['name' => $breweryData['name']],
+                [
+                    'city' => $breweryData['city'] ?? null,
+                    'state' => $breweryData['state'] ?? null,
+                    'country' => $breweryData['country'] ?? null,
+                    'website' => $breweryData['url'] ?? $breweryData['website'] ?? null,
+                ]
+            );
+            $breweryId = $brewery->id;
+        }
+
+        // Find or create beer
+        $beer = Beer::firstOrCreate(
+            ['name' => $data['name'], 'brewery_id' => $breweryId],
+            [
+                'style' => ! empty($data['style']) ? (is_array($data['style']) ? $data['style'] : [$data['style']]) : null,
+                'abv' => ($data['abv'] ?? null) ? (float) $data['abv'] : null,
+                'ibu' => ($data['ibu'] ?? null) ? (int) $data['ibu'] : null,
+                'description' => $data['description'] ?? null,
+            ]
+        );
+
+        $this->selectBeer($beer->id);
+    }
+
+    private function fetchApiBeerResults(): array
+    {
+        $user = auth()->user();
+
+        try {
+            $logrDb = LogrDb::forUser();
+            if ($logrDb) {
+                $results = $logrDb->searchBeers($this->beerQuery, 5);
+                foreach ($results as &$result) {
+                    $result['_source'] = 'logr_db';
+                    Cache::put("beer_api_{$result['id']}", array_merge($result, [
+                        'brewery' => [
+                            'name' => $result['brewery_name'],
+                            'city' => $result['brewery_city'],
+                            'state' => $result['brewery_state'],
+                            'country' => $result['brewery_country'] ?? null,
+                            'website' => $result['brewery_website'] ?? null,
+                        ],
+                    ]), now()->addMinutes(5));
+                }
+
+                return $results;
+            }
+
+            if ($user->untappd_client_id && $user->untappd_client_secret) {
+                $untappd = new Untappd($user->untappd_client_id, $user->untappd_client_secret);
+                $results = $untappd->searchBeers($this->beerQuery, 5);
+                foreach ($results as &$result) {
+                    $result['_source'] = 'untappd';
+                    Cache::put("beer_api_{$result['bid']}", array_merge($result, ['_source' => 'untappd']), now()->addMinutes(5));
+                }
+
+                return $results;
+            }
+
+            $catalogKey = $user->catalog_beer_api_key;
+            if ($catalogKey) {
+                $results = app(CatalogBeer::class)->search($this->beerQuery, 5, $catalogKey);
+                foreach ($results as &$result) {
+                    $result['_source'] = 'catalog';
+                    Cache::put("beer_api_{$result['id']}", array_merge($result, ['_source' => 'catalog']), now()->addMinutes(5));
+                }
+
+                return $results;
+            }
+
+            return [];
+        } catch (\Exception $e) {
+            \Log::debug('CheckinForm: API beer search failed', ['error' => $e->getMessage()]);
+
+            return [];
+        }
+    }
+
     public function selectVenue(int $venueId): void
     {
         $venue = Venue::find($venueId);
@@ -152,7 +248,7 @@ class CheckinForm extends Component
         $this->validate([
             'selectedBeerId' => 'required|exists:beers,id',
             'rating' => 'nullable|numeric|min:0|max:5',
-            'serving_type' => 'nullable|string|in:draft,bottle,can,crowler,growler,cask',
+            'serving_type' => 'nullable|string|in:'.implode(',', config('logr.serving_types')),
             'venueQuery' => 'nullable|string|max:255',
             'notes' => 'nullable|string|max:2000',
             'photos.*' => 'nullable|image|max:10240',
@@ -251,13 +347,16 @@ class CheckinForm extends Component
     public function render()
     {
         $beerSuggestions = [];
+        $apiResults = [];
         if (strlen($this->beerQuery) >= 2 && ! $this->selectedBeerId) {
             $beerSuggestions = Beer::with('brewery')
-                ->where('name', 'like', '%'.$this->beerQuery.'%')
-                ->orWhereHas('brewery', fn ($q) => $q->where('name', 'like', '%'.$this->beerQuery.'%'))
+                ->search($this->beerQuery)
+                ->orderByRaw('CASE WHEN name LIKE ? THEN 0 ELSE 1 END', ["%{$this->beerQuery}%"])
                 ->orderBy('name')
                 ->limit(10)
                 ->get();
+
+            $apiResults = $this->fetchApiBeerResults();
         }
 
         $venueSuggestions = [];
@@ -270,6 +369,7 @@ class CheckinForm extends Component
 
         return view('livewire.checkin-form', [
             'beerSuggestions' => $beerSuggestions,
+            'apiResults' => $apiResults,
             'venueSuggestions' => $venueSuggestions,
         ])->title($this->checkinId ? 'Edit Check-in | Check-ins' : 'New Check-in | Check-ins');
     }
