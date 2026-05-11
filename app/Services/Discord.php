@@ -112,9 +112,11 @@ class Discord
             $description .= "\n**Style:**\n" . implode(', ', $beer->style);
         }
 
+        $fromLine = $inventory->quantity;
         if ($inventory->purchase_location) {
-            $description .= "\n\n**From:**\n{$inventory->purchase_location}";
+            $fromLine .= " from {$inventory->purchase_location}";
         }
+        $description .= "\n\n**Added:**\n{$fromLine}";
 
         if ($inventory->is_gift) {
             $description .= "\n\nThis was a gift!";
@@ -127,7 +129,6 @@ class Discord
         if ($beer->ibu) {
             $fields[] = ['name' => 'IBU', 'value' => (string) $beer->ibu, 'inline' => true];
         }
-        $fields[] = ['name' => 'Qty', 'value' => (string) $inventory->quantity, 'inline' => true];
 
         $embed = [
             'title' => "Added to Inventory: {$beer->name}",
