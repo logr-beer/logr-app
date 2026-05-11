@@ -23,7 +23,7 @@ return [
     ],
 
     'logr' => [
-        'discord_url' => env('LOGR_DISCORD_URL', 'https://discord.logr.beer'),
+        'discord_bot_url' => env('LOGR_DISCORD_BOT_URL', 'https://discord.logr.beer'),
     ],
 
     'untappd' => [

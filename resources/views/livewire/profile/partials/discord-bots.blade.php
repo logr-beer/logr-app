@@ -1,13 +1,13 @@
 {{-- Discord Bot (Logr) --}}
 @php $demoMode = config('app.demo_mode'); @endphp
-@if(config('services.logr.discord_url'))
+@if(config('services.logr.discord_bot_url'))
     <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
         <div class="flex items-center justify-between">
             <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">
                 <x-icon name="discord" size="4" :solid="true" class="inline-block mr-1 text-amber-400" />
                 Discord Bot (Logr)
             </h3>
-            <x-env-badge name="LOGR_DISCORD_URL" />
+            <x-env-badge name="LOGR_DISCORD_BOT_URL" />
         </div>
 
         @foreach($discordBots as $index => $bot)
@@ -128,7 +128,7 @@
                         <x-icon name="discord" size="5" :solid="true" />
                         Connect with Discord
                     </a>
-                    <a href="{{ rtrim(config('services.logr.discord_url'), '/') }}" target="_blank"
+                    <a href="{{ rtrim(config('services.logr.discord_bot_url'), '/') }}" target="_blank"
                         class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors">
                         <x-icon name="plus" size="4" />
                         Add Bot to Server

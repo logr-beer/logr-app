@@ -42,7 +42,7 @@ class DiscordBotTest extends TestCase
 
     public function test_admin_can_connect_discord(): void
     {
-        config(['services.logr.discord_url' => 'https://discord.test']);
+        config(['services.logr.discord_bot_url' => 'https://discord.test']);
 
         $admin = User::factory()->create();
 
@@ -72,7 +72,7 @@ class DiscordBotTest extends TestCase
 
     public function test_non_admin_cannot_connect_discord(): void
     {
-        config(['services.logr.discord_url' => 'https://discord.test']);
+        config(['services.logr.discord_bot_url' => 'https://discord.test']);
 
         User::factory()->create(); // first user is admin
         $user = User::factory()->create();
@@ -84,7 +84,7 @@ class DiscordBotTest extends TestCase
 
     public function test_duplicate_guild_not_added(): void
     {
-        config(['services.logr.discord_url' => 'https://discord.test']);
+        config(['services.logr.discord_bot_url' => 'https://discord.test']);
 
         $admin = User::factory()->create();
 
@@ -114,7 +114,7 @@ class DiscordBotTest extends TestCase
 
     public function test_multiple_servers_can_be_connected(): void
     {
-        config(['services.logr.discord_url' => 'https://discord.test']);
+        config(['services.logr.discord_bot_url' => 'https://discord.test']);
 
         $admin = User::factory()->create();
         $this->actingAs($admin);
