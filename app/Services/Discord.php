@@ -23,10 +23,11 @@ class Discord
         $checkin->loadMissing(['beer.brewery', 'venue', 'photos']);
         $beer = $checkin->beer;
 
-        $description = '';
+        $description = "**{$beer->name}**";
         if ($beer->brewery) {
-            $description .= "by **{$beer->brewery->name}**\n";
+            $description .= " by **{$beer->brewery->name}**";
         }
+        $description .= "\n";
 
         if ($checkin->rating) {
             $stars = str_repeat("\u{2B50}", (int) $checkin->rating);
@@ -62,7 +63,7 @@ class Discord
         }
 
         $embed = [
-            'title' => "Check-in: {$beer->name}",
+            'title' => "Check-in: {$user->name}",
             'description' => $description,
             'color' => 0xF59E0B, // amber-500
             'fields' => $fields,
@@ -127,7 +128,7 @@ class Discord
         }
 
         $embed = [
-            'title' => "Added to Inventory: {$beer->name}",
+            'title' => "Inventory: {$user->name}",
             'description' => $description,
             'color' => 0x3B82F6, // blue-500
             'fields' => $fields,
