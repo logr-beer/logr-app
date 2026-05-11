@@ -23,15 +23,29 @@ class Discord
         $checkin->loadMissing(['beer.brewery', 'venue', 'photos']);
         $beer = $checkin->beer;
 
-        $description = "**{$beer->name}**";
+        $description = '';
         if ($beer->brewery) {
-            $description .= " by {$beer->brewery->name}";
+            $description .= "by {$beer->brewery->name}\n";
         }
+
+        if ($checkin->rating) {
+            $stars = str_repeat("\u{2B50}", (int) $checkin->rating);
+            if ($checkin->rating - (int) $checkin->rating >= 0.5) {
+                $stars .= "\u{2B50}";
+            }
+            $description .= "\nRating: **{$checkin->rating}** / 5 {$stars}";
+        }
+
         if ($checkin->notes) {
             $description .= "\n\n> {$checkin->notes}";
         }
 
-        // Beer info fields
+        if ($checkin->venue) {
+            $description .= "\n\nVenue: {$checkin->venue->name}";
+        } elseif ($checkin->location) {
+            $description .= "\n\nLocation: {$checkin->location}";
+        }
+
         $fields = [];
         if ($beer->style) {
             $fields[] = ['name' => 'Style', 'value' => implode(', ', $beer->style), 'inline' => true];
@@ -42,22 +56,8 @@ class Discord
         if ($beer->ibu) {
             $fields[] = ['name' => 'IBU', 'value' => (string) $beer->ibu, 'inline' => true];
         }
-
-        // Check-in detail fields
-        if ($checkin->rating) {
-            $stars = str_repeat("\u{2B50}", (int) $checkin->rating);
-            if ($checkin->rating - (int) $checkin->rating >= 0.5) {
-                $stars .= "\u{2B50}";
-            }
-            $fields[] = ['name' => 'Rating', 'value' => "**{$checkin->rating}** / 5 {$stars}", 'inline' => true];
-        }
         if ($checkin->serving_type) {
             $fields[] = ['name' => 'Serving', 'value' => ucfirst($checkin->serving_type), 'inline' => true];
-        }
-        if ($checkin->venue) {
-            $fields[] = ['name' => 'Venue', 'value' => $checkin->venue->name, 'inline' => true];
-        } elseif ($checkin->location) {
-            $fields[] = ['name' => 'Location', 'value' => $checkin->location, 'inline' => true];
         }
 
         $embed = [
