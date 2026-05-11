@@ -3,12 +3,12 @@
 @if(config('services.logr.discord_bot_url'))
     <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
         <div class="flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">
-                <x-icon name="discord" size="4" :solid="true" class="inline-block mr-1 text-amber-400" />
-                Discord Bot (Logr)
-            </h3>
+            <h4 class="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Logr Bot</h4>
             <x-env-badge name="LOGR_DISCORD_BOT_URL" />
         </div>
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+            Posts as a bot user with rich embeds and per-user Discord identities. Ideal for Discord servers with multiple people using Logr. Requires the Logr Discord bot to be running.
+        </p>
 
         @foreach($discordBots as $index => $bot)
             <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-2">
@@ -69,12 +69,12 @@
                     <label class="inline-flex items-center gap-1.5 {{ $demoMode ? '' : 'cursor-pointer' }}">
                         <input type="checkbox" {{ $demoMode ? 'disabled' : '' }} wire:click="toggleBotPref('{{ $guildId }}', 'publish_checkins')" {{ !empty($botPrefs[$guildId]['publish_checkins']) ? 'checked' : '' }}
                             class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
-                        <span class="text-gray-700 dark:text-gray-300">Check-ins</span>
+                        <span class="text-gray-700 dark:text-gray-300">Auto-publish check-ins</span>
                     </label>
                     <label class="inline-flex items-center gap-1.5 {{ $demoMode ? '' : 'cursor-pointer' }}">
                         <input type="checkbox" {{ $demoMode ? 'disabled' : '' }} wire:click="toggleBotPref('{{ $guildId }}', 'publish_purchases')" {{ !empty($botPrefs[$guildId]['publish_purchases']) ? 'checked' : '' }}
                             class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
-                        <span class="text-gray-700 dark:text-gray-300">Inventory additions</span>
+                        <span class="text-gray-700 dark:text-gray-300">Auto-publish inventory</span>
                     </label>
                 </div>
             </div>

@@ -2,14 +2,14 @@
 @php $demoMode = config('app.demo_mode'); @endphp
 <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
     <div class="flex items-center justify-between">
-        <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">
-            <x-icon name="discord" size="4" :solid="true" class="inline-block mr-1 text-amber-400" />
-            Discord Webhooks
-        </h3>
+        <h4 class="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Webhooks</h4>
         @if(config('services.discord.webhooks'))
             <x-env-badge name="DISCORD_WEBHOOKS" />
         @endif
     </div>
+    <p class="text-xs text-gray-500 dark:text-gray-400">
+        Simple to set up with no external bot required. Works well for single-user setups or quick integrations. Posts directly to a channel using a Discord webhook URL.
+    </p>
     <div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-xs text-amber-700 dark:text-amber-400 space-y-1.5">
         <p>To get a Discord webhook URL:</p>
         <ol class="list-decimal list-inside space-y-0.5 ml-1">

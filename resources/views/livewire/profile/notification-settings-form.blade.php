@@ -270,7 +270,7 @@ new class extends Component
             $response = \Illuminate\Support\Facades\Http::withToken($bot['hub_api_key'])
                 ->accept('application/json')
                 ->timeout(15)
-                ->post(rtrim($bot['hub_url'], '/') . '/api/post', [
+                ->post(rtrim($bot['hub_url'], '/') . '/api/discord/post', [
                     'guild_id' => $bot['guild_id'],
                     'type' => 'checkin',
                     'payload' => [
@@ -314,7 +314,7 @@ new class extends Component
             $response = \Illuminate\Support\Facades\Http::withToken($bot['hub_api_key'])
                 ->accept('application/json')
                 ->timeout(15)
-                ->post(rtrim($bot['hub_url'], '/') . '/api/post', [
+                ->post(rtrim($bot['hub_url'], '/') . '/api/discord/post', [
                     'guild_id' => $bot['guild_id'],
                     'type' => 'purchase',
                     'payload' => [
@@ -365,7 +365,13 @@ new class extends Component
     @endif
 
     <div class="mt-6 space-y-6">
-        @include('livewire.profile.partials.discord-bots')
-        @include('livewire.profile.partials.discord-webhooks')
+        <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <x-icon name="discord" size="4" :solid="true" class="inline-block mr-1 text-amber-400" />
+                Discord
+            </h3>
+            @include('livewire.profile.partials.discord-bots')
+            @include('livewire.profile.partials.discord-webhooks')
+        </div>
     </div>
 </section>
