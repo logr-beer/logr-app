@@ -180,8 +180,10 @@ class CheckinForm extends Component
                 return $results;
             }
 
-            if ($user->untappd_client_id && $user->untappd_client_secret) {
-                $untappd = new Untappd($user->untappd_client_id, $user->untappd_client_secret);
+            $untappdKey = $user->untappd_client_id ?: config('services.untappd.api_key');
+            $untappdSecret = $user->untappd_client_secret ?: config('services.untappd.api_secret');
+            if ($untappdKey && $untappdSecret) {
+                $untappd = new Untappd($untappdKey, $untappdSecret);
                 $results = $untappd->searchBeers($this->beerQuery, 5);
                 foreach ($results as &$result) {
                     $result['_source'] = 'untappd';

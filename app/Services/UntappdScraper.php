@@ -26,7 +26,7 @@ class UntappdScraper
         }
 
         // Use API if credentials are available (supports full pagination)
-        if ($user->untappd_client_id && $user->untappd_client_secret) {
+        if (($user->untappd_client_id ?: config('services.untappd.api_key')) && ($user->untappd_client_secret ?: config('services.untappd.api_secret'))) {
             return $this->importViaApi($user);
         }
 
@@ -36,7 +36,7 @@ class UntappdScraper
 
     protected function importViaApi(User $user): array
     {
-        $api = new Untappd($user->untappd_client_id, $user->untappd_client_secret);
+        $api = new Untappd($user->untappd_client_id ?: config('services.untappd.api_key'), $user->untappd_client_secret ?: config('services.untappd.api_secret'));
         $imported = 0;
         $skipped = 0;
         $offset = 0;

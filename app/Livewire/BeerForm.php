@@ -141,8 +141,10 @@ class BeerForm extends Component
             }
 
             // Untappd when configured
-            if ($user->untappd_client_id && $user->untappd_client_secret) {
-                $untappd = new Untappd($user->untappd_client_id, $user->untappd_client_secret);
+            $untappdKey = $user->untappd_client_id ?: config('services.untappd.api_key');
+            $untappdSecret = $user->untappd_client_secret ?: config('services.untappd.api_secret');
+            if ($untappdKey && $untappdSecret) {
+                $untappd = new Untappd($untappdKey, $untappdSecret);
                 $results = $untappd->searchBeers($this->beerSearch, 8);
                 foreach ($results as &$result) {
                     $result['_source'] = 'untappd';
@@ -310,8 +312,8 @@ class BeerForm extends Component
             if ($logrDb) {
                 $api = $logrDb->searchBreweries($this->brewerySearch, 5);
                 $source = 'logr_db';
-            } elseif ($user->untappd_client_id && $user->untappd_client_secret) {
-                $untappd = new Untappd($user->untappd_client_id, $user->untappd_client_secret);
+            } elseif (($user->untappd_client_id ?: config('services.untappd.api_key')) && ($user->untappd_client_secret ?: config('services.untappd.api_secret'))) {
+                $untappd = new Untappd($user->untappd_client_id ?: config('services.untappd.api_key'), $user->untappd_client_secret ?: config('services.untappd.api_secret'));
                 $api = $untappd->searchBreweries($this->brewerySearch, 5);
                 $source = 'untappd';
             } elseif ($user->catalog_beer_api_key || config('services.catalog_beer.key')) {
@@ -458,7 +460,7 @@ class BeerForm extends Component
         return view('livewire.beer-form', [
             'styles' => $this->getStyles(),
             'isEditing' => $isEditing,
-            'hasApiKey' => LogrDb::forUser() !== null || (bool) (auth()->user()->untappd_client_id || auth()->user()->catalog_beer_api_key || config('services.catalog_beer.key')),
+            'hasApiKey' => LogrDb::forUser() !== null || (bool) (auth()->user()->untappd_client_id || config('services.untappd.api_key') || auth()->user()->catalog_beer_api_key || config('services.catalog_beer.key')),
         ])->title($isEditing ? 'Edit '.$this->beer->name.' | Beers' : 'Add Beer | Beers');
     }
 
