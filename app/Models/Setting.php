@@ -26,7 +26,11 @@ class Setting extends Model
     public static function get(string $key, mixed $default = null): mixed
     {
         if (! array_key_exists($key, static::$cache)) {
-            static::$cache[$key] = static::where('key', $key)->first()?->value;
+            try {
+                static::$cache[$key] = static::where('key', $key)->first()?->value;
+            } catch (\Exception) {
+                return $default;
+            }
         }
 
         return static::$cache[$key] ?? $default;
