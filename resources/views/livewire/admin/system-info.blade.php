@@ -100,12 +100,18 @@
 
             {{-- Updates --}}
             <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Updates</h3>
-                </div>
-                <livewire:version-notice />
-                <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                    Version checks are cached for 4 hours. Click the refresh icon to check now.
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Updates</h3>
+                <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">Current version: <span class="font-mono">v{{ config('logr.version') }}</span></p>
+                        <div class="mt-1">
+                            <livewire:version-notice />
+                        </div>
+                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Version checks are cached for 4 hours.</p>
+                    </div>
+                    <x-primary-button type="button" wire:click="$dispatch('check-for-updates')">
+                        <x-icon name="refresh" size="4" /> Check for Updates
+                    </x-primary-button>
                 </div>
             </div>
 

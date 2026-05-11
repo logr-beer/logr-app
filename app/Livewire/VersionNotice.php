@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Services\VersionChecker;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class VersionNotice extends Component
@@ -18,6 +19,7 @@ class VersionNotice extends Component
         $this->refreshVersion();
     }
 
+    #[On('check-for-updates')]
     public function checkNow(): void
     {
         $latest = app(VersionChecker::class)->forceCheck();
