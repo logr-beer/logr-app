@@ -107,12 +107,12 @@ class Discord
         if ($beer->brewery) {
             $description .= " by {$beer->brewery->name}";
         }
-        $description .= "\n\nQuantity: **{$inventory->quantity}**";
+        $description .= "\n\n**Quantity:** {$inventory->quantity}";
         if ($inventory->storage_location) {
-            $description .= "\nStorage: {$inventory->storage_location}";
+            $description .= "\n**Storage:** {$inventory->storage_location}";
         }
         if ($inventory->purchase_location) {
-            $description .= "\nFrom: {$inventory->purchase_location}";
+            $description .= "\n**From:** {$inventory->purchase_location}";
         }
         if ($inventory->is_gift) {
             $description .= "\n\nThis was a gift!";

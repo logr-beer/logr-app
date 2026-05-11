@@ -166,7 +166,7 @@ new class extends Component
                 'avatar_url' => url('/img/logr-discord.png'),
                 'embeds' => [[
                     'title' => 'Added to Inventory: Two Hearted Ale',
-                    'description' => "**Two Hearted Ale** by Bell's Brewery\n\nQuantity: **6**\nStorage: Fridge\nFrom: Total Wine",
+                    'description' => "**Two Hearted Ale** by Bell's Brewery\n\n**Quantity:** 6\n**Storage:** Fridge\n**From:** Total Wine",
                     'color' => 0x3B82F6,
                     'fields' => [
                         ['name' => 'Style', 'value' => 'American IPA', 'inline' => true],
