@@ -95,5 +95,58 @@
                 </div>
             </footer>
         </div>
+
+        {{-- Konami Code Raptor Easter Egg --}}
+        <style>
+            #raptor {
+                width: 400px;
+                height: 600px;
+                position: fixed;
+                bottom: -600px;
+                right: -400px;
+                display: none;
+                z-index: -1;
+                pointer-events: none;
+            }
+            #raptor.rawr {
+                display: block;
+                z-index: 999999;
+                animation: raptor-show .4s cubic-bezier(.54,.72,.92,1.78) 0s 1, raptor-strike 2.6s cubic-bezier(.4,0,1,1) .4s 1;
+            }
+            @keyframes raptor-show {
+                0% { bottom: -600px; right: 100px; }
+                100% { bottom: -130px; right: 100px; }
+            }
+            @keyframes raptor-strike {
+                0%, 13% { bottom: -130px; right: 100px; }
+                100% { bottom: -130px; right: 100%; }
+            }
+        </style>
+        <img id="raptor" src="{{ asset('img/raptor.png') }}" alt="">
+        <audio id="raptor-audio" preload="none"><source src="{{ asset('img/rawr.mp3') }}" type="audio/mpeg"></audio>
+        <script>
+            (function() {
+                const code = [38,38,40,40,37,39,37,39,66,65];
+                let pos = 0;
+                document.addEventListener('keydown', function(e) {
+                    if (e.keyCode === code[pos]) {
+                        pos++;
+                        if (pos === code.length) {
+                            pos = 0;
+                            const img = document.getElementById('raptor');
+                            const audio = document.getElementById('raptor-audio');
+                            img.classList.remove('rawr');
+                            void img.offsetWidth;
+                            img.classList.add('rawr');
+                            audio.currentTime = 0;
+                            audio.play().catch(() => {});
+                            setTimeout(() => img.classList.remove('rawr'), 3200);
+                        }
+                    } else {
+                        pos = e.keyCode === code[0] ? 1 : 0;
+                    }
+                });
+            })();
+        </script>
     </body>
 </html>
