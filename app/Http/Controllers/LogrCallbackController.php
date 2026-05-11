@@ -16,7 +16,7 @@ class LogrCallbackController extends Controller
         $state = bin2hex(random_bytes(16));
         session(['logr_state' => $state]);
 
-        return redirect("{$hubUrl}/oauth/authorize?".http_build_query([
+        return redirect("{$hubUrl}/discord/oauth/authorize?".http_build_query([
             'callback_url' => $callbackUrl,
             'state' => $state,
         ]));

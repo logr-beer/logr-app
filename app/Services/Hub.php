@@ -120,7 +120,7 @@ class Hub
             $response = Http::withToken($apiKey)
                 ->accept('application/json')
                 ->timeout(10)
-                ->get(rtrim($hubUrl, '/').'/api/guilds');
+                ->get(rtrim($hubUrl, '/').'/api/discord/guilds');
 
             if ($response->successful()) {
                 return $response->json('data') ?? $response->json();
@@ -142,7 +142,7 @@ class Hub
             $response = Http::withToken($apiKey)
                 ->accept('application/json')
                 ->timeout(10)
-                ->get(rtrim($hubUrl, '/').'/api/guilds/'.$guildId.'/channels');
+                ->get(rtrim($hubUrl, '/').'/api/discord/guilds/'.$guildId.'/channels');
 
             if ($response->successful()) {
                 return $response->json('channels') ?? [];
@@ -162,7 +162,7 @@ class Hub
             $response = Http::withToken($apiKey)
                 ->accept('application/json')
                 ->timeout(10)
-                ->put(rtrim($hubUrl, '/').'/api/guilds/'.$guildId.'/channel', [
+                ->put(rtrim($hubUrl, '/').'/api/discord/guilds/'.$guildId.'/channel', [
                     'channel_id' => $channelId,
                 ]);
 
@@ -207,7 +207,7 @@ class Hub
             $response = Http::withToken($bot['hub_api_key'])
                 ->accept('application/json')
                 ->timeout(15)
-                ->post(rtrim($bot['hub_url'], '/').'/api/post', $body);
+                ->post(rtrim($bot['hub_url'], '/').'/api/discord/post', $body);
 
             // 409 = duplicate, already posted — treat as success
             if ($response->status() === 409) {
