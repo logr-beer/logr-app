@@ -104,7 +104,6 @@
                 <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                     <div>
                         <p class="text-sm font-medium text-gray-900 dark:text-white">Current version: <span class="font-mono">v{{ config('logr.version') }}</span></p>
-                        <livewire:version-notice :showRefresh="false" />
                         <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Version checks are cached for 4 hours.</p>
                     </div>
                     <x-primary-button type="button" wire:click="$dispatch('check-for-updates')">
