@@ -191,7 +191,7 @@ class CheckinForm extends Component
                 return $results;
             }
 
-            $catalogKey = $user->catalog_beer_api_key;
+            $catalogKey = $user->catalog_beer_api_key ?: config('services.catalog_beer.key');
             if ($catalogKey) {
                 $results = app(CatalogBeer::class)->search($this->beerQuery, 5, $catalogKey);
                 foreach ($results as &$result) {

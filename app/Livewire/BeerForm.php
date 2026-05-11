@@ -153,7 +153,7 @@ class BeerForm extends Component
             }
 
             // Catalog.beer as fallback
-            $catalogKey = $user->catalog_beer_api_key;
+            $catalogKey = $user->catalog_beer_api_key ?: config('services.catalog_beer.key');
             if ($catalogKey) {
                 $results = app(CatalogBeer::class)->search($this->beerSearch, 8, $catalogKey);
                 foreach ($results as &$result) {
@@ -314,8 +314,8 @@ class BeerForm extends Component
                 $untappd = new Untappd($user->untappd_client_id, $user->untappd_client_secret);
                 $api = $untappd->searchBreweries($this->brewerySearch, 5);
                 $source = 'untappd';
-            } elseif ($user->catalog_beer_api_key) {
-                $api = app(CatalogBeer::class)->searchBrewers($this->brewerySearch, 5, $user->catalog_beer_api_key);
+            } elseif ($user->catalog_beer_api_key || config('services.catalog_beer.key')) {
+                $api = app(CatalogBeer::class)->searchBrewers($this->brewerySearch, 5);
                 $source = 'catalog';
             } else {
                 $api = app(OpenBreweryDb::class)->search($this->brewerySearch, 5);
@@ -458,13 +458,13 @@ class BeerForm extends Component
         return view('livewire.beer-form', [
             'styles' => $this->getStyles(),
             'isEditing' => $isEditing,
-            'hasApiKey' => LogrDb::forUser() !== null || (bool) (auth()->user()->untappd_client_id || auth()->user()->catalog_beer_api_key ?? config('services.catalog_beer.key')),
+            'hasApiKey' => LogrDb::forUser() !== null || (bool) (auth()->user()->untappd_client_id || auth()->user()->catalog_beer_api_key || config('services.catalog_beer.key')),
         ])->title($isEditing ? 'Edit '.$this->beer->name.' | Beers' : 'Add Beer | Beers');
     }
 
     private function submitToCatalogBeer(Beer $beer): void
     {
-        $apiKey = auth()->user()->catalog_beer_api_key;
+        $apiKey = auth()->user()->catalog_beer_api_key ?: config('services.catalog_beer.key');
         if (! $apiKey) {
             return;
         }

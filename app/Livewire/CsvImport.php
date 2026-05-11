@@ -354,7 +354,7 @@ class CsvImport extends Component
             $this->results['created_beers']++;
 
             // Submit new beer to catalog.beer
-            $catalogKey = auth()->user()->catalog_beer_api_key;
+            $catalogKey = auth()->user()->catalog_beer_api_key ?: config('services.catalog_beer.key');
             if ($catalogKey) {
                 try {
                     app(CatalogBeer::class)->submitBeer($beer, $catalogKey);
