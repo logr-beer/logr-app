@@ -132,7 +132,7 @@ new class extends Component
                         ['name' => 'IBU', 'value' => '100', 'inline' => true],
                         ['name' => 'Serving', 'value' => 'Draft', 'inline' => true],
                     ],
-                    'footer' => ['text' => 'Logr • by ' . Auth::user()->name],
+                    'footer' => ['text' => 'Logr • TEST'],
                     'timestamp' => now()->toIso8601String(),
                 ]],
             ]);
@@ -172,7 +172,7 @@ new class extends Component
                         ['name' => 'Style', 'value' => 'American IPA', 'inline' => true],
                         ['name' => 'ABV', 'value' => '7.0%', 'inline' => true],
                     ],
-                    'footer' => ['text' => 'Logr • by ' . Auth::user()->name],
+                    'footer' => ['text' => 'Logr • TEST'],
                     'timestamp' => now()->toIso8601String(),
                 ]],
             ]);
