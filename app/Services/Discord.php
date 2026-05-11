@@ -166,6 +166,8 @@ class Discord
     {
         try {
             $response = Http::timeout(15)->post($webhookUrl, [
+                'username' => 'Logr Bot',
+                'avatar_url' => url('/img/logr-discord.png'),
                 'embeds' => [$embed],
             ]);
 
