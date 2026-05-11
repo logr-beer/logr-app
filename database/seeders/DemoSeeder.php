@@ -25,6 +25,23 @@ class DemoSeeder extends Seeder
             ]
         );
 
+        // Copy API keys from .env to user data so demo search works
+        $envKeys = [
+            'services.catalog_beer.key' => 'catalog_beer_api_key',
+            'services.untappd.api_key' => 'untappd_client_id',
+            'services.untappd.api_secret' => 'untappd_client_secret',
+        ];
+
+        foreach ($envKeys as $configKey => $dataKey) {
+            if ($value = config($configKey)) {
+                $user->setData($dataKey, $value);
+            }
+        }
+
+        if ($user->isDirty('data')) {
+            $user->save();
+        }
+
         $csvPath = database_path('seeders/data/cc-demo-data.csv');
 
         if (! file_exists($csvPath)) {
