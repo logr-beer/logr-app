@@ -166,15 +166,11 @@ new class extends Component
                 'avatar_url' => url('/img/logr-discord.png'),
                 'embeds' => [[
                     'title' => 'Added to Inventory: Two Hearted Ale',
-                    'description' => "**Two Hearted Ale** by Bell's Brewery",
+                    'description' => "by **Bell's Brewery**\n\n**Style:**\nAmerican IPA\n\n**Quantity:**\n6\n\n**Storage:**\nFridge\n\n**From:**\nTotal Wine",
                     'color' => 0x3B82F6,
                     'fields' => [
-                        ['name' => 'Style', 'value' => 'American IPA', 'inline' => true],
                         ['name' => 'ABV', 'value' => '7.0%', 'inline' => true],
                         ['name' => 'IBU', 'value' => '55', 'inline' => true],
-                        ['name' => 'Quantity', 'value' => '6', 'inline' => true],
-                        ['name' => 'Storage', 'value' => 'Fridge', 'inline' => true],
-                        ['name' => 'From', 'value' => 'Total Wine', 'inline' => true],
                     ],
                     'footer' => ['text' => 'Logr'],
                     'timestamp' => now()->toIso8601String(),
