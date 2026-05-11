@@ -33,7 +33,7 @@ class Discord
             if ($checkin->rating - (int) $checkin->rating >= 0.5) {
                 $stars .= "\u{2B50}";
             }
-            $description .= "\nRating: **{$checkin->rating}** / 5 {$stars}";
+            $description .= "\nRating: {$checkin->rating} / 5 {$stars}";
         }
 
         if ($checkin->notes) {
@@ -48,13 +48,10 @@ class Discord
 
         $fields = [];
         if ($beer->style) {
-            $fields[] = ['name' => 'Style', 'value' => implode(', ', $beer->style), 'inline' => true];
+            $fields[] = ['name' => 'Style', 'value' => implode(', ', $beer->style), 'inline' => false];
         }
         if ($beer->abv) {
             $fields[] = ['name' => 'ABV', 'value' => "{$beer->abv}%", 'inline' => true];
-        }
-        if ($beer->ibu || $checkin->serving_type) {
-            $fields[] = ['name' => "\u{200b}", 'value' => "\u{200b}", 'inline' => false];
         }
         if ($beer->ibu) {
             $fields[] = ['name' => 'IBU', 'value' => (string) $beer->ibu, 'inline' => true];

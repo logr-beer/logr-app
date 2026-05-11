@@ -125,12 +125,11 @@ new class extends Component
                 'avatar_url' => url('/img/logr-discord.png'),
                 'embeds' => [[
                     'title' => 'Check-in: Pliny the Elder',
-                    'description' => "by Russian River Brewing Company\n\nRating: **5** / 5 ⭐⭐⭐⭐⭐\n\n> Perfectly balanced, one of the best DIPAs out there.\n\nVenue: The Local Taproom",
+                    'description' => "by Russian River Brewing Company\n\nRating: 5 / 5 ⭐⭐⭐⭐⭐\n\n> Perfectly balanced, one of the best DIPAs out there.\n\nVenue: The Local Taproom",
                     'color' => 0xF59E0B,
                     'fields' => [
-                        ['name' => 'Style', 'value' => 'Double IPA, IPA, Pale Ale', 'inline' => true],
+                        ['name' => 'Style', 'value' => 'Double IPA, IPA, Pale Ale', 'inline' => false],
                         ['name' => 'ABV', 'value' => '8.0%', 'inline' => true],
-                        ['name' => "\u{200b}", 'value' => "\u{200b}", 'inline' => false],
                         ['name' => 'IBU', 'value' => '100', 'inline' => true],
                         ['name' => 'Serving', 'value' => 'Draft', 'inline' => true],
                     ],
