@@ -5,4 +5,9 @@
             Update available (v{{ $latestVersion }})
         </a>
     @endif
+    @if($showRefresh)
+        <button wire:click="checkNow" wire:loading.attr="disabled" title="Check for updates" class="ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+            <x-icon name="refresh" size="3.5" wire:loading.class="animate-spin" wire:target="checkNow" />
+        </button>
+    @endif
 </div>
