@@ -1,5 +1,7 @@
 # Logr
 
+[![Docker Pulls](https://img.shields.io/docker/pulls/ajpenninga/logr-app)](https://hub.docker.com/r/ajpenninga/logr-app)
+
 A self-hosted beer logging app. Track your beer library, check-ins, inventory, collections, and more.
 
 Built with Laravel 12, Livewire 3, and Tailwind CSS.
@@ -106,3 +108,11 @@ Pushing a `v*` tag triggers the release workflow which builds and pushes Docker 
 ## License
 
 Logr is open-source software licensed under the [GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE).
+
+---
+
+<details>
+<summary>&uarr; &uarr; &darr; &darr; &larr; &rarr; &larr; &rarr; B A</summary>
+
+You found it. Rawrrrr.
+</details>
