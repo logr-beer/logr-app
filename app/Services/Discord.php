@@ -25,7 +25,7 @@ class Discord
 
         $description = '';
         if ($beer->brewery) {
-            $description .= "by {$beer->brewery->name}\n";
+            $description .= "by **{$beer->brewery->name}**\n";
         }
 
         if ($checkin->rating) {
@@ -37,7 +37,7 @@ class Discord
         }
 
         if ($checkin->notes) {
-            $description .= "\n\n> {$checkin->notes}";
+            $description .= "\n\n**Review:**\n> {$checkin->notes}";
         }
 
         if ($checkin->venue) {
