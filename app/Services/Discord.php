@@ -67,7 +67,7 @@ class Discord
             'color' => 0xF59E0B, // amber-500
             'fields' => $fields,
             'timestamp' => $checkin->created_at->toIso8601String(),
-            'footer' => ['text' => 'Logr'],
+            'footer' => ['text' => "Logr \u{2022} by {$user->name}"],
         ];
 
         // Image priority: checkin photo > beer label > brewery logo
@@ -132,7 +132,7 @@ class Discord
             'color' => 0x3B82F6, // blue-500
             'fields' => $fields,
             'timestamp' => now()->toIso8601String(),
-            'footer' => ['text' => 'Logr'],
+            'footer' => ['text' => "Logr \u{2022} by {$user->name}"],
         ];
 
         // Image priority: beer label > brewery logo
