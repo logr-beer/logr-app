@@ -15,15 +15,20 @@
             $border = $loop->first ? 'border' : 'border border-l-0';
         @endphp
 
+        @php
+            $focusClasses = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 focus-visible:z-10';
+            $baseClasses = "relative px-3 py-1.5 text-sm font-medium transition-colors {$border} {$rounded} {$classes} {$focusClasses}";
+        @endphp
+
         @if($href)
-            <a href="{{ $href }}" wire:navigate class="relative px-3 py-1.5 text-sm font-medium transition-colors {{ $border }} {{ $rounded }} {{ $classes }} focus:outline-none focus:ring-2 focus:ring-amber-500 focus:z-10 {{ $rounded ?: 'focus:rounded-sm' }}">
+            <a href="{{ $href }}" wire:navigate class="{{ $baseClasses }}">
                 {{ $label }}
                 @if($badge)
                     <span class="ml-1 inline-flex items-center justify-center min-w-[1rem] h-4 px-1 text-[10px] font-bold rounded-full {{ $isActive ? 'bg-white/30' : 'bg-amber-600 text-white' }}">{{ $badge }}</span>
                 @endif
             </a>
         @else
-            <button wire:click="{{ $wireModel ? "\$set('{$wireModel}', '{$key}')" : '' }}" class="relative px-3 py-1.5 text-sm font-medium transition-colors {{ $border }} {{ $rounded }} {{ $classes }} focus:outline-none focus:ring-2 focus:ring-amber-500 focus:z-10 {{ $rounded ?: 'focus:rounded-sm' }}">
+            <button wire:click="{{ $wireModel ? "\$set('{$wireModel}', '{$key}')" : '' }}" class="{{ $baseClasses }}">
                 {{ $label }}
                 @if($badge)
                     <span class="ml-1 inline-flex items-center justify-center min-w-[1rem] h-4 px-1 text-[10px] font-bold rounded-full {{ $isActive ? 'bg-white/30' : 'bg-amber-600 text-white' }}">{{ $badge }}</span>
