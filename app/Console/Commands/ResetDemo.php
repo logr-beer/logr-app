@@ -15,6 +15,9 @@ class ResetDemo extends Command
     {
         $this->info('Resetting demo database...');
 
+        Artisan::call('down', ['--secret' => 'logr-reset']);
+        $this->info('App in maintenance mode.');
+
         Artisan::call('migrate:fresh', ['--force' => true]);
         $this->info(Artisan::output());
 
@@ -23,6 +26,9 @@ class ResetDemo extends Command
 
         Artisan::call('db:seed', ['--force' => true, '--class' => 'Database\\Seeders\\DemoSeeder']);
         $this->info(Artisan::output());
+
+        Artisan::call('up');
+        $this->info('App is live.');
 
         $this->info('Demo reset complete.');
 

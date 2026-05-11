@@ -17,11 +17,13 @@ class DemoSeeder extends Seeder
 {
     public function run(): void
     {
-        $user = auth()->user() ?? User::first() ?? User::create([
-            'username' => 'demo',
-            'name' => 'Demo User',
-            'password' => Hash::make('password'),
-        ]);
+        $user = User::firstOrCreate(
+            ['username' => 'demo'],
+            [
+                'name' => 'Demo User',
+                'password' => Hash::make('password'),
+            ]
+        );
 
         $csvPath = database_path('seeders/data/cc-demo-data.csv');
 
