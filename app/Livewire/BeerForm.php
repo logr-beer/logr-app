@@ -8,6 +8,7 @@ use App\Models\Brewery;
 use App\Models\Checkin;
 use App\Models\Inventory;
 use App\Models\Venue;
+use App\Jobs\GeocodeVenue;
 use App\Services\CatalogBeer;
 use App\Services\LogrDb;
 use App\Services\OpenBreweryDb;
@@ -73,6 +74,8 @@ class BeerForm extends Component
     public string $checkinNotes = '';
 
     public $checkinPhotos = [];
+
+    public bool $useBeerPhoto = true;
 
     // Beer search
     public string $beerSearch = '';
@@ -418,7 +421,12 @@ class BeerForm extends Component
             if ($this->addCheckin) {
                 $venueId = $this->checkinVenueId;
                 if (! $venueId && trim($this->checkinVenue)) {
-                    $venueId = Venue::firstOrCreate(['name' => trim($this->checkinVenue)])->id;
+                    $venue = Venue::firstOrCreate(['name' => trim($this->checkinVenue)]);
+                    $venueId = $venue->id;
+
+                    if ($venue->wasRecentlyCreated && auth()->user()->getData('geocoding_enabled')) {
+                        GeocodeVenue::dispatch($venue);
+                    }
                 }
 
                 $checkin = Checkin::create([
@@ -439,6 +447,17 @@ class BeerForm extends Component
                             'photo_path' => $path,
                         ]);
                     }
+                }
+
+                // Use beer photo if selected and no other photos added
+                if ($this->useBeerPhoto && empty($this->checkinPhotos) && $beer->photo_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($beer->photo_path)) {
+                    $ext = pathinfo($beer->photo_path, PATHINFO_EXTENSION);
+                    $newPath = 'checkin-photos/' . uniqid() . '.' . $ext;
+                    \Illuminate\Support\Facades\Storage::disk('public')->copy($beer->photo_path, $newPath);
+                    \App\Models\CheckinPhoto::create([
+                        'checkin_id' => $checkin->id,
+                        'photo_path' => $newPath,
+                    ]);
                 }
 
                 event(new CheckinCreated($checkin, auth()->user()));

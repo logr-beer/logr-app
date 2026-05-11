@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
+use App\Jobs\GeocodeVenue;
 use Livewire\WithFileUploads;
 
 class CheckinForm extends Component
@@ -50,7 +51,9 @@ class CheckinForm extends Component
 
     public array $photosToDelete = [];
 
-    public bool $shareCheckinToDiscord = false;
+    public array $shareTargets = [];
+
+    public bool $useBeerPhoto = true;
 
     // Date override (for editing)
     public string $checkin_date = '';
@@ -67,10 +70,44 @@ class CheckinForm extends Component
             }
         }
 
+        $this->buildShareTargets();
+    }
+
+    protected function buildShareTargets(): void
+    {
         $user = auth()->user();
-        $webhooks = collect($user->getData('discord_webhooks') ?? []);
-        $this->shareCheckinToDiscord = $webhooks->contains(fn ($w) => ! empty($w['publish_checkins']))
-            || \App\Services\Hub::hasPublishing($user, 'publish_checkins');
+        $targets = [];
+
+        // Discord webhooks
+        foreach ($user->getData('discord_webhooks') ?? [] as $i => $webhook) {
+            if (! empty($webhook['publish_checkins'])) {
+                $targets[] = [
+                    'key' => "webhook_{$i}",
+                    'type' => 'discord_webhook',
+                    'label' => $webhook['label'] ?? 'Discord Webhook',
+                    'icon' => 'discord',
+                    'enabled' => true,
+                ];
+            }
+        }
+
+        // Discord bots
+        $bots = \App\Models\Setting::get('discord_bots', []);
+        $prefs = $user->getData('discord_bot_prefs') ?? [];
+        foreach ($bots as $i => $bot) {
+            $guildId = $bot['guild_id'] ?? null;
+            if ($guildId && ! empty($prefs[$guildId]['publish_checkins'])) {
+                $targets[] = [
+                    'key' => "bot_{$i}",
+                    'type' => 'discord_bot',
+                    'label' => $bot['guild_name'] ?? 'Discord Bot',
+                    'icon' => 'discord',
+                    'enabled' => true,
+                ];
+            }
+        }
+
+        $this->shareTargets = $targets;
     }
 
     protected function loadCheckin(int $id): void
@@ -267,6 +304,10 @@ class CheckinForm extends Component
             $venue = Venue::firstOrCreate(['name' => trim($this->venueQuery)]);
             $venueId = $venue->id;
             $locationText = $venue->name;
+
+            if ($venue->wasRecentlyCreated && auth()->user()->getData('geocoding_enabled')) {
+                GeocodeVenue::dispatch($venue);
+            }
         } elseif ($venueId) {
             $locationText = $this->selectedVenueName;
         }
@@ -316,13 +357,28 @@ class CheckinForm extends Component
                 }
             }
 
+            // Use beer photo if selected and no other photos added
+            if (! $this->checkinId && $this->useBeerPhoto && empty($this->photos)) {
+                $beer = Beer::find($this->selectedBeerId);
+                if ($beer?->photo_path && Storage::disk('public')->exists($beer->photo_path)) {
+                    $ext = pathinfo($beer->photo_path, PATHINFO_EXTENSION);
+                    $newPath = 'checkin-photos/' . uniqid() . '.' . $ext;
+                    Storage::disk('public')->copy($beer->photo_path, $newPath);
+                    CheckinPhoto::create([
+                        'checkin_id' => $checkin->id,
+                        'photo_path' => $newPath,
+                    ]);
+                }
+            }
+
             return $checkin;
         });
 
         if ($this->checkinId) {
             $message = 'Check-in updated!';
         } else {
-            if ($this->shareCheckinToDiscord) {
+            $hasEnabledTarget = collect($this->shareTargets)->contains('enabled', true);
+            if ($hasEnabledTarget) {
                 CheckinCreated::dispatch($checkin, auth()->user());
             }
 
@@ -344,6 +400,11 @@ class CheckinForm extends Component
 
         session()->flash('message', 'Check-in deleted.');
         $this->redirect(route('checkins.index'), navigate: true);
+    }
+
+    public function getSelectedBeerProperty(): ?Beer
+    {
+        return $this->selectedBeerId ? Beer::find($this->selectedBeerId) : null;
     }
 
     public function render()
