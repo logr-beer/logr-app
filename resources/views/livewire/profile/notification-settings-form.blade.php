@@ -121,14 +121,19 @@ new class extends Component
 
         try {
             $response = \Illuminate\Support\Facades\Http::timeout(15)->post($webhook['url'], [
+                'username' => 'Logr Bot',
+                'avatar_url' => url('/img/logr-discord.png'),
                 'embeds' => [[
                     'title' => 'Check-in: Pliny the Elder',
-                    'description' => "**Pliny the Elder** by Russian River Brewing Company\n\nRating: **5** / 5 ⭐⭐⭐⭐⭐\nServing: Draft\nVenue: The Local Taproom\n\n> Perfectly balanced, one of the best DIPAs out there.",
+                    'description' => "**Pliny the Elder** by Russian River Brewing Company\n\n> Perfectly balanced, one of the best DIPAs out there.",
                     'color' => 0xF59E0B,
                     'fields' => [
                         ['name' => 'Style', 'value' => 'Double IPA, IPA, Pale Ale', 'inline' => true],
                         ['name' => 'ABV', 'value' => '8.0%', 'inline' => true],
                         ['name' => 'IBU', 'value' => '100', 'inline' => true],
+                        ['name' => 'Rating', 'value' => '**5** / 5 ⭐⭐⭐⭐⭐', 'inline' => true],
+                        ['name' => 'Serving', 'value' => 'Draft', 'inline' => true],
+                        ['name' => 'Venue', 'value' => 'The Local Taproom', 'inline' => true],
                     ],
                     'footer' => ['text' => 'Logr'],
                     'timestamp' => now()->toIso8601String(),
@@ -160,13 +165,19 @@ new class extends Component
 
         try {
             $response = \Illuminate\Support\Facades\Http::timeout(15)->post($webhook['url'], [
+                'username' => 'Logr Bot',
+                'avatar_url' => url('/img/logr-discord.png'),
                 'embeds' => [[
                     'title' => 'Added to Inventory: Two Hearted Ale',
-                    'description' => "**Two Hearted Ale** by Bell's Brewery\n\nQuantity: **6**\nStorage: Fridge\nFrom: Total Wine",
+                    'description' => "**Two Hearted Ale** by Bell's Brewery",
                     'color' => 0x3B82F6,
                     'fields' => [
                         ['name' => 'Style', 'value' => 'American IPA', 'inline' => true],
                         ['name' => 'ABV', 'value' => '7.0%', 'inline' => true],
+                        ['name' => 'IBU', 'value' => '55', 'inline' => true],
+                        ['name' => 'Quantity', 'value' => '6', 'inline' => true],
+                        ['name' => 'Storage', 'value' => 'Fridge', 'inline' => true],
+                        ['name' => 'From', 'value' => 'Total Wine', 'inline' => true],
                     ],
                     'footer' => ['text' => 'Logr'],
                     'timestamp' => now()->toIso8601String(),
