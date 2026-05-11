@@ -71,6 +71,7 @@ class Hub
             'is_gift' => $inventory->is_gift,
             'style' => $beer->style ? implode(', ', $beer->style) : null,
             'abv' => $beer->abv,
+            'ibu' => $beer->ibu,
             'user' => $user->name,
             'beer_image' => $beer->photo_path ? url(Storage::url($beer->photo_path)) : null,
         ];
