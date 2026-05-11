@@ -45,12 +45,12 @@
                 <label class="inline-flex items-center gap-1.5 {{ $demoMode ? '' : 'cursor-pointer' }}">
                     <input type="checkbox" {{ $demoMode ? 'disabled' : '' }} wire:click="toggleWebhookSetting({{ $index }}, 'publish_checkins')" {{ !empty($webhook['publish_checkins']) ? 'checked' : '' }}
                         class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
-                    <span class="text-gray-700 dark:text-gray-300">Check-ins</span>
+                    <span class="text-gray-700 dark:text-gray-300">Auto-publish check-ins</span>
                 </label>
                 <label class="inline-flex items-center gap-1.5 {{ $demoMode ? '' : 'cursor-pointer' }}">
                     <input type="checkbox" {{ $demoMode ? 'disabled' : '' }} wire:click="toggleWebhookSetting({{ $index }}, 'publish_purchases')" {{ !empty($webhook['publish_purchases']) ? 'checked' : '' }}
                         class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
-                    <span class="text-gray-700 dark:text-gray-300">Inventory additions</span>
+                    <span class="text-gray-700 dark:text-gray-300">Auto-publish inventory</span>
                 </label>
             </div>
         </div>
