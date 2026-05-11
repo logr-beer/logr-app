@@ -27,14 +27,8 @@ return [
     ],
 
     'untappd' => [
-        'username' => env('UNTAPPD_USERNAME'),
-        'rss_feeds' => env('UNTAPPD_RSS_FEEDS'),
         'api_key' => env('UNTAPPD_API_KEY'),
         'api_secret' => env('UNTAPPD_API_SECRET'),
-    ],
-
-    'discord' => [
-        'webhooks' => env('DISCORD_WEBHOOKS'),
     ],
 
 ];

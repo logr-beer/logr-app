@@ -58,11 +58,6 @@ class Setup extends Component
 
     private function detectEnvVars(): void
     {
-        if ($value = config('services.untappd.username')) {
-            $this->untappd_username = $value;
-            $this->envLocked[] = 'untappd_username';
-        }
-
         if ($value = config('services.catalog_beer.key')) {
             $this->catalog_beer_api_key = $value;
             $this->envLocked[] = 'catalog_beer_api_key';
@@ -78,18 +73,6 @@ class Setup extends Component
             $this->envLocked[] = 'untappd_api_secret';
         }
 
-        if ($value = config('services.untappd.rss_feeds')) {
-            $this->rssFeeds = User::parseEnvList($value);
-            $this->envLocked[] = 'rss_feeds';
-        }
-
-        if ($value = config('services.discord.webhooks')) {
-            $this->discordWebhooks = User::parseEnvList($value, [
-                'publish_checkins' => true,
-                'publish_purchases' => true,
-            ]);
-            $this->envLocked[] = 'discord_webhooks';
-        }
     }
 
     public function isLocked(string $key): bool
