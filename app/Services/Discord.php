@@ -23,29 +23,15 @@ class Discord
         $checkin->loadMissing(['beer.brewery', 'venue', 'photos']);
         $beer = $checkin->beer;
 
-        $stars = str_repeat("\u{2B50}", (int) $checkin->rating);
-        if ($checkin->rating - (int) $checkin->rating >= 0.5) {
-            $stars .= "\u{2B50}";
-        }
-
         $description = "**{$beer->name}**";
         if ($beer->brewery) {
             $description .= " by {$beer->brewery->name}";
-        }
-        $description .= "\n\nRating: **{$checkin->rating}** / 5 {$stars}";
-
-        if ($checkin->serving_type) {
-            $description .= "\nServing: ".ucfirst($checkin->serving_type);
-        }
-        if ($checkin->venue) {
-            $description .= "\nVenue: {$checkin->venue->name}";
-        } elseif ($checkin->location) {
-            $description .= "\nLocation: {$checkin->location}";
         }
         if ($checkin->notes) {
             $description .= "\n\n> {$checkin->notes}";
         }
 
+        // Beer info fields
         $fields = [];
         if ($beer->style) {
             $fields[] = ['name' => 'Style', 'value' => implode(', ', $beer->style), 'inline' => true];
@@ -55,6 +41,23 @@ class Discord
         }
         if ($beer->ibu) {
             $fields[] = ['name' => 'IBU', 'value' => (string) $beer->ibu, 'inline' => true];
+        }
+
+        // Check-in detail fields
+        if ($checkin->rating) {
+            $stars = str_repeat("\u{2B50}", (int) $checkin->rating);
+            if ($checkin->rating - (int) $checkin->rating >= 0.5) {
+                $stars .= "\u{2B50}";
+            }
+            $fields[] = ['name' => 'Rating', 'value' => "**{$checkin->rating}** / 5 {$stars}", 'inline' => true];
+        }
+        if ($checkin->serving_type) {
+            $fields[] = ['name' => 'Serving', 'value' => ucfirst($checkin->serving_type), 'inline' => true];
+        }
+        if ($checkin->venue) {
+            $fields[] = ['name' => 'Venue', 'value' => $checkin->venue->name, 'inline' => true];
+        } elseif ($checkin->location) {
+            $fields[] = ['name' => 'Location', 'value' => $checkin->location, 'inline' => true];
         }
 
         $embed = [
@@ -103,15 +106,6 @@ class Discord
         if ($beer->brewery) {
             $description .= " by {$beer->brewery->name}";
         }
-        $description .= "\n\nQuantity: **{$inventory->quantity}**";
-        $description .= "\nStorage: {$inventory->storage_location}";
-
-        if ($inventory->purchase_location) {
-            $description .= "\nFrom: {$inventory->purchase_location}";
-        }
-        if ($inventory->is_gift) {
-            $description .= "\nThis was a gift!";
-        }
 
         $fields = [];
         if ($beer->style) {
@@ -119,6 +113,20 @@ class Discord
         }
         if ($beer->abv) {
             $fields[] = ['name' => 'ABV', 'value' => "{$beer->abv}%", 'inline' => true];
+        }
+        if ($beer->ibu) {
+            $fields[] = ['name' => 'IBU', 'value' => (string) $beer->ibu, 'inline' => true];
+        }
+
+        $fields[] = ['name' => 'Quantity', 'value' => (string) $inventory->quantity, 'inline' => true];
+        if ($inventory->storage_location) {
+            $fields[] = ['name' => 'Storage', 'value' => $inventory->storage_location, 'inline' => true];
+        }
+        if ($inventory->purchase_location) {
+            $fields[] = ['name' => 'From', 'value' => $inventory->purchase_location, 'inline' => true];
+        }
+        if ($inventory->is_gift) {
+            $description .= "\n\nThis was a gift!";
         }
 
         $embed = [

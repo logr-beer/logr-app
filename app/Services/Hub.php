@@ -20,8 +20,11 @@ class Hub
             return false;
         }
 
-        $checkin->loadMissing(['beer.brewery', 'venue']);
+        $checkin->loadMissing(['beer.brewery', 'venue', 'photos']);
         $beer = $checkin->beer;
+
+        // Image priority: checkin photo > beer label
+        $imagePath = $checkin->photos->first()?->photo_path ?? $beer->photo_path;
 
         $payload = [
             'beer_name' => $beer->name,
@@ -32,8 +35,9 @@ class Hub
             'venue' => $checkin->venue?->name ?? $checkin->location,
             'style' => $beer->style ? implode(', ', $beer->style) : null,
             'abv' => $beer->abv,
+            'ibu' => $beer->ibu,
             'user' => $user->name,
-            'beer_image' => $beer->photo_path ? url(Storage::url($beer->photo_path)) : null,
+            'beer_image' => $imagePath ? url(Storage::url($imagePath)) : null,
         ];
 
         $sent = false;
