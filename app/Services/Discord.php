@@ -33,7 +33,7 @@ class Discord
             if ($checkin->rating - (int) $checkin->rating >= 0.5) {
                 $stars .= "\u{2B50}";
             }
-            $description .= "\nRating: {$checkin->rating} / 5 {$stars}";
+            $description .= "\n**Rating:** {$checkin->rating} / 5 {$stars}";
         }
 
         if ($checkin->notes) {
