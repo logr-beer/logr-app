@@ -135,21 +135,24 @@ new class extends Component
         }
 
         try {
+            $embed = \App\Services\Discord::buildCheckinEmbed([
+                'beer_name' => 'Pliny the Elder',
+                'brewery' => 'Russian River Brewing Company',
+                'rating' => 5.0,
+                'serving' => 'Draft',
+                'notes' => 'Perfectly balanced, one of the best DIPAs out there.',
+                'venue' => 'The Local Taproom',
+                'style' => 'Double IPA, IPA, Pale Ale',
+                'abv' => 8.0,
+                'ibu' => 100,
+                'user' => '[TEST] ' . Auth::user()->name,
+                'beer_image' => null,
+            ]);
+
             $response = \Illuminate\Support\Facades\Http::timeout(15)->post($webhook['url'], [
                 'username' => 'Logr Bot',
                 'avatar_url' => url('/img/logr-discord.png'),
-                'embeds' => [[
-                    'title' => '[TEST] Check-in: ' . Auth::user()->name,
-                    'description' => "**Pliny the Elder** by **Russian River Brewing Company**\n\n**Rating:** 5 / 5 ⭐⭐⭐⭐⭐\n\n**Review:**\n> Perfectly balanced, one of the best DIPAs out there.\n\n**Venue:**\nThe Local Taproom\n\n**Style:**\nDouble IPA, IPA, Pale Ale",
-                    'color' => 0xF59E0B,
-                    'fields' => [
-                        ['name' => 'ABV', 'value' => '8.0%', 'inline' => true],
-                        ['name' => 'IBU', 'value' => '100', 'inline' => true],
-                        ['name' => 'Serving', 'value' => 'Draft', 'inline' => true],
-                    ],
-                    'footer' => ['text' => 'Logr • TEST'],
-                    'timestamp' => now()->toIso8601String(),
-                ]],
+                'embeds' => [$embed],
             ]);
 
             $this->testResult = $response->successful()
@@ -176,20 +179,24 @@ new class extends Component
         }
 
         try {
+            $embed = \App\Services\Discord::buildPurchaseEmbed([
+                'beer_name' => 'Two Hearted Ale',
+                'brewery' => "Bell's Brewery",
+                'quantity' => 6,
+                'storage_location' => 'Fridge',
+                'purchase_location' => 'Total Wine',
+                'is_gift' => false,
+                'style' => 'American IPA',
+                'abv' => 7.0,
+                'ibu' => 55,
+                'user' => '[TEST] ' . Auth::user()->name,
+                'beer_image' => null,
+            ]);
+
             $response = \Illuminate\Support\Facades\Http::timeout(15)->post($webhook['url'], [
                 'username' => 'Logr Bot',
                 'avatar_url' => url('/img/logr-discord.png'),
-                'embeds' => [[
-                    'title' => '[TEST] Inventory: ' . Auth::user()->name,
-                    'description' => "**Two Hearted Ale** by Bell's Brewery\n\n**Quantity:** 6\n**Storage:** Fridge\n**From:** Total Wine",
-                    'color' => 0x3B82F6,
-                    'fields' => [
-                        ['name' => 'Style', 'value' => 'American IPA', 'inline' => true],
-                        ['name' => 'ABV', 'value' => '7.0%', 'inline' => true],
-                    ],
-                    'footer' => ['text' => 'Logr • TEST'],
-                    'timestamp' => now()->toIso8601String(),
-                ]],
+                'embeds' => [$embed],
             ]);
 
             $this->testResult = $response->successful()

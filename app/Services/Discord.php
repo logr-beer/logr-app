@@ -23,64 +23,21 @@ class Discord
         $checkin->loadMissing(['beer.brewery', 'venue', 'photos']);
         $beer = $checkin->beer;
 
-        $description = "**{$beer->name}**";
-        if ($beer->brewery) {
-            $description .= " by **{$beer->brewery->name}**";
-        }
-        $description .= "\n";
+        $imagePath = $checkin->photos->first()?->photo_path ?? $beer->photo_path ?? $beer->brewery?->logo_path;
 
-        if ($checkin->rating) {
-            $stars = str_repeat("\u{2B50}", (int) $checkin->rating);
-            if ($checkin->rating - (int) $checkin->rating >= 0.5) {
-                $stars .= "\u{2B50}";
-            }
-            $description .= "\n**Rating:** {$checkin->rating} / 5 {$stars}";
-        }
-
-        if ($checkin->notes) {
-            $description .= "\n\n**Review:**\n> {$checkin->notes}";
-        }
-
-        if ($checkin->venue) {
-            $description .= "\n\n**Venue:**\n{$checkin->venue->name}";
-        } elseif ($checkin->location) {
-            $description .= "\n\n**Location:**\n{$checkin->location}";
-        }
-
-        if ($beer->style) {
-            $description .= "\n\n**Style:**\n" . implode(', ', $beer->style);
-        }
-
-        $fields = [];
-        if ($beer->abv) {
-            $fields[] = ['name' => 'ABV', 'value' => "{$beer->abv}%", 'inline' => true];
-        }
-        if ($beer->ibu) {
-            $fields[] = ['name' => 'IBU', 'value' => (string) $beer->ibu, 'inline' => true];
-        }
-        if ($checkin->serving_type) {
-            $fields[] = ['name' => 'Serving', 'value' => ucfirst($checkin->serving_type), 'inline' => true];
-        }
-
-        $embed = [
-            'title' => "Check-in: {$user->name}",
-            'description' => $description,
-            'color' => 0xF59E0B, // amber-500
-            'fields' => $fields,
-            'timestamp' => $checkin->created_at->toIso8601String(),
-            'footer' => ['text' => "Logr \u{2022} by {$user->name}"],
-        ];
-
-        // Image priority: checkin photo > beer label > brewery logo
-        $imageUrl = static::resolveImageUrl(
-            $checkin->photos->first()?->photo_path,
-            $beer->photo_path,
-            $beer->brewery?->logo_path,
-        );
-
-        if ($imageUrl) {
-            $embed['thumbnail'] = ['url' => $imageUrl];
-        }
+        $embed = static::buildCheckinEmbed([
+            'beer_name' => $beer->name,
+            'brewery' => $beer->brewery?->name,
+            'rating' => $checkin->rating,
+            'serving' => $checkin->serving_type ? ucfirst($checkin->serving_type) : null,
+            'notes' => $checkin->notes,
+            'venue' => $checkin->venue?->name ?? $checkin->location,
+            'style' => $beer->style ? implode(', ', $beer->style) : null,
+            'abv' => $beer->abv,
+            'ibu' => $beer->ibu,
+            'user' => $user->name,
+            'beer_image' => $imagePath ? url(Storage::url($imagePath)) : null,
+        ], $checkin->created_at->toIso8601String());
 
         $sent = false;
         foreach ($webhooks as $webhook) {
@@ -104,48 +61,21 @@ class Discord
         $inventory->loadMissing(['beer.brewery']);
         $beer = $inventory->beer;
 
-        $description = "**{$beer->name}**";
-        if ($beer->brewery) {
-            $description .= " by {$beer->brewery->name}";
-        }
-        $description .= "\n\n**Quantity:** {$inventory->quantity}";
-        if ($inventory->storage_location) {
-            $description .= "\n**Storage:** {$inventory->storage_location}";
-        }
-        if ($inventory->purchase_location) {
-            $description .= "\n**From:** {$inventory->purchase_location}";
-        }
-        if ($inventory->is_gift) {
-            $description .= "\n\nThis was a gift!";
-        }
+        $imagePath = $beer->photo_path ?? $beer->brewery?->logo_path;
 
-        $fields = [];
-        if ($beer->style) {
-            $fields[] = ['name' => 'Style', 'value' => implode(', ', $beer->style), 'inline' => true];
-        }
-        if ($beer->abv) {
-            $fields[] = ['name' => 'ABV', 'value' => "{$beer->abv}%", 'inline' => true];
-        }
-
-        $embed = [
-            'title' => "Inventory: {$user->name}",
-            'description' => $description,
-            'color' => 0x3B82F6, // blue-500
-            'fields' => $fields,
-            'timestamp' => now()->toIso8601String(),
-            'footer' => ['text' => "Logr \u{2022} by {$user->name}"],
-        ];
-
-        // Image priority: beer label > brewery logo
-        $imageUrl = static::resolveImageUrl(
-            null,
-            $beer->photo_path,
-            $beer->brewery?->logo_path,
-        );
-
-        if ($imageUrl) {
-            $embed['thumbnail'] = ['url' => $imageUrl];
-        }
+        $embed = static::buildPurchaseEmbed([
+            'beer_name' => $beer->name,
+            'brewery' => $beer->brewery?->name,
+            'quantity' => $inventory->quantity,
+            'storage_location' => $inventory->storage_location,
+            'purchase_location' => $inventory->purchase_location,
+            'is_gift' => $inventory->is_gift,
+            'style' => $beer->style ? implode(', ', $beer->style) : null,
+            'abv' => $beer->abv,
+            'ibu' => $beer->ibu,
+            'user' => $user->name,
+            'beer_image' => $imagePath ? url(Storage::url($imagePath)) : null,
+        ]);
 
         $sent = false;
         foreach ($webhooks as $webhook) {
@@ -155,6 +85,109 @@ class Discord
         }
 
         return $sent;
+    }
+
+    /**
+     * Build a check-in embed from a payload (same structure the bot uses).
+     */
+    public static function buildCheckinEmbed(array $p, ?string $timestamp = null): array
+    {
+        $description = "**{$p['beer_name']}**";
+        if ($p['brewery'] ?? null) {
+            $description .= " by **{$p['brewery']}**";
+        }
+        $description .= "\n";
+
+        if ($p['rating'] ?? null) {
+            $rating = $p['rating'];
+            $stars = str_repeat("\u{2B50}", (int) $rating);
+            if ($rating - (int) $rating >= 0.5) {
+                $stars .= "\u{2B50}";
+            }
+            $description .= "\n**Rating:** {$rating} / 5 {$stars}";
+        }
+
+        if ($p['notes'] ?? null) {
+            $description .= "\n\n**Review:**\n> {$p['notes']}";
+        }
+
+        if ($p['venue'] ?? null) {
+            $description .= "\n\n**Venue:**\n{$p['venue']}";
+        }
+
+        if ($p['style'] ?? null) {
+            $description .= "\n\n**Style:**\n{$p['style']}";
+        }
+
+        $fields = [];
+        if ($p['abv'] ?? null) {
+            $fields[] = ['name' => 'ABV', 'value' => "{$p['abv']}%", 'inline' => true];
+        }
+        if ($p['ibu'] ?? null) {
+            $fields[] = ['name' => 'IBU', 'value' => (string) $p['ibu'], 'inline' => true];
+        }
+        if ($p['serving'] ?? null) {
+            $fields[] = ['name' => 'Serving', 'value' => $p['serving'], 'inline' => true];
+        }
+
+        $embed = [
+            'title' => "Check-in: {$p['user']}",
+            'description' => $description,
+            'color' => 0xF59E0B,
+            'fields' => $fields,
+            'timestamp' => $timestamp ?? now()->toIso8601String(),
+            'footer' => ['text' => "Logr \u{2022} by {$p['user']}"],
+        ];
+
+        if ($p['beer_image'] ?? null) {
+            $embed['thumbnail'] = ['url' => $p['beer_image']];
+        }
+
+        return $embed;
+    }
+
+    /**
+     * Build an inventory embed from a payload (same structure the bot uses).
+     */
+    public static function buildPurchaseEmbed(array $p): array
+    {
+        $description = "**{$p['beer_name']}**";
+        if ($p['brewery'] ?? null) {
+            $description .= " by {$p['brewery']}";
+        }
+        $description .= "\n\n**Quantity:** {$p['quantity']}";
+        if ($p['storage_location'] ?? null) {
+            $description .= "\n**Storage:** {$p['storage_location']}";
+        }
+        if ($p['purchase_location'] ?? null) {
+            $description .= "\n**From:** {$p['purchase_location']}";
+        }
+        if ($p['is_gift'] ?? false) {
+            $description .= "\n\nThis was a gift!";
+        }
+
+        $fields = [];
+        if ($p['style'] ?? null) {
+            $fields[] = ['name' => 'Style', 'value' => $p['style'], 'inline' => true];
+        }
+        if ($p['abv'] ?? null) {
+            $fields[] = ['name' => 'ABV', 'value' => "{$p['abv']}%", 'inline' => true];
+        }
+
+        $embed = [
+            'title' => "Inventory: {$p['user']}",
+            'description' => $description,
+            'color' => 0x3B82F6,
+            'fields' => $fields,
+            'timestamp' => now()->toIso8601String(),
+            'footer' => ['text' => "Logr \u{2022} by {$p['user']}"],
+        ];
+
+        if ($p['beer_image'] ?? null) {
+            $embed['thumbnail'] = ['url' => $p['beer_image']];
+        }
+
+        return $embed;
     }
 
     protected static function resolveImageUrl(?string ...$paths): ?string
