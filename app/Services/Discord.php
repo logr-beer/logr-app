@@ -134,6 +134,10 @@ class Discord
             'footer' => ['text' => "Logr \u{2022} by {$p['user']}"],
         ];
 
+        if ($p['beer_image'] ?? null) {
+            $embed['thumbnail'] = ['url' => $p['beer_image']];
+        }
+
         return $embed;
     }
 
@@ -174,6 +178,10 @@ class Discord
             'timestamp' => now()->toIso8601String(),
             'footer' => ['text' => "Logr \u{2022} by {$p['user']}"],
         ];
+
+        if ($p['beer_image'] ?? null) {
+            $embed['thumbnail'] = ['url' => $p['beer_image']];
+        }
 
         return $embed;
     }

@@ -146,7 +146,7 @@ new class extends Component
                 'abv' => 8.0,
                 'ibu' => 100,
                 'user' => '[TEST] ' . Auth::user()->name,
-                'beer_image' => null,
+                'beer_image' => 'https://images.unsplash.com/photo-1643307282439-08cb542c6edf?w=400&h=500&fit=crop',
             ]);
 
             $response = \Illuminate\Support\Facades\Http::timeout(15)->post($webhook['url'], [
@@ -190,7 +190,7 @@ new class extends Component
                 'abv' => 7.0,
                 'ibu' => 55,
                 'user' => '[TEST] ' . Auth::user()->name,
-                'beer_image' => null,
+                'beer_image' => 'https://images.unsplash.com/photo-1627627045944-a6171e94783a?w=400&h=500&fit=crop',
             ]);
 
             $response = \Illuminate\Support\Facades\Http::timeout(15)->post($webhook['url'], [
@@ -310,6 +310,7 @@ new class extends Component
                         'venue' => 'The Local Taproom',
                         'notes' => 'Perfectly balanced, one of the best DIPAs out there.',
                         'user' => Auth::user()->name,
+                        'beer_image' => 'https://images.unsplash.com/photo-1643307282439-08cb542c6edf?w=400&h=500&fit=crop',
                     ],
                 ]);
 
@@ -352,6 +353,7 @@ new class extends Component
                         'storage_location' => 'Fridge',
                         'purchase_location' => 'Total Wine',
                         'user' => Auth::user()->name,
+                        'beer_image' => 'https://images.unsplash.com/photo-1627627045944-a6171e94783a?w=400&h=500&fit=crop',
                     ],
                 ]);
 
