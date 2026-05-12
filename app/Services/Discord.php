@@ -124,7 +124,7 @@ class Discord
         }
 
         $embed = [
-            'title' => "Check-in: {$p['beer_name']}",
+            'title' => "Check-in: {$p['user']}",
             'description' => $description,
             'color' => 0xF59E0B,
             'fields' => $fields,
@@ -169,7 +169,7 @@ class Discord
         }
 
         $embed = [
-            'title' => "Added to Inventory: {$p['beer_name']}",
+            'title' => "Inventory: {$p['user']}",
             'description' => $description,
             'color' => 0x3B82F6,
             'fields' => $fields,
