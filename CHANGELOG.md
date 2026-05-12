@@ -4,6 +4,11 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.1] - 2026-05-12
+
+### Added
+- Footer with version, GitHub, Docker Hub, and logr.beer links on login page
+
 ## [0.3.0] - 2026-05-12
 
 ### Added
@@ -262,6 +267,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Database purge and reset tools
 - System info page with version and dependency details
 
+[0.3.1]: https://github.com/logr-beer/logr-app/releases/tag/v0.3.1
 [0.3.0]: https://github.com/logr-beer/logr-app/releases/tag/v0.3.0
 [0.2.1]: https://github.com/logr-beer/logr-app/releases/tag/v0.2.1
 [0.2.0]: https://github.com/logr-beer/logr-app/releases/tag/v0.2.0
