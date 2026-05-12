@@ -77,6 +77,8 @@ class BeerForm extends Component
 
     public bool $useBeerPhoto = true;
 
+    public bool $shareCheckinToDiscord = false;
+
     // Beer search
     public string $beerSearch = '';
 
@@ -101,6 +103,11 @@ class BeerForm extends Component
             $this->brewer_master = $beer->brewer_master ?? '';
             $this->description = $beer->description ?? '';
         }
+
+        $user = auth()->user();
+        $webhooks = collect($user->getData('discord_webhooks') ?? []);
+        $this->shareCheckinToDiscord = $webhooks->contains(fn ($w) => ! empty($w['publish_checkins']))
+            || \App\Services\PubDiscord::hasPublishing($user, 'publish_checkins');
     }
 
     // -- Beer search (Untappd > catalog.beer) --
@@ -460,7 +467,9 @@ class BeerForm extends Component
                     ]);
                 }
 
-                event(new CheckinCreated($checkin, auth()->user()));
+                if ($this->shareCheckinToDiscord) {
+                    event(new CheckinCreated($checkin, auth()->user()));
+                }
             }
 
             // Submit to catalog.beer if the user has an API key

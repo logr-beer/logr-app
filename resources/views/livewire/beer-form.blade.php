@@ -434,6 +434,14 @@
                             :previews="$checkinPhotos"
                         />
                     @endif
+
+                    @if(!empty(auth()->user()->getData('discord_webhooks')) || !empty(auth()->user()->getData('discord_bots')))
+                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                            <input wire:model="shareCheckinToDiscord" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
+                            <x-icon name="discord" size="4" :solid="true" class="text-amber-400" />
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Share to Discord</span>
+                        </label>
+                    @endif
                 </div>
             </div>
             @endif
