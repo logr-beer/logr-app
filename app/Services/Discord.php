@@ -171,7 +171,7 @@ class Discord
         }
 
         $embed = [
-            'title' => "Inventory: {$p['user']}",
+            'title' => "New Beer for {$p['user']}",
             'description' => $description,
             'color' => 0x3B82F6,
             'fields' => $fields,
