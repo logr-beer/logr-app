@@ -135,8 +135,8 @@ class Setup extends Component
         $this->discordWebhooks[] = [
             'label' => $this->newWebhookLabel ?: null,
             'url' => $this->newWebhookUrl,
-            'publish_checkins' => true,
-            'publish_purchases' => true,
+            'publish_checkins' => false,
+            'publish_purchases' => false,
         ];
 
         $this->newWebhookLabel = '';

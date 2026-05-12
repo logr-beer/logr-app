@@ -202,7 +202,7 @@ XML;
             $embed = $body['embeds'][0];
 
             // Title should contain the username
-            if (! str_contains($embed['title'], 'Check-in:')) {
+            if (! str_contains($embed['title'], 'Check-in for')) {
                 return false;
             }
 

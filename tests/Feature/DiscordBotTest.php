@@ -66,8 +66,8 @@ class DiscordBotTest extends TestCase
         $this->assertEquals('Test Server', $bots[0]['guild_name']);
 
         $prefs = $admin->fresh()->getData('discord_bot_prefs');
-        $this->assertTrue($prefs['12345']['publish_checkins']);
-        $this->assertTrue($prefs['12345']['publish_purchases']);
+        $this->assertFalse($prefs['12345']['publish_checkins']);
+        $this->assertFalse($prefs['12345']['publish_purchases']);
     }
 
     public function test_non_admin_cannot_connect_discord(): void

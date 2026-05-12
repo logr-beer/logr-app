@@ -9,8 +9,8 @@ new class extends Component
     // Discord Webhooks
     public array $discordWebhooks = [];
     public string $newWebhookUrl = '';
-    public bool $newWebhookCheckins = true;
-    public bool $newWebhookPurchases = true;
+    public bool $newWebhookCheckins = false;
+    public bool $newWebhookPurchases = false;
 
     // Discord Bots (global config, multiple servers)
     public array $discordBots = [];
@@ -88,8 +88,8 @@ new class extends Component
         $user->save();
 
         $this->newWebhookUrl = '';
-        $this->newWebhookCheckins = true;
-        $this->newWebhookPurchases = true;
+        $this->newWebhookCheckins = false;
+        $this->newWebhookPurchases = false;
     }
 
     public function removeWebhook(int $index): void

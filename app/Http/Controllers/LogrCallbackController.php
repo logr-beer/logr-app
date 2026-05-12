@@ -61,8 +61,8 @@ class LogrCallbackController extends Controller
         // Enable publishing for this server for the connecting admin
         $prefs = $user->getData('discord_bot_prefs') ?? [];
         $prefs[$request->guild_id] = [
-            'publish_checkins' => true,
-            'publish_purchases' => true,
+            'publish_checkins' => false,
+            'publish_purchases' => false,
         ];
         $user->setData('discord_bot_prefs', $prefs);
         $user->save();
