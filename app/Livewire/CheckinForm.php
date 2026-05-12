@@ -386,7 +386,7 @@ class CheckinForm extends Component
         } else {
             $hasEnabledTarget = collect($this->shareTargets)->contains('enabled', true);
             if ($hasEnabledTarget) {
-                CheckinCreated::dispatch($checkin, auth()->user());
+                CheckinCreated::dispatch($checkin, auth()->user(), $this->shareTargets);
             }
 
             $message = 'Check-in recorded!';

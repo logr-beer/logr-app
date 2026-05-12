@@ -10,6 +10,14 @@ class SendDiscordCheckinViaWebhook
 {
     public function handle(CheckinCreated $event): void
     {
+        if (! empty($event->shareTargets)) {
+            $hasWebhook = collect($event->shareTargets)
+                ->contains(fn ($t) => $t['type'] === 'discord_webhook' && ! empty($t['enabled']));
+            if (! $hasWebhook) {
+                return;
+            }
+        }
+
         try {
             Discord::sendCheckin($event->checkin, $event->user);
         } catch (\Throwable $e) {

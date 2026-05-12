@@ -474,7 +474,7 @@ class BeerForm extends Component
                 }
 
                 if (collect($this->shareTargets)->contains('enabled', true)) {
-                    event(new CheckinCreated($checkin, auth()->user()));
+                    event(new CheckinCreated($checkin, auth()->user(), $this->shareTargets));
                 }
             }
 
