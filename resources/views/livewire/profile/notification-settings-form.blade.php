@@ -28,14 +28,15 @@ new class extends Component
 
     public function mount(): void
     {
-        $user = Auth::user();
-        $this->discordBots = Setting::get('discord_bots', []);
-        $this->botPrefs = $user->getData('discord_bot_prefs') ?? [];
-
         if (config('app.demo_mode')) {
+            $this->discordBots = [];
+            $this->botPrefs = [];
             $this->discordWebhooks = [];
             $this->discordUsername = null;
         } else {
+            $user = Auth::user();
+            $this->discordBots = Setting::get('discord_bots', []);
+            $this->botPrefs = $user->getData('discord_bot_prefs') ?? [];
             $this->discordWebhooks = $user->getData('discord_webhooks') ?? [];
             $this->discordUsername = $user->getData('discord_username');
         }
