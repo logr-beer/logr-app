@@ -79,6 +79,8 @@ class BeerForm extends Component
 
     public array $shareTargets = [];
 
+    public array $inventoryShareTargets = [];
+
     // Beer search
     public string $beerSearch = '';
 
@@ -105,6 +107,7 @@ class BeerForm extends Component
         }
 
         $this->shareTargets = CheckinForm::buildTargetsForType('publish_checkins');
+        $this->inventoryShareTargets = CheckinForm::buildTargetsForType('publish_purchases');
     }
 
     // -- Beer search (Untappd > catalog.beer) --
@@ -419,6 +422,12 @@ class BeerForm extends Component
                     'date_acquired' => $this->purchaseDate ?: now()->toDateString(),
                     'is_gift' => $this->isGift,
                 ]);
+
+                if (collect($this->inventoryShareTargets)->contains('enabled', true)) {
+                    $currentUser = auth()->user();
+                    \App\Services\Discord::sendPurchase($inventory, $currentUser);
+                    \App\Services\PubDiscord::sendPurchase($inventory, $currentUser);
+                }
             }
 
             // Create check-in if requested
