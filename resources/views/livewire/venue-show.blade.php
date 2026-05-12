@@ -63,17 +63,24 @@
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-3 pt-2">
-                    <x-primary-button>Save</x-primary-button>
-                    <button type="button" wire:click="cancel" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">Cancel</button>
-                    @unless(config('app.demo_mode'))
-                        <button
-                            type="button"
-                            wire:click="delete"
-                            wire:confirm="Delete this venue? This cannot be undone."
-                            class="ml-auto px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
-                        >Delete</button>
-                    @endunless
+                <div class="flex items-center justify-between pt-2">
+                    <div class="flex items-center gap-3">
+                        @unless(config('app.demo_mode'))
+                            <button
+                                type="button"
+                                wire:click="delete"
+                                wire:confirm="Delete this venue? This cannot be undone."
+                                class="inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                            >
+                                <x-icon name="trash" size="4" />
+                                Delete
+                            </button>
+                        @endunless
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button type="button" wire:click="cancel" class="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">Cancel</button>
+                        <x-primary-button size="lg">Save</x-primary-button>
+                    </div>
                 </div>
             </form>
         @else
