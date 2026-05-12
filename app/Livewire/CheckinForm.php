@@ -75,20 +75,26 @@ class CheckinForm extends Component
 
     protected function buildShareTargets(): void
     {
+        $this->shareTargets = static::buildTargetsForType('publish_checkins');
+    }
+
+    public static function buildTargetsForType(string $publishKey): array
+    {
         $user = auth()->user();
         $targets = [];
 
         // Discord webhooks
         foreach ($user->getData('discord_webhooks') ?? [] as $i => $webhook) {
-            if (! empty($webhook['publish_checkins'])) {
-                $targets[] = [
-                    'key' => "webhook_{$i}",
-                    'type' => 'discord_webhook',
-                    'label' => $webhook['label'] ?? 'Discord Webhook',
-                    'icon' => 'discord',
-                    'enabled' => true,
-                ];
+            if (empty($webhook['url'])) {
+                continue;
             }
+            $targets[] = [
+                'key' => "webhook_{$i}",
+                'type' => 'discord_webhook',
+                'label' => $webhook['label'] ?? 'Discord Webhook',
+                'icon' => 'discord',
+                'enabled' => ! empty($webhook[$publishKey]),
+            ];
         }
 
         // Discord bots
@@ -96,18 +102,19 @@ class CheckinForm extends Component
         $prefs = $user->getData('discord_bot_prefs') ?? [];
         foreach ($bots as $i => $bot) {
             $guildId = $bot['guild_id'] ?? null;
-            if ($guildId && ! empty($prefs[$guildId]['publish_checkins'])) {
-                $targets[] = [
-                    'key' => "bot_{$i}",
-                    'type' => 'discord_bot',
-                    'label' => $bot['guild_name'] ?? 'Discord Bot',
-                    'icon' => 'discord',
-                    'enabled' => true,
-                ];
+            if (! $guildId) {
+                continue;
             }
+            $targets[] = [
+                'key' => "bot_{$i}",
+                'type' => 'discord_bot',
+                'label' => $bot['guild_name'] ?? 'Discord Bot',
+                'icon' => 'discord',
+                'enabled' => ! empty($prefs[$guildId][$publishKey]),
+            ];
         }
 
-        $this->shareTargets = $targets;
+        return $targets;
     }
 
     protected function loadCheckin(int $id): void

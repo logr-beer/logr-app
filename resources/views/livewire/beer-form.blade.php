@@ -435,12 +435,17 @@
                         />
                     @endif
 
-                    @if(!empty(auth()->user()->getData('discord_webhooks')) || !empty(auth()->user()->getData('discord_bots')))
-                        <label class="inline-flex items-center gap-2 cursor-pointer">
-                            <input wire:model="shareCheckinToDiscord" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
-                            <x-icon name="discord" size="4" :solid="true" class="text-amber-400" />
-                            <span class="text-sm text-gray-500 dark:text-gray-400">Share to Discord</span>
-                        </label>
+                    @if(count($shareTargets) > 0)
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Share to:</span>
+                            @foreach($shareTargets as $i => $target)
+                                <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                    <input wire:model="shareTargets.{{ $i }}.enabled" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
+                                    <x-icon name="{{ $target['icon'] }}" size="3.5" :solid="true" class="text-amber-400" />
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">{{ $target['label'] }}</span>
+                                </label>
+                            @endforeach
+                        </div>
                     @endif
                 </div>
             </div>
