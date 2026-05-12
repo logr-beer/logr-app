@@ -9,7 +9,7 @@ use App\Models\Collection;
 use App\Models\Inventory;
 use App\Models\Venue;
 use App\Services\Discord;
-use App\Services\Hub;
+use App\Services\PubDiscord;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -58,9 +58,9 @@ class BeerShow extends Component
         $user = auth()->user();
         $webhooks = collect($user->getData('discord_webhooks') ?? []);
         $this->shareCheckinToDiscord = $webhooks->contains(fn ($w) => ! empty($w['publish_checkins']))
-            || \App\Services\Hub::hasPublishing($user, 'publish_checkins');
+            || \App\Services\PubDiscord::hasPublishing($user, 'publish_checkins');
         $this->sharePurchaseToDiscord = $webhooks->contains(fn ($w) => ! empty($w['publish_purchases']))
-            || \App\Services\Hub::hasPublishing($user, 'publish_purchases');
+            || \App\Services\PubDiscord::hasPublishing($user, 'publish_purchases');
     }
 
     public function toggleFavorite(): void
@@ -114,7 +114,7 @@ class BeerShow extends Component
             $freshInventory = $inventory->fresh();
             $currentUser = auth()->user();
             Discord::sendPurchase($freshInventory, $currentUser);
-            Hub::sendPurchase($freshInventory, $currentUser);
+            PubDiscord::sendPurchase($freshInventory, $currentUser);
         }
 
         $this->reset(['purchaseLocation', 'purchaseDate', 'isGift']);
@@ -260,7 +260,7 @@ class BeerShow extends Component
         if ($this->shareCheckinToDiscord) {
             $currentUser = auth()->user();
             Discord::sendCheckin($checkin, $currentUser);
-            Hub::sendCheckin($checkin, $currentUser);
+            PubDiscord::sendCheckin($checkin, $currentUser);
         }
 
         $this->reset(['rating', 'serving_type', 'venueQuery', 'selectedVenueId', 'selectedVenueName', 'notes', 'checkinPhotos']);

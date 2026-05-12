@@ -233,7 +233,7 @@ new class extends Component
 
         $this->loadingChannelsFor = $index;
 
-        $channels = \App\Services\Hub::fetchChannels($bot['hub_url'], $bot['hub_api_key'], $bot['guild_id']);
+        $channels = \App\Services\PubDiscord::fetchChannels($bot['hub_url'], $bot['hub_api_key'], $bot['guild_id']);
         $this->botChannels = $channels ?? [];
     }
 
@@ -244,7 +244,7 @@ new class extends Component
             return;
         }
 
-        $success = \App\Services\Hub::updateChannel($bot['hub_url'], $bot['hub_api_key'], $bot['guild_id'], $channelId);
+        $success = \App\Services\PubDiscord::updateChannel($bot['hub_url'], $bot['hub_api_key'], $bot['guild_id'], $channelId);
 
         if ($success) {
             $channel = collect($this->botChannels)->firstWhere('id', $channelId);

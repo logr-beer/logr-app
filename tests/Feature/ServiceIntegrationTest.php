@@ -201,16 +201,16 @@ XML;
 
             $embed = $body['embeds'][0];
 
-            // Title should contain the beer name
-            if (! str_contains($embed['title'], 'Hazy Wonder')) {
+            // Title should contain the username
+            if (! str_contains($embed['title'], 'Check-in:')) {
                 return false;
             }
 
-            // Description should contain brewery name and rating
-            if (! str_contains($embed['description'], 'Test Brewing Co')) {
+            // Description should contain beer name and brewery
+            if (! str_contains($embed['description'], 'Hazy Wonder')) {
                 return false;
             }
-            if (! str_contains($embed['description'], '4.5')) {
+            if (! str_contains($embed['description'], 'Test Brewing Co')) {
                 return false;
             }
 

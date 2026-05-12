@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class Hub
+class PubDiscord
 {
     public static function sendCheckin(Checkin $checkin, User $user): bool
     {
