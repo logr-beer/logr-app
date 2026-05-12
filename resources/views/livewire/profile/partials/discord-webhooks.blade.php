@@ -64,17 +64,15 @@
 
     @unless($demoMode)
         <div class="space-y-2">
-            <div class="flex items-end gap-2">
-                <div class="flex-1">
-                    <x-input-label for="newWebhookUrl" value="Webhook URL" />
+            <div>
+                <x-input-label for="newWebhookUrl" value="Webhook URL" />
+                <div class="mt-1 flex gap-2">
                     <input wire:model="newWebhookUrl" id="newWebhookUrl" type="url" placeholder="https://discord.com/api/webhooks/..."
-                        class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm" />
-                </div>
-                <div class="shrink-0 mb-px">
-                <x-primary-button type="button" wire:click="addWebhook">
-                    <span wire:loading wire:target="addWebhook"><svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
-                    <x-icon name="plus" size="4" wire:loading.remove wire:target="addWebhook" /> Add
-                </x-primary-button>
+                        class="flex-1 px-3 py-2 text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-lg shadow-sm" />
+                    <x-primary-button type="button" wire:click="addWebhook" class="shrink-0">
+                        <span wire:loading wire:target="addWebhook"><svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
+                        <x-icon name="plus" size="4" wire:loading.remove wire:target="addWebhook" /> Add
+                    </x-primary-button>
                 </div>
             </div>
             <x-input-error class="mt-1" :messages="$errors->get('newWebhookUrl')" />
