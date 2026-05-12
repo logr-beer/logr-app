@@ -17,7 +17,7 @@
             <li>Navigate to <strong>Integrations</strong> &rarr; <strong>Webhooks</strong></li>
             <li>Click <strong>New Webhook</strong>, choose a channel, and copy the webhook URL</li>
         </ol>
-        <p class="pt-1">Paste the webhook URL below — the channel and server info will be detected automatically.</p>
+        <p class="pt-1">Paste the webhook URL and add a label to identify the channel (e.g. <code class="px-1 py-0.5 bg-amber-100 dark:bg-amber-900/40 rounded">#beer-log</code>).</p>
     </div>
 
     @foreach($discordWebhooks as $index => $webhook)
@@ -64,16 +64,21 @@
 
     @unless($demoMode)
         <div class="space-y-2">
-            <div>
-                <x-input-label for="newWebhookUrl" value="Webhook URL" />
-                <div class="mt-1 flex gap-2">
-                    <input wire:model="newWebhookUrl" id="newWebhookUrl" type="url" placeholder="https://discord.com/api/webhooks/..."
-                        class="flex-1 px-3 py-2 text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-lg shadow-sm" />
-                    <x-primary-button type="button" wire:click="addWebhook" class="shrink-0">
-                        <span wire:loading wire:target="addWebhook"><svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
-                        <x-icon name="plus" size="4" wire:loading.remove wire:target="addWebhook" /> Add
-                    </x-primary-button>
+            <div class="flex items-end gap-2">
+                <div class="w-36">
+                    <x-input-label for="newWebhookLabel" value="Label" />
+                    <input wire:model="newWebhookLabel" id="newWebhookLabel" type="text" placeholder="e.g. #beer-log"
+                        class="mt-1 block w-full px-3 py-2 text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-lg shadow-sm" />
                 </div>
+                <div class="flex-1">
+                    <x-input-label for="newWebhookUrl" value="Webhook URL" />
+                    <input wire:model="newWebhookUrl" id="newWebhookUrl" type="url" placeholder="https://discord.com/api/webhooks/..."
+                        class="mt-1 block w-full px-3 py-2 text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-lg shadow-sm" />
+                </div>
+                <x-primary-button type="button" wire:click="addWebhook" class="shrink-0">
+                    <span wire:loading wire:target="addWebhook"><svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
+                    <x-icon name="plus" size="4" wire:loading.remove wire:target="addWebhook" /> Add
+                </x-primary-button>
             </div>
             <x-input-error class="mt-1" :messages="$errors->get('newWebhookUrl')" />
         </div>

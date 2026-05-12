@@ -8,6 +8,7 @@ new class extends Component
 {
     // Discord Webhooks
     public array $discordWebhooks = [];
+    public string $newWebhookLabel = '';
     public string $newWebhookUrl = '';
     public bool $newWebhookCheckins = false;
     public bool $newWebhookPurchases = false;
@@ -75,7 +76,7 @@ new class extends Component
         }
 
         $this->discordWebhooks[] = [
-            'label' => $label,
+            'label' => trim($this->newWebhookLabel) ?: $label,
             'url' => $this->newWebhookUrl,
             'channel_id' => $channelId,
             'guild_id' => $guildId,
@@ -87,6 +88,7 @@ new class extends Component
         $user->setData('discord_webhooks', $this->discordWebhooks);
         $user->save();
 
+        $this->newWebhookLabel = '';
         $this->newWebhookUrl = '';
         $this->newWebhookCheckins = false;
         $this->newWebhookPurchases = false;
