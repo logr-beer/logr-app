@@ -126,7 +126,7 @@ class Discord
         }
 
         $embed = [
-            'title' => "Check-in: {$p['user']}",
+            'title' => "Check-in for {$p['user']}",
             'description' => $description,
             'color' => 0xF59E0B,
             'fields' => $fields,
