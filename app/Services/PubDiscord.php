@@ -14,7 +14,7 @@ class PubDiscord
 {
     public static function sendCheckin(Checkin $checkin, User $user): bool
     {
-        $bots = static::botsForUser($user, 'publish_checkins');
+        $bots = static::allBots();
 
         if (empty($bots)) {
             return false;
@@ -53,7 +53,7 @@ class PubDiscord
 
     public static function sendPurchase(Inventory $inventory, User $user): bool
     {
-        $bots = static::botsForUser($user, 'publish_purchases');
+        $bots = static::allBots();
 
         if (empty($bots)) {
             return false;
@@ -88,9 +88,9 @@ class PubDiscord
     }
 
     /**
-     * Get bots the user has enabled for a given publish type.
+     * Get all configured bots.
      */
-    protected static function botsForUser(User $user, string $publishKey): array
+    protected static function allBots(): array
     {
         $allBots = Setting::get('discord_bots', []);
 
@@ -98,12 +98,8 @@ class PubDiscord
             return [];
         }
 
-        $prefs = $user->getData('discord_bot_prefs') ?? [];
-
         return collect($allBots)
-            ->filter(fn ($bot) => ! empty($bot['hub_url']) && ! empty($bot['hub_api_key']) && ! empty($bot['guild_id'])
-                && ! empty($prefs[$bot['guild_id']][$publishKey])
-            )
+            ->filter(fn ($bot) => ! empty($bot['hub_url']) && ! empty($bot['hub_api_key']) && ! empty($bot['guild_id']))
             ->values()
             ->all();
     }
@@ -113,7 +109,15 @@ class PubDiscord
      */
     public static function hasPublishing(User $user, string $publishKey): bool
     {
-        return ! empty(static::botsForUser($user, $publishKey));
+        $allBots = static::allBots();
+        if (empty($allBots)) {
+            return false;
+        }
+
+        $prefs = $user->getData('discord_bot_prefs') ?? [];
+
+        return collect($allBots)
+            ->contains(fn ($bot) => ! empty($prefs[$bot['guild_id']][$publishKey]));
     }
 
     /**

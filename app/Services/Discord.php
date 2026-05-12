@@ -14,7 +14,7 @@ class Discord
     public static function sendCheckin(Checkin $checkin, User $user): bool
     {
         $webhooks = collect($user->getData('discord_webhooks') ?? [])
-            ->filter(fn ($w) => ! empty($w['url']) && ! empty($w['publish_checkins']));
+            ->filter(fn ($w) => ! empty($w['url']));
 
         if ($webhooks->isEmpty()) {
             return false;
@@ -53,7 +53,7 @@ class Discord
     public static function sendPurchase(Inventory $inventory, User $user): bool
     {
         $webhooks = collect($user->getData('discord_webhooks') ?? [])
-            ->filter(fn ($w) => ! empty($w['url']) && ! empty($w['publish_purchases']));
+            ->filter(fn ($w) => ! empty($w['url']));
 
         if ($webhooks->isEmpty()) {
             return false;
