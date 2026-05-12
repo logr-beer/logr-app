@@ -4,7 +4,6 @@
     <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
         <div class="flex items-center justify-between">
             <h4 class="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Logr Bot</h4>
-            <x-env-badge name="LOGR_DISCORD_BOT_URL" />
         </div>
         <p class="text-xs text-gray-500 dark:text-gray-400">
             Posts as a bot user with rich embeds and per-user Discord identities. Ideal for Discord servers with multiple people using Logr. Requires the Logr Discord bot to be running.
