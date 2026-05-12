@@ -36,12 +36,13 @@ class Discord
             'abv' => $beer->abv,
             'ibu' => $beer->ibu,
             'user' => $user->name,
-            'beer_image' => $imagePath ? url(Storage::url($imagePath)) : null,
         ], $checkin->created_at->toIso8601String());
+
+        $localImage = $imagePath ? static::resolveLocalPath($imagePath) : null;
 
         $sent = false;
         foreach ($webhooks as $webhook) {
-            if (static::send($webhook['url'], $embed)) {
+            if (static::send($webhook['url'], $embed, $localImage)) {
                 $sent = true;
             }
         }
@@ -74,12 +75,13 @@ class Discord
             'abv' => $beer->abv,
             'ibu' => $beer->ibu,
             'user' => $user->name,
-            'beer_image' => $imagePath ? url(Storage::url($imagePath)) : null,
         ]);
+
+        $localImage = $imagePath ? static::resolveLocalPath($imagePath) : null;
 
         $sent = false;
         foreach ($webhooks as $webhook) {
-            if (static::send($webhook['url'], $embed)) {
+            if (static::send($webhook['url'], $embed, $localImage)) {
                 $sent = true;
             }
         }
@@ -132,10 +134,6 @@ class Discord
             'footer' => ['text' => "Logr \u{2022} by {$p['user']}"],
         ];
 
-        if ($p['beer_image'] ?? null) {
-            $embed['thumbnail'] = ['url' => $p['beer_image']];
-        }
-
         return $embed;
     }
 
@@ -177,32 +175,42 @@ class Discord
             'footer' => ['text' => "Logr \u{2022} by {$p['user']}"],
         ];
 
-        if ($p['beer_image'] ?? null) {
-            $embed['thumbnail'] = ['url' => $p['beer_image']];
-        }
-
         return $embed;
     }
 
-    protected static function resolveImageUrl(?string ...$paths): ?string
+    protected static function resolveLocalPath(string $storagePath): ?string
     {
-        foreach ($paths as $path) {
-            if ($path) {
-                return url(Storage::url($path));
-            }
+        $disk = Storage::disk('public');
+        if ($disk->exists($storagePath)) {
+            return $disk->path($storagePath);
         }
 
         return null;
     }
 
-    protected static function send(string $webhookUrl, array $embed): bool
+    protected static function send(string $webhookUrl, array $embed, ?string $imagePath = null): bool
     {
         try {
-            $response = Http::timeout(15)->post($webhookUrl, [
-                'username' => 'Logr Bot',
-                'avatar_url' => url('/img/logr-discord.png'),
-                'embeds' => [$embed],
-            ]);
+            if ($imagePath && file_exists($imagePath)) {
+                $filename = basename($imagePath);
+                $embed['thumbnail'] = ['url' => "attachment://{$filename}"];
+
+                $response = Http::timeout(15)
+                    ->attach('file', file_get_contents($imagePath), $filename)
+                    ->post($webhookUrl, [
+                        'payload_json' => json_encode([
+                            'username' => 'Logr Bot',
+                            'avatar_url' => url('/img/logr-discord.png'),
+                            'embeds' => [$embed],
+                        ]),
+                    ]);
+            } else {
+                $response = Http::timeout(15)->post($webhookUrl, [
+                    'username' => 'Logr Bot',
+                    'avatar_url' => url('/img/logr-discord.png'),
+                    'embeds' => [$embed],
+                ]);
+            }
 
             if (! $response->successful()) {
                 Log::warning('Discord webhook failed', [
