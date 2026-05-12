@@ -16,7 +16,7 @@ class LogrCallbackController extends Controller
         $state = bin2hex(random_bytes(16));
         session(['logr_state' => $state]);
 
-        return redirect("{$hubUrl}/oauth/authorize?".http_build_query([
+        return redirect("{$hubUrl}/discord/oauth/authorize?".http_build_query([
             'callback_url' => $callbackUrl,
             'state' => $state,
         ]));
@@ -61,8 +61,8 @@ class LogrCallbackController extends Controller
         // Enable publishing for this server for the connecting admin
         $prefs = $user->getData('discord_bot_prefs') ?? [];
         $prefs[$request->guild_id] = [
-            'publish_checkins' => true,
-            'publish_purchases' => true,
+            'publish_checkins' => false,
+            'publish_purchases' => false,
         ];
         $user->setData('discord_bot_prefs', $prefs);
         $user->save();

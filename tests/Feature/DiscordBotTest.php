@@ -66,8 +66,8 @@ class DiscordBotTest extends TestCase
         $this->assertEquals('Test Server', $bots[0]['guild_name']);
 
         $prefs = $admin->fresh()->getData('discord_bot_prefs');
-        $this->assertTrue($prefs['12345']['publish_checkins']);
-        $this->assertTrue($prefs['12345']['publish_purchases']);
+        $this->assertFalse($prefs['12345']['publish_checkins']);
+        $this->assertFalse($prefs['12345']['publish_purchases']);
     }
 
     public function test_non_admin_cannot_connect_discord(): void
@@ -161,8 +161,8 @@ class DiscordBotTest extends TestCase
         ]);
         $user->save();
 
-        $this->assertTrue(\App\Services\Hub::hasPublishing($user, 'publish_checkins'));
-        $this->assertTrue(\App\Services\Hub::hasPublishing($user, 'publish_purchases'));
+        $this->assertTrue(\App\Services\PubDiscord::hasPublishing($user, 'publish_checkins'));
+        $this->assertTrue(\App\Services\PubDiscord::hasPublishing($user, 'publish_purchases'));
     }
 
     public function test_hub_no_publishing_without_prefs(): void
@@ -173,8 +173,8 @@ class DiscordBotTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->assertFalse(\App\Services\Hub::hasPublishing($user, 'publish_checkins'));
-        $this->assertFalse(\App\Services\Hub::hasPublishing($user, 'publish_purchases'));
+        $this->assertFalse(\App\Services\PubDiscord::hasPublishing($user, 'publish_checkins'));
+        $this->assertFalse(\App\Services\PubDiscord::hasPublishing($user, 'publish_purchases'));
     }
 
     public function test_hub_no_publishing_without_bots(): void
@@ -185,7 +185,7 @@ class DiscordBotTest extends TestCase
         ]);
         $user->save();
 
-        $this->assertFalse(\App\Services\Hub::hasPublishing($user, 'publish_checkins'));
+        $this->assertFalse(\App\Services\PubDiscord::hasPublishing($user, 'publish_checkins'));
     }
 
     public function test_data_migration_converts_single_bot_to_array(): void

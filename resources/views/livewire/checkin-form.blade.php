@@ -27,14 +27,18 @@
                             </button>
                         </div>
                     @else
-                        <input
-                            wire:model.live.debounce.300ms="beerQuery"
-                            @focus="open = true"
-                            @input="open = true"
-                            type="text"
-                            placeholder="Search for a beer..."
-                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
-                        />
+                        <div class="relative">
+                            <x-icon name="search" size="4" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input
+                                wire:model.live.debounce.300ms="beerQuery"
+                                @focus="open = true"
+                                @input="open = true"
+                                type="text"
+                                autocomplete="off"
+                                placeholder="Search for a beer..."
+                                class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
+                            />
+                        </div>
 
                         @if(count($beerSuggestions) > 0 || count($apiResults) > 0)
                             <div x-show="open" x-transition class="absolute z-30 mt-1 w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-72 overflow-y-auto">
@@ -79,8 +83,8 @@
                                             @click="open = false"
                                             class="w-full text-left px-4 py-2.5 text-sm hover:bg-amber-100 hover:text-amber-800 dark:hover:bg-amber-900/40 dark:hover:text-amber-300 transition-colors flex items-center gap-3"
                                         >
-                                            <div class="w-8 h-8 rounded bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
-                                                <x-icon name="plus" size="4" class="text-amber-600 dark:text-amber-400" />
+                                            <div class="w-8 h-8 rounded bg-gray-100 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
+                                                <x-application-logo-filled class="w-6 h-6 stroke-current text-gray-400" />
                                             </div>
                                             <div class="flex-1 min-w-0">
                                                 <span class="text-gray-900 dark:text-white font-medium">{{ $result['name'] }}</span>
@@ -131,7 +135,7 @@
                             @focus="open = true"
                             @input="open = true"
                             type="text"
-                            placeholder="Type a venue name..."
+                            placeholder="{{ auth()->user()->getData('geocoding_enabled') ? 'Venue name or place, e.g. Hop Lot Suttons Bay MI' : 'Type a venue name...' }}"
                             class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
                         />
 
@@ -240,18 +244,64 @@
                 @endif
 
                 {{-- Photos --}}
-                <x-photo-upload
-                    wireModel="photos"
-                    :multiple="true"
-                    :label="$checkinId ? 'Add Photos' : 'Photos'"
-                    hint="Up to 10MB per photo. Multiple photos allowed."
-                    error="photos.*"
-                    :previews="$photos"
-                    removeAction="removePhoto"
-                />
+                @if(!$checkinId && $this->selectedBeer?->photo_path)
+                    <div class="space-y-2">
+                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                            <input
+                                wire:model.live="useBeerPhoto"
+                                type="checkbox"
+                                class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700"
+                            />
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Use beer photo</span>
+                        </label>
+                        @if($useBeerPhoto)
+                            <div class="flex items-center gap-2">
+                                <img src="{{ $this->selectedBeer->photo_url }}" alt="" class="w-16 h-16 rounded-lg object-cover border border-gray-200 dark:border-gray-600" />
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Photo from {{ $selectedBeerName }}</span>
+                            </div>
+                        @else
+                            <x-photo-upload
+                                wireModel="photos"
+                                :multiple="true"
+                                label="Photos"
+                                hint="Up to 10MB per photo. Multiple photos allowed."
+                                error="photos.*"
+                                :previews="$photos"
+                                removeAction="removePhoto"
+                            />
+                        @endif
+                    </div>
+                @else
+                    <x-photo-upload
+                        wireModel="photos"
+                        :multiple="true"
+                        :label="$checkinId ? 'Add Photos' : 'Photos'"
+                        hint="Up to 10MB per photo. Multiple photos allowed."
+                        error="photos.*"
+                        :previews="$photos"
+                        removeAction="removePhoto"
+                    />
+                @endif
             </div>
 
-            <div class="mt-6 flex items-center justify-between">
+            @if(!$checkinId && count($shareTargets) > 0)
+                <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Share to:</span>
+                    @foreach($shareTargets as $i => $target)
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                            <input
+                                wire:model="shareTargets.{{ $i }}.enabled"
+                                type="checkbox"
+                                class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700"
+                            />
+                            <x-icon name="{{ $target['icon'] }}" size="3.5" :solid="true" class="text-amber-400" />
+                            <span class="text-sm text-gray-500 dark:text-gray-400">{{ $target['label'] }}</span>
+                        </label>
+                    @endforeach
+                </div>
+            @endif
+
+            <div class="mt-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     @if($checkinId && !config('app.demo_mode'))
                         <button
@@ -267,18 +317,6 @@
                 </div>
 
                 <div class="flex items-center gap-3">
-                    @if(!$checkinId && (!empty(auth()->user()->getData('discord_webhooks')) || !empty(auth()->user()->getData('discord_bots'))))
-                        <label class="inline-flex items-center gap-2 cursor-pointer">
-                            <input
-                                wire:model="shareCheckinToDiscord"
-                                type="checkbox"
-                                class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700"
-                            />
-                            <x-icon name="discord" size="4" :solid="true" class="text-amber-400" />
-                            <span class="text-sm text-gray-500 dark:text-gray-400">Share to Discord</span>
-                        </label>
-                    @endif
-
                     <a
                         href="{{ route('checkins.index') }}"
                         wire:navigate

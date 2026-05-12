@@ -65,7 +65,7 @@
                             @endif
                         </div>
                         <div class="flex items-center gap-2 flex-shrink-0">
-                            @if(!$venue->latitude || !$venue->longitude)
+                            @if((!$venue->latitude || !$venue->longitude) && !$venue->is_home)
                                 <span title="Missing location data" class="text-amber-500">
                                     <x-icon name="warning" size="4" />
                                 </span>

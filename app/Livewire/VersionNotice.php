@@ -14,7 +14,6 @@ class VersionNotice extends Component
 
     public bool $updateAvailable = false;
 
-
     public function mount(): void
     {
         $this->refreshVersion();

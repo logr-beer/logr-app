@@ -219,12 +219,17 @@
                         </div>
                         <div class="mt-3 flex items-center justify-between">
                             <x-primary-button type="button" wire:click="addToFridge" @click="open = false">Add to Inventory</x-primary-button>
-                            @if(!empty(auth()->user()->getData('discord_webhooks')) || !empty(auth()->user()->getData('discord_bots')))
-                                <label class="inline-flex items-center gap-2 cursor-pointer">
-                                    <input wire:model="sharePurchaseToDiscord" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
-                                    <x-icon name="discord" size="4" :solid="true" class="text-amber-400" />
-                                    <span class="text-sm text-gray-500 dark:text-gray-400">Discord</span>
-                                </label>
+                            @if(count($inventoryShareTargets) > 0)
+                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                                    <span class="text-xs text-gray-400 dark:text-gray-500">Share:</span>
+                                    @foreach($inventoryShareTargets as $i => $target)
+                                        <label class="inline-flex items-center gap-1 cursor-pointer">
+                                            <input wire:model="inventoryShareTargets.{{ $i }}.enabled" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
+                                            <x-icon name="{{ $target['icon'] }}" size="3" :solid="true" class="text-amber-400" />
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">{{ $target['label'] }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -349,12 +354,17 @@
                         </div>
                     </div>
                     <div class="mt-4 flex items-center justify-end gap-3">
-                        @if(!empty(auth()->user()->getData('discord_webhooks')) || !empty(auth()->user()->getData('discord_bots')))
-                            <label class="inline-flex items-center gap-2 cursor-pointer mr-auto">
-                                <input wire:model="shareCheckinToDiscord" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
-                                <x-icon name="discord" size="4" :solid="true" class="text-amber-400" />
-                                <span class="text-sm text-gray-500 dark:text-gray-400">Share to Discord</span>
-                            </label>
+                        @if(count($checkinShareTargets) > 0)
+                            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mr-auto">
+                                <span class="text-xs text-gray-400 dark:text-gray-500">Share:</span>
+                                @foreach($checkinShareTargets as $i => $target)
+                                    <label class="inline-flex items-center gap-1 cursor-pointer">
+                                        <input wire:model="checkinShareTargets.{{ $i }}.enabled" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
+                                        <x-icon name="{{ $target['icon'] }}" size="3" :solid="true" class="text-amber-400" />
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">{{ $target['label'] }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
                         @endif
                         <x-primary-button wire:loading.attr="disabled">
                             <svg wire:loading wire:target="submitCheckin" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>

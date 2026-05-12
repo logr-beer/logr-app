@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Events\CheckinCreated;
+use App\Jobs\GeocodeVenue;
 use App\Models\Beer;
 use App\Models\Brewery;
 use App\Models\Checkin;
@@ -74,6 +75,12 @@ class BeerForm extends Component
 
     public $checkinPhotos = [];
 
+    public bool $useBeerPhoto = true;
+
+    public array $shareTargets = [];
+
+    public array $inventoryShareTargets = [];
+
     // Beer search
     public string $beerSearch = '';
 
@@ -98,6 +105,9 @@ class BeerForm extends Component
             $this->brewer_master = $beer->brewer_master ?? '';
             $this->description = $beer->description ?? '';
         }
+
+        $this->shareTargets = CheckinForm::buildTargetsForType('publish_checkins');
+        $this->inventoryShareTargets = CheckinForm::buildTargetsForType('publish_purchases');
     }
 
     // -- Beer search (Untappd > catalog.beer) --
@@ -412,13 +422,24 @@ class BeerForm extends Component
                     'date_acquired' => $this->purchaseDate ?: now()->toDateString(),
                     'is_gift' => $this->isGift,
                 ]);
+
+                if (collect($this->inventoryShareTargets)->contains('enabled', true)) {
+                    $currentUser = auth()->user();
+                    \App\Services\Discord::sendPurchase($inventory, $currentUser);
+                    \App\Services\PubDiscord::sendPurchase($inventory, $currentUser);
+                }
             }
 
             // Create check-in if requested
             if ($this->addCheckin) {
                 $venueId = $this->checkinVenueId;
                 if (! $venueId && trim($this->checkinVenue)) {
-                    $venueId = Venue::firstOrCreate(['name' => trim($this->checkinVenue)])->id;
+                    $venue = Venue::firstOrCreate(['name' => trim($this->checkinVenue)]);
+                    $venueId = $venue->id;
+
+                    if ($venue->wasRecentlyCreated && auth()->user()->getData('geocoding_enabled')) {
+                        GeocodeVenue::dispatch($venue);
+                    }
                 }
 
                 $checkin = Checkin::create([
@@ -441,7 +462,20 @@ class BeerForm extends Component
                     }
                 }
 
-                event(new CheckinCreated($checkin, auth()->user()));
+                // Use beer photo if selected and no other photos added
+                if ($this->useBeerPhoto && empty($this->checkinPhotos) && $beer->photo_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($beer->photo_path)) {
+                    $ext = pathinfo($beer->photo_path, PATHINFO_EXTENSION);
+                    $newPath = 'checkin-photos/'.uniqid().'.'.$ext;
+                    \Illuminate\Support\Facades\Storage::disk('public')->copy($beer->photo_path, $newPath);
+                    \App\Models\CheckinPhoto::create([
+                        'checkin_id' => $checkin->id,
+                        'photo_path' => $newPath,
+                    ]);
+                }
+
+                if (collect($this->shareTargets)->contains('enabled', true)) {
+                    event(new CheckinCreated($checkin, auth()->user(), $this->shareTargets));
+                }
             }
 
             // Submit to catalog.beer if the user has an API key

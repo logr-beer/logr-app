@@ -130,6 +130,7 @@ class User extends Authenticatable
             'discord_username',
             'discord_avatar',
             'geocoding_enabled',
+            'share_checkin_data',
         ];
     }
 

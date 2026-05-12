@@ -27,6 +27,8 @@ class Setup extends Component
 
     public bool $geocodingEnabled = true;
 
+    public bool $shareCheckinData = false;
+
     // Integrations (editable when not set via env)
     public string $untappd_username = '';
 
@@ -133,8 +135,8 @@ class Setup extends Component
         $this->discordWebhooks[] = [
             'label' => $this->newWebhookLabel ?: null,
             'url' => $this->newWebhookUrl,
-            'publish_checkins' => true,
-            'publish_purchases' => true,
+            'publish_checkins' => false,
+            'publish_purchases' => false,
         ];
 
         $this->newWebhookLabel = '';
@@ -169,6 +171,7 @@ class Setup extends Component
         ]);
 
         $user->setData('geocoding_enabled', $this->geocodingEnabled);
+        $user->setData('share_checkin_data', $this->shareCheckinData);
 
         // Save integrations
         if (trim($this->untappd_username)) {

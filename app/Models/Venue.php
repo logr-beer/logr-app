@@ -32,16 +32,23 @@ class Venue extends Model
 
     public function scopeWithoutCoordinates(Builder $query): Builder
     {
-        return $query->whereNull('latitude');
+        return $query->whereNull('latitude')
+            ->whereRaw('LOWER(name) != ?', ['home']);
     }
 
     public function scopeGeocodable(Builder $query): Builder
     {
         return $query->whereNull('latitude')
+            ->whereRaw('LOWER(name) != ?', ['home'])
             ->where(function ($q) {
                 $q->whereNotNull('city')
                     ->orWhereNotNull('state')
                     ->orWhereNotNull('name');
             });
+    }
+
+    public function getIsHomeAttribute(): bool
+    {
+        return strcasecmp($this->name, 'home') === 0;
     }
 }

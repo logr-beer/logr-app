@@ -14,7 +14,7 @@ class Discord
     public static function sendCheckin(Checkin $checkin, User $user): bool
     {
         $webhooks = collect($user->getData('discord_webhooks') ?? [])
-            ->filter(fn ($w) => ! empty($w['url']) && ! empty($w['publish_checkins']));
+            ->filter(fn ($w) => ! empty($w['url']));
 
         if ($webhooks->isEmpty()) {
             return false;
@@ -23,63 +23,26 @@ class Discord
         $checkin->loadMissing(['beer.brewery', 'venue', 'photos']);
         $beer = $checkin->beer;
 
-        $stars = str_repeat("\u{2B50}", (int) $checkin->rating);
-        if ($checkin->rating - (int) $checkin->rating >= 0.5) {
-            $stars .= "\u{2B50}";
-        }
+        $imagePath = $checkin->photos->first()?->photo_path ?? $beer->photo_path ?? $beer->brewery?->logo_path;
 
-        $description = "**{$beer->name}**";
-        if ($beer->brewery) {
-            $description .= " by {$beer->brewery->name}";
-        }
-        $description .= "\n\nRating: **{$checkin->rating}** / 5 {$stars}";
+        $embed = static::buildCheckinEmbed([
+            'beer_name' => $beer->name,
+            'brewery' => $beer->brewery?->name,
+            'rating' => $checkin->rating,
+            'serving' => $checkin->serving_type ? ucfirst($checkin->serving_type) : null,
+            'notes' => $checkin->notes,
+            'venue' => $checkin->venue?->name ?? $checkin->location,
+            'style' => $beer->style ? implode(', ', $beer->style) : null,
+            'abv' => $beer->abv,
+            'ibu' => $beer->ibu,
+            'user' => $user->name,
+        ], $checkin->created_at->toIso8601String());
 
-        if ($checkin->serving_type) {
-            $description .= "\nServing: ".ucfirst($checkin->serving_type);
-        }
-        if ($checkin->venue) {
-            $description .= "\nVenue: {$checkin->venue->name}";
-        } elseif ($checkin->location) {
-            $description .= "\nLocation: {$checkin->location}";
-        }
-        if ($checkin->notes) {
-            $description .= "\n\n> {$checkin->notes}";
-        }
-
-        $fields = [];
-        if ($beer->style) {
-            $fields[] = ['name' => 'Style', 'value' => implode(', ', $beer->style), 'inline' => true];
-        }
-        if ($beer->abv) {
-            $fields[] = ['name' => 'ABV', 'value' => "{$beer->abv}%", 'inline' => true];
-        }
-        if ($beer->ibu) {
-            $fields[] = ['name' => 'IBU', 'value' => (string) $beer->ibu, 'inline' => true];
-        }
-
-        $embed = [
-            'title' => "Check-in: {$beer->name}",
-            'description' => $description,
-            'color' => 0xF59E0B, // amber-500
-            'fields' => $fields,
-            'timestamp' => $checkin->created_at->toIso8601String(),
-            'footer' => ['text' => 'Logr'],
-        ];
-
-        // Image priority: checkin photo > beer label > brewery logo
-        $imageUrl = static::resolveImageUrl(
-            $checkin->photos->first()?->photo_path,
-            $beer->photo_path,
-            $beer->brewery?->logo_path,
-        );
-
-        if ($imageUrl) {
-            $embed['thumbnail'] = ['url' => $imageUrl];
-        }
+        $localImage = $imagePath ? static::resolveLocalPath($imagePath) : null;
 
         $sent = false;
         foreach ($webhooks as $webhook) {
-            if (static::send($webhook['url'], $embed)) {
+            if (static::send($webhook['url'], $embed, $localImage)) {
                 $sent = true;
             }
         }
@@ -90,7 +53,7 @@ class Discord
     public static function sendPurchase(Inventory $inventory, User $user): bool
     {
         $webhooks = collect($user->getData('discord_webhooks') ?? [])
-            ->filter(fn ($w) => ! empty($w['url']) && ! empty($w['publish_purchases']));
+            ->filter(fn ($w) => ! empty($w['url']));
 
         if ($webhooks->isEmpty()) {
             return false;
@@ -99,51 +62,26 @@ class Discord
         $inventory->loadMissing(['beer.brewery']);
         $beer = $inventory->beer;
 
-        $description = "**{$beer->name}**";
-        if ($beer->brewery) {
-            $description .= " by {$beer->brewery->name}";
-        }
-        $description .= "\n\nQuantity: **{$inventory->quantity}**";
-        $description .= "\nStorage: {$inventory->storage_location}";
+        $imagePath = $beer->photo_path ?? $beer->brewery?->logo_path;
 
-        if ($inventory->purchase_location) {
-            $description .= "\nFrom: {$inventory->purchase_location}";
-        }
-        if ($inventory->is_gift) {
-            $description .= "\nThis was a gift!";
-        }
+        $embed = static::buildPurchaseEmbed([
+            'beer_name' => $beer->name,
+            'brewery' => $beer->brewery?->name,
+            'quantity' => $inventory->quantity,
+            'storage_location' => $inventory->storage_location,
+            'purchase_location' => $inventory->purchase_location,
+            'is_gift' => $inventory->is_gift,
+            'style' => $beer->style ? implode(', ', $beer->style) : null,
+            'abv' => $beer->abv,
+            'ibu' => $beer->ibu,
+            'user' => $user->name,
+        ]);
 
-        $fields = [];
-        if ($beer->style) {
-            $fields[] = ['name' => 'Style', 'value' => implode(', ', $beer->style), 'inline' => true];
-        }
-        if ($beer->abv) {
-            $fields[] = ['name' => 'ABV', 'value' => "{$beer->abv}%", 'inline' => true];
-        }
-
-        $embed = [
-            'title' => "Added to Inventory: {$beer->name}",
-            'description' => $description,
-            'color' => 0x3B82F6, // blue-500
-            'fields' => $fields,
-            'timestamp' => now()->toIso8601String(),
-            'footer' => ['text' => 'Logr'],
-        ];
-
-        // Image priority: beer label > brewery logo
-        $imageUrl = static::resolveImageUrl(
-            null,
-            $beer->photo_path,
-            $beer->brewery?->logo_path,
-        );
-
-        if ($imageUrl) {
-            $embed['thumbnail'] = ['url' => $imageUrl];
-        }
+        $localImage = $imagePath ? static::resolveLocalPath($imagePath) : null;
 
         $sent = false;
         foreach ($webhooks as $webhook) {
-            if (static::send($webhook['url'], $embed)) {
+            if (static::send($webhook['url'], $embed, $localImage)) {
                 $sent = true;
             }
         }
@@ -151,23 +89,136 @@ class Discord
         return $sent;
     }
 
-    protected static function resolveImageUrl(?string ...$paths): ?string
+    /**
+     * Build a check-in embed from a payload (same structure the bot uses).
+     */
+    public static function buildCheckinEmbed(array $p, ?string $timestamp = null): array
     {
-        foreach ($paths as $path) {
-            if ($path) {
-                return url(Storage::url($path));
+        $description = "**{$p['beer_name']}** by {$p['brewery']}";
+
+        if ($p['notes'] ?? null) {
+            $description .= "\n> {$p['notes']}";
+        }
+
+        $fields = [];
+        if ($p['style'] ?? null) {
+            $fields[] = ['name' => 'Style', 'value' => $p['style'], 'inline' => true];
+        }
+        if ($p['abv'] ?? null) {
+            $fields[] = ['name' => 'ABV', 'value' => "{$p['abv']}%", 'inline' => true];
+        }
+        if ($p['ibu'] ?? null) {
+            $fields[] = ['name' => 'IBU', 'value' => (string) $p['ibu'], 'inline' => true];
+        }
+        if ($p['rating'] ?? null) {
+            $rating = $p['rating'];
+            $stars = str_repeat("\u{2B50}", (int) $rating);
+            if ($rating - (int) $rating >= 0.5) {
+                $stars .= "\u{2B50}";
             }
+            $fields[] = ['name' => 'Rating', 'value' => "{$stars} {$rating}/5", 'inline' => true];
+        }
+        if ($p['serving'] ?? null) {
+            $fields[] = ['name' => 'Serving', 'value' => $p['serving'], 'inline' => true];
+        }
+        if ($p['venue'] ?? null) {
+            $fields[] = ['name' => 'Venue', 'value' => $p['venue'], 'inline' => true];
+        }
+
+        $embed = [
+            'title' => "Check-in for {$p['user']}",
+            'description' => $description,
+            'color' => 0xF59E0B,
+            'fields' => $fields,
+            'timestamp' => $timestamp ?? now()->toIso8601String(),
+            'footer' => ['text' => "Logr \u{2022} by {$p['user']}"],
+        ];
+
+        if ($p['beer_image'] ?? null) {
+            $embed['thumbnail'] = ['url' => $p['beer_image']];
+        }
+
+        return $embed;
+    }
+
+    /**
+     * Build an inventory embed from a payload (same structure the bot uses).
+     */
+    public static function buildPurchaseEmbed(array $p): array
+    {
+        $description = "**{$p['beer_name']}** by {$p['brewery']}";
+
+        if ($p['is_gift'] ?? false) {
+            $description .= "\nThis was a gift!";
+        }
+
+        $fields = [];
+        if ($p['style'] ?? null) {
+            $fields[] = ['name' => 'Style', 'value' => $p['style'], 'inline' => true];
+        }
+        if ($p['abv'] ?? null) {
+            $fields[] = ['name' => 'ABV', 'value' => "{$p['abv']}%", 'inline' => true];
+        }
+        if ($p['ibu'] ?? null) {
+            $fields[] = ['name' => 'IBU', 'value' => (string) $p['ibu'], 'inline' => true];
+        }
+        $fields[] = ['name' => 'Quantity', 'value' => (string) $p['quantity'], 'inline' => true];
+        if ($p['storage_location'] ?? null) {
+            $fields[] = ['name' => 'Storage', 'value' => $p['storage_location'], 'inline' => true];
+        }
+        if ($p['purchase_location'] ?? null) {
+            $fields[] = ['name' => 'From', 'value' => $p['purchase_location'], 'inline' => true];
+        }
+
+        $embed = [
+            'title' => "New Beer for {$p['user']}",
+            'description' => $description,
+            'color' => 0x3B82F6,
+            'fields' => $fields,
+            'timestamp' => now()->toIso8601String(),
+            'footer' => ['text' => "Logr \u{2022} by {$p['user']}"],
+        ];
+
+        if ($p['beer_image'] ?? null) {
+            $embed['thumbnail'] = ['url' => $p['beer_image']];
+        }
+
+        return $embed;
+    }
+
+    protected static function resolveLocalPath(string $storagePath): ?string
+    {
+        $disk = Storage::disk('public');
+        if ($disk->exists($storagePath)) {
+            return $disk->path($storagePath);
         }
 
         return null;
     }
 
-    protected static function send(string $webhookUrl, array $embed): bool
+    protected static function send(string $webhookUrl, array $embed, ?string $imagePath = null): bool
     {
         try {
-            $response = Http::timeout(15)->post($webhookUrl, [
-                'embeds' => [$embed],
-            ]);
+            if ($imagePath && file_exists($imagePath)) {
+                $filename = basename($imagePath);
+                $embed['thumbnail'] = ['url' => "attachment://{$filename}"];
+
+                $response = Http::timeout(15)
+                    ->attach('file', file_get_contents($imagePath), $filename)
+                    ->post($webhookUrl, [
+                        'payload_json' => json_encode([
+                            'username' => 'Logr Bot',
+                            'avatar_url' => url('/img/logr-discord.png'),
+                            'embeds' => [$embed],
+                        ]),
+                    ]);
+            } else {
+                $response = Http::timeout(15)->post($webhookUrl, [
+                    'username' => 'Logr Bot',
+                    'avatar_url' => url('/img/logr-discord.png'),
+                    'embeds' => [$embed],
+                ]);
+            }
 
             if (! $response->successful()) {
                 Log::warning('Discord webhook failed', [

@@ -1,5 +1,7 @@
 # Logr
 
+[![Docker Pulls](https://img.shields.io/docker/pulls/ajpenninga/logr-app)](https://hub.docker.com/r/ajpenninga/logr-app)
+
 A self-hosted beer logging app. Track your beer library, check-ins, inventory, collections, and more.
 
 Built with Laravel 12, Livewire 3, and Tailwind CSS.
@@ -46,17 +48,27 @@ Open **http://localhost:8337**. The app auto-generates an `APP_KEY`, runs migrat
 
 ### Configuration
 
-Create a `.env` file next to `docker-compose.yml`:
+Create a `.env` file next to `docker-compose.yml`. All variables are optional — the app works out of the box with sensible defaults.
 
 ```env
 APP_URL=http://localhost:8337
-CATALOG_BEER_API_KEY=
-LOGR_DB_URL=
-LOGR_DISCORD_URL=
-DEMO_MODE=false
+
+# Beer database integrations
+CATALOG_BEER_API_KEY=          # catalog.beer API key for beer search
+LOGR_DB_URL=                   # Logr DB URL for shared beer database lookups
+UNTAPPD_API_KEY=               # Untappd API client ID
+UNTAPPD_API_SECRET=            # Untappd API client secret
+
+# Discord bot (via pub.logr.beer)
+LOGR_DISCORD_BOT_URL=          # Logr Discord bot URL (default: https://pub.logr.beer)
+LOGR_PUB_URL=                  # Pub API URL for anonymous stats (default: https://pub.logr.beer)
+
+# Analytics & modes
+GOOGLE_ANALYTICS_ID=           # GA4 measurement ID (optional, no tracking if unset)
+DEMO_MODE=false                # Enable demo mode with scheduled resets and read-only settings
 ```
 
-Additional integration credentials (Untappd, Discord webhooks, geocoding) are configured per-user through the in-app settings.
+Per-user settings (Untappd credentials, Discord webhooks, geocoding) can also be configured through the in-app settings page.
 
 ### Updating
 
@@ -106,3 +118,11 @@ Pushing a `v*` tag triggers the release workflow which builds and pushes Docker 
 ## License
 
 Logr is open-source software licensed under the [GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE).
+
+---
+
+<details>
+<summary>&uarr; &uarr; &darr; &darr; &larr; &rarr; &larr; &rarr; B A</summary>
+
+You found it. Rawrrrr.
+</details>

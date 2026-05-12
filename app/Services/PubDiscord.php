@@ -10,18 +10,21 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class Hub
+class PubDiscord
 {
     public static function sendCheckin(Checkin $checkin, User $user): bool
     {
-        $bots = static::botsForUser($user, 'publish_checkins');
+        $bots = static::allBots();
 
         if (empty($bots)) {
             return false;
         }
 
-        $checkin->loadMissing(['beer.brewery', 'venue']);
+        $checkin->loadMissing(['beer.brewery', 'venue', 'photos']);
         $beer = $checkin->beer;
+
+        // Image priority: checkin photo > beer label
+        $imagePath = $checkin->photos->first()?->photo_path ?? $beer->photo_path;
 
         $payload = [
             'beer_name' => $beer->name,
@@ -32,8 +35,9 @@ class Hub
             'venue' => $checkin->venue?->name ?? $checkin->location,
             'style' => $beer->style ? implode(', ', $beer->style) : null,
             'abv' => $beer->abv,
+            'ibu' => $beer->ibu,
             'user' => $user->name,
-            'beer_image' => $beer->photo_path ? url(Storage::url($beer->photo_path)) : null,
+            'beer_image' => $imagePath ? url(Storage::url($imagePath)) : null,
         ];
 
         $sent = false;
@@ -49,7 +53,7 @@ class Hub
 
     public static function sendPurchase(Inventory $inventory, User $user): bool
     {
-        $bots = static::botsForUser($user, 'publish_purchases');
+        $bots = static::allBots();
 
         if (empty($bots)) {
             return false;
@@ -67,6 +71,7 @@ class Hub
             'is_gift' => $inventory->is_gift,
             'style' => $beer->style ? implode(', ', $beer->style) : null,
             'abv' => $beer->abv,
+            'ibu' => $beer->ibu,
             'user' => $user->name,
             'beer_image' => $beer->photo_path ? url(Storage::url($beer->photo_path)) : null,
         ];
@@ -83,9 +88,9 @@ class Hub
     }
 
     /**
-     * Get bots the user has enabled for a given publish type.
+     * Get all configured bots.
      */
-    protected static function botsForUser(User $user, string $publishKey): array
+    protected static function allBots(): array
     {
         $allBots = Setting::get('discord_bots', []);
 
@@ -93,12 +98,8 @@ class Hub
             return [];
         }
 
-        $prefs = $user->getData('discord_bot_prefs') ?? [];
-
         return collect($allBots)
-            ->filter(fn ($bot) => ! empty($bot['hub_url']) && ! empty($bot['hub_api_key']) && ! empty($bot['guild_id'])
-                && ! empty($prefs[$bot['guild_id']][$publishKey])
-            )
+            ->filter(fn ($bot) => ! empty($bot['hub_url']) && ! empty($bot['hub_api_key']) && ! empty($bot['guild_id']))
             ->values()
             ->all();
     }
@@ -108,7 +109,15 @@ class Hub
      */
     public static function hasPublishing(User $user, string $publishKey): bool
     {
-        return ! empty(static::botsForUser($user, $publishKey));
+        $allBots = static::allBots();
+        if (empty($allBots)) {
+            return false;
+        }
+
+        $prefs = $user->getData('discord_bot_prefs') ?? [];
+
+        return collect($allBots)
+            ->contains(fn ($bot) => ! empty($prefs[$bot['guild_id']][$publishKey]));
     }
 
     /**
@@ -120,7 +129,7 @@ class Hub
             $response = Http::withToken($apiKey)
                 ->accept('application/json')
                 ->timeout(10)
-                ->get(rtrim($hubUrl, '/').'/api/guilds');
+                ->get(rtrim($hubUrl, '/').'/api/discord/guilds');
 
             if ($response->successful()) {
                 return $response->json('data') ?? $response->json();
@@ -142,7 +151,7 @@ class Hub
             $response = Http::withToken($apiKey)
                 ->accept('application/json')
                 ->timeout(10)
-                ->get(rtrim($hubUrl, '/').'/api/guilds/'.$guildId.'/channels');
+                ->get(rtrim($hubUrl, '/').'/api/discord/guilds/'.$guildId.'/channels');
 
             if ($response->successful()) {
                 return $response->json('channels') ?? [];
@@ -162,7 +171,7 @@ class Hub
             $response = Http::withToken($apiKey)
                 ->accept('application/json')
                 ->timeout(10)
-                ->put(rtrim($hubUrl, '/').'/api/guilds/'.$guildId.'/channel', [
+                ->put(rtrim($hubUrl, '/').'/api/discord/guilds/'.$guildId.'/channel', [
                     'channel_id' => $channelId,
                 ]);
 
@@ -207,7 +216,7 @@ class Hub
             $response = Http::withToken($bot['hub_api_key'])
                 ->accept('application/json')
                 ->timeout(15)
-                ->post(rtrim($bot['hub_url'], '/').'/api/post', $body);
+                ->post(rtrim($bot['hub_url'], '/').'/api/discord/post', $body);
 
             // 409 = duplicate, already posted — treat as success
             if ($response->status() === 409) {

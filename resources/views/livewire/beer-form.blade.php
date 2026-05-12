@@ -345,7 +345,7 @@
                                 @focus="venueOpen = true"
                                 @input="venueOpen = true"
                                 type="text"
-                                placeholder="Type a venue name..."
+                                placeholder="{{ auth()->user()->getData('geocoding_enabled') ? 'Venue name or place, e.g. Hop Lot Suttons Bay MI' : 'Type a venue name...' }}"
                                 class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
                             />
                             @if(count($this->checkinVenueSuggestions) > 0)
@@ -403,14 +403,50 @@
                     </div>
 
                     {{-- Photos --}}
-                    <x-photo-upload
-                        wireModel="checkinPhotos"
-                        :multiple="true"
-                        label="Photos"
-                        hint="Up to 10MB per photo. Multiple photos allowed."
-                        error="checkinPhotos.*"
-                        :previews="$checkinPhotos"
-                    />
+                    @if(($beer && $beer->photo_path) || $photo)
+                        <div class="space-y-2">
+                            <label class="inline-flex items-center gap-2 cursor-pointer">
+                                <input
+                                    wire:model.live="useBeerPhoto"
+                                    type="checkbox"
+                                    class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700"
+                                />
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Use beer photo</span>
+                            </label>
+                            @if(!$useBeerPhoto)
+                                <x-photo-upload
+                                    wireModel="checkinPhotos"
+                                    :multiple="true"
+                                    label="Photos"
+                                    hint="Up to 10MB per photo. Multiple photos allowed."
+                                    error="checkinPhotos.*"
+                                    :previews="$checkinPhotos"
+                                />
+                            @endif
+                        </div>
+                    @else
+                        <x-photo-upload
+                            wireModel="checkinPhotos"
+                            :multiple="true"
+                            label="Photos"
+                            hint="Up to 10MB per photo. Multiple photos allowed."
+                            error="checkinPhotos.*"
+                            :previews="$checkinPhotos"
+                        />
+                    @endif
+
+                    @if(count($shareTargets) > 0)
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Share to:</span>
+                            @foreach($shareTargets as $i => $target)
+                                <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                    <input wire:model="shareTargets.{{ $i }}.enabled" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
+                                    <x-icon name="{{ $target['icon'] }}" size="3.5" :solid="true" class="text-amber-400" />
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">{{ $target['label'] }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
             @endif
@@ -478,6 +514,18 @@
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">This was a gift</span>
                         </label>
                     </div>
+                    @if(count($inventoryShareTargets) > 0)
+                        <div class="md:col-span-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Share to:</span>
+                            @foreach($inventoryShareTargets as $i => $target)
+                                <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                    <input wire:model="inventoryShareTargets.{{ $i }}.enabled" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
+                                    <x-icon name="{{ $target['icon'] }}" size="3.5" :solid="true" class="text-amber-400" />
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">{{ $target['label'] }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
             @endif

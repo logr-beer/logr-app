@@ -13,5 +13,6 @@ class CheckinCreated
     public function __construct(
         public Checkin $checkin,
         public User $user,
+        public array $shareTargets = [],
     ) {}
 }

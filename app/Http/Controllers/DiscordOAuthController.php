@@ -21,7 +21,7 @@ class DiscordOAuthController extends Controller
         $response = Http::withToken($bot['hub_api_key'])
             ->accept('application/json')
             ->timeout(15)
-            ->post(rtrim($bot['hub_url'], '/').'/api/users/link-token', [
+            ->post(rtrim($bot['hub_url'], '/').'/api/discord/users/link-token', [
                 'user_identifier' => Auth::user()->name,
                 'callback_url' => route('discord.callback'),
             ]);
@@ -73,7 +73,7 @@ class DiscordOAuthController extends Controller
             Http::withToken($bot['hub_api_key'])
                 ->accept('application/json')
                 ->timeout(15)
-                ->post(rtrim($bot['hub_url'], '/').'/api/users/unlink', [
+                ->post(rtrim($bot['hub_url'], '/').'/api/discord/users/unlink', [
                     'user_identifier' => $user->name,
                 ]);
         }

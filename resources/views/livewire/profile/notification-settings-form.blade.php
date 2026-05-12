@@ -10,8 +10,8 @@ new class extends Component
     public array $discordWebhooks = [];
     public string $newWebhookLabel = '';
     public string $newWebhookUrl = '';
-    public bool $newWebhookCheckins = true;
-    public bool $newWebhookPurchases = true;
+    public bool $newWebhookCheckins = false;
+    public bool $newWebhookPurchases = false;
 
     // Discord Bots (global config, multiple servers)
     public array $discordBots = [];
@@ -28,14 +28,15 @@ new class extends Component
 
     public function mount(): void
     {
-        $user = Auth::user();
-        $this->discordBots = Setting::get('discord_bots', []);
-        $this->botPrefs = $user->getData('discord_bot_prefs') ?? [];
-
         if (config('app.demo_mode')) {
+            $this->discordBots = [];
+            $this->botPrefs = [];
             $this->discordWebhooks = [];
             $this->discordUsername = null;
         } else {
+            $user = Auth::user();
+            $this->discordBots = Setting::get('discord_bots', []);
+            $this->botPrefs = $user->getData('discord_bot_prefs') ?? [];
             $this->discordWebhooks = $user->getData('discord_webhooks') ?? [];
             $this->discordUsername = $user->getData('discord_username');
         }
@@ -51,7 +52,6 @@ new class extends Component
 
         $this->validate([
             'newWebhookUrl' => ['required', 'url', 'max:500', new \App\Rules\DiscordWebhookUrl],
-            'newWebhookLabel' => 'nullable|string|max:100',
         ]);
 
         $exists = collect($this->discordWebhooks)->contains('url', $this->newWebhookUrl);
@@ -60,9 +60,27 @@ new class extends Component
             return;
         }
 
+        // Fetch webhook info from Discord
+        $label = null;
+        $channelId = null;
+        $guildId = null;
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(10)->get($this->newWebhookUrl);
+            if ($response->successful()) {
+                $info = $response->json();
+                $label = $info['name'] ?? null;
+                $channelId = $info['channel_id'] ?? null;
+                $guildId = $info['guild_id'] ?? null;
+            }
+        } catch (\Exception $e) {
+            // Non-fatal — just save without metadata
+        }
+
         $this->discordWebhooks[] = [
-            'label' => $this->newWebhookLabel ?: null,
+            'label' => trim($this->newWebhookLabel) ?: $label,
             'url' => $this->newWebhookUrl,
+            'channel_id' => $channelId,
+            'guild_id' => $guildId,
             'publish_checkins' => $this->newWebhookCheckins,
             'publish_purchases' => $this->newWebhookPurchases,
         ];
@@ -73,8 +91,8 @@ new class extends Component
 
         $this->newWebhookLabel = '';
         $this->newWebhookUrl = '';
-        $this->newWebhookCheckins = true;
-        $this->newWebhookPurchases = true;
+        $this->newWebhookCheckins = false;
+        $this->newWebhookPurchases = false;
     }
 
     public function removeWebhook(int $index): void
@@ -120,19 +138,24 @@ new class extends Component
         }
 
         try {
+            $embed = \App\Services\Discord::buildCheckinEmbed([
+                'beer_name' => 'Pliny the Elder',
+                'brewery' => 'Russian River Brewing Company',
+                'rating' => 5.0,
+                'serving' => 'Draft',
+                'notes' => 'Perfectly balanced, one of the best DIPAs out there.',
+                'venue' => 'The Local Taproom',
+                'style' => 'Double IPA, IPA, Pale Ale',
+                'abv' => 8.0,
+                'ibu' => 100,
+                'user' => '[TEST] ' . Auth::user()->name,
+                'beer_image' => 'https://images.unsplash.com/photo-1643307282439-08cb542c6edf?w=400&h=500&fit=crop',
+            ]);
+
             $response = \Illuminate\Support\Facades\Http::timeout(15)->post($webhook['url'], [
-                'embeds' => [[
-                    'title' => 'Check-in: Pliny the Elder',
-                    'description' => "**Pliny the Elder** by Russian River Brewing Company\n\nRating: **5** / 5 ⭐⭐⭐⭐⭐\nServing: Draft\nVenue: The Local Taproom\n\n> Perfectly balanced, one of the best DIPAs out there.",
-                    'color' => 0xF59E0B,
-                    'fields' => [
-                        ['name' => 'Style', 'value' => 'Double IPA, IPA, Pale Ale', 'inline' => true],
-                        ['name' => 'ABV', 'value' => '8.0%', 'inline' => true],
-                        ['name' => 'IBU', 'value' => '100', 'inline' => true],
-                    ],
-                    'footer' => ['text' => 'Logr'],
-                    'timestamp' => now()->toIso8601String(),
-                ]],
+                'username' => 'Logr Bot',
+                'avatar_url' => url('/img/logr-discord.png'),
+                'embeds' => [$embed],
             ]);
 
             $this->testResult = $response->successful()
@@ -159,18 +182,24 @@ new class extends Component
         }
 
         try {
+            $embed = \App\Services\Discord::buildPurchaseEmbed([
+                'beer_name' => 'Two Hearted Ale',
+                'brewery' => "Bell's Brewery",
+                'quantity' => 6,
+                'storage_location' => 'Fridge',
+                'purchase_location' => 'Total Wine',
+                'is_gift' => false,
+                'style' => 'American IPA',
+                'abv' => 7.0,
+                'ibu' => 55,
+                'user' => '[TEST] ' . Auth::user()->name,
+                'beer_image' => 'https://images.unsplash.com/photo-1627627045944-a6171e94783a?w=400&h=500&fit=crop',
+            ]);
+
             $response = \Illuminate\Support\Facades\Http::timeout(15)->post($webhook['url'], [
-                'embeds' => [[
-                    'title' => 'Added to Inventory: Two Hearted Ale',
-                    'description' => "**Two Hearted Ale** by Bell's Brewery\n\nQuantity: **6**\nStorage: Fridge\nFrom: Total Wine",
-                    'color' => 0x3B82F6,
-                    'fields' => [
-                        ['name' => 'Style', 'value' => 'American IPA', 'inline' => true],
-                        ['name' => 'ABV', 'value' => '7.0%', 'inline' => true],
-                    ],
-                    'footer' => ['text' => 'Logr'],
-                    'timestamp' => now()->toIso8601String(),
-                ]],
+                'username' => 'Logr Bot',
+                'avatar_url' => url('/img/logr-discord.png'),
+                'embeds' => [$embed],
             ]);
 
             $this->testResult = $response->successful()
@@ -207,7 +236,7 @@ new class extends Component
 
         $this->loadingChannelsFor = $index;
 
-        $channels = \App\Services\Hub::fetchChannels($bot['hub_url'], $bot['hub_api_key'], $bot['guild_id']);
+        $channels = \App\Services\PubDiscord::fetchChannels($bot['hub_url'], $bot['hub_api_key'], $bot['guild_id']);
         $this->botChannels = $channels ?? [];
     }
 
@@ -218,7 +247,7 @@ new class extends Component
             return;
         }
 
-        $success = \App\Services\Hub::updateChannel($bot['hub_url'], $bot['hub_api_key'], $bot['guild_id'], $channelId);
+        $success = \App\Services\PubDiscord::updateChannel($bot['hub_url'], $bot['hub_api_key'], $bot['guild_id'], $channelId);
 
         if ($success) {
             $channel = collect($this->botChannels)->firstWhere('id', $channelId);
@@ -270,20 +299,21 @@ new class extends Component
             $response = \Illuminate\Support\Facades\Http::withToken($bot['hub_api_key'])
                 ->accept('application/json')
                 ->timeout(15)
-                ->post(rtrim($bot['hub_url'], '/') . '/api/post', [
+                ->post(rtrim($bot['hub_url'], '/') . '/api/discord/post', [
                     'guild_id' => $bot['guild_id'],
                     'type' => 'checkin',
                     'payload' => [
                         'beer_name' => 'Pliny the Elder',
                         'brewery' => 'Russian River Brewing Company',
                         'style' => 'Double IPA, IPA, Pale Ale',
-                        'abv' => '8.0%',
+                        'abv' => 8.0,
                         'ibu' => '100',
                         'rating' => 5.0,
                         'serving' => 'Draft',
                         'venue' => 'The Local Taproom',
                         'notes' => 'Perfectly balanced, one of the best DIPAs out there.',
                         'user' => Auth::user()->name,
+                        'beer_image' => 'https://images.unsplash.com/photo-1643307282439-08cb542c6edf?w=400&h=500&fit=crop',
                     ],
                 ]);
 
@@ -314,18 +344,19 @@ new class extends Component
             $response = \Illuminate\Support\Facades\Http::withToken($bot['hub_api_key'])
                 ->accept('application/json')
                 ->timeout(15)
-                ->post(rtrim($bot['hub_url'], '/') . '/api/post', [
+                ->post(rtrim($bot['hub_url'], '/') . '/api/discord/post', [
                     'guild_id' => $bot['guild_id'],
                     'type' => 'purchase',
                     'payload' => [
                         'beer_name' => 'Two Hearted Ale',
                         'brewery' => "Bell's Brewery",
                         'style' => 'American IPA',
-                        'abv' => '7.0%',
+                        'abv' => 7.0,
                         'quantity' => 6,
                         'storage_location' => 'Fridge',
                         'purchase_location' => 'Total Wine',
                         'user' => Auth::user()->name,
+                        'beer_image' => 'https://images.unsplash.com/photo-1627627045944-a6171e94783a?w=400&h=500&fit=crop',
                     ],
                 ]);
 
@@ -365,7 +396,13 @@ new class extends Component
     @endif
 
     <div class="mt-6 space-y-6">
-        @include('livewire.profile.partials.discord-bots')
-        @include('livewire.profile.partials.discord-webhooks')
+        <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <x-icon name="discord" size="4" :solid="true" class="inline-block mr-1 text-amber-400" />
+                Discord
+            </h3>
+            @include('livewire.profile.partials.discord-bots')
+            @include('livewire.profile.partials.discord-webhooks')
+        </div>
     </div>
 </section>

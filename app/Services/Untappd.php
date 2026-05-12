@@ -31,6 +31,7 @@ class Untappd
 
         $response = Http::accept('application/json')
             ->withHeaders(['User-Agent' => config('logr.user_agent')])
+            ->timeout(15)
             ->get("{$this->baseUrl}{$endpoint}", $params);
 
         if ($response->failed()) {
