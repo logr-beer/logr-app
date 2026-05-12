@@ -92,46 +92,39 @@ class Discord
      */
     public static function buildCheckinEmbed(array $p, ?string $timestamp = null): array
     {
-        $description = "**{$p['beer_name']}**";
-        if ($p['brewery'] ?? null) {
-            $description .= " by **{$p['brewery']}**";
-        }
-        $description .= "\n";
-
-        if ($p['rating'] ?? null) {
-            $rating = $p['rating'];
-            $stars = str_repeat("\u{2B50}", (int) $rating);
-            if ($rating - (int) $rating >= 0.5) {
-                $stars .= "\u{2B50}";
-            }
-            $description .= "\n**Rating:** {$rating} / 5 {$stars}";
-        }
+        $description = "**{$p['beer_name']}** by {$p['brewery']}";
 
         if ($p['notes'] ?? null) {
-            $description .= "\n\n**Review:**\n> {$p['notes']}";
-        }
-
-        if ($p['venue'] ?? null) {
-            $description .= "\n\n**Venue:**\n{$p['venue']}";
-        }
-
-        if ($p['style'] ?? null) {
-            $description .= "\n\n**Style:**\n{$p['style']}";
+            $description .= "\n> {$p['notes']}";
         }
 
         $fields = [];
+        if ($p['style'] ?? null) {
+            $fields[] = ['name' => 'Style', 'value' => $p['style'], 'inline' => true];
+        }
         if ($p['abv'] ?? null) {
             $fields[] = ['name' => 'ABV', 'value' => "{$p['abv']}%", 'inline' => true];
         }
         if ($p['ibu'] ?? null) {
             $fields[] = ['name' => 'IBU', 'value' => (string) $p['ibu'], 'inline' => true];
         }
+        if ($p['rating'] ?? null) {
+            $rating = $p['rating'];
+            $stars = str_repeat("\u{2B50}", (int) $rating);
+            if ($rating - (int) $rating >= 0.5) {
+                $stars .= "\u{2B50}";
+            }
+            $fields[] = ['name' => 'Rating', 'value' => "{$stars} {$rating}/5", 'inline' => true];
+        }
         if ($p['serving'] ?? null) {
             $fields[] = ['name' => 'Serving', 'value' => $p['serving'], 'inline' => true];
         }
+        if ($p['venue'] ?? null) {
+            $fields[] = ['name' => 'Venue', 'value' => $p['venue'], 'inline' => true];
+        }
 
         $embed = [
-            'title' => "Check-in: {$p['user']}",
+            'title' => "Check-in: {$p['beer_name']}",
             'description' => $description,
             'color' => 0xF59E0B,
             'fields' => $fields,
@@ -151,19 +144,10 @@ class Discord
      */
     public static function buildPurchaseEmbed(array $p): array
     {
-        $description = "**{$p['beer_name']}**";
-        if ($p['brewery'] ?? null) {
-            $description .= " by {$p['brewery']}";
-        }
-        $description .= "\n\n**Quantity:** {$p['quantity']}";
-        if ($p['storage_location'] ?? null) {
-            $description .= "\n**Storage:** {$p['storage_location']}";
-        }
-        if ($p['purchase_location'] ?? null) {
-            $description .= "\n**From:** {$p['purchase_location']}";
-        }
+        $description = "**{$p['beer_name']}** by {$p['brewery']}";
+
         if ($p['is_gift'] ?? false) {
-            $description .= "\n\nThis was a gift!";
+            $description .= "\nThis was a gift!";
         }
 
         $fields = [];
@@ -173,9 +157,19 @@ class Discord
         if ($p['abv'] ?? null) {
             $fields[] = ['name' => 'ABV', 'value' => "{$p['abv']}%", 'inline' => true];
         }
+        if ($p['ibu'] ?? null) {
+            $fields[] = ['name' => 'IBU', 'value' => (string) $p['ibu'], 'inline' => true];
+        }
+        $fields[] = ['name' => 'Quantity', 'value' => (string) $p['quantity'], 'inline' => true];
+        if ($p['storage_location'] ?? null) {
+            $fields[] = ['name' => 'Storage', 'value' => $p['storage_location'], 'inline' => true];
+        }
+        if ($p['purchase_location'] ?? null) {
+            $fields[] = ['name' => 'From', 'value' => $p['purchase_location'], 'inline' => true];
+        }
 
         $embed = [
-            'title' => "Inventory: {$p['user']}",
+            'title' => "Added to Inventory: {$p['beer_name']}",
             'description' => $description,
             'color' => 0x3B82F6,
             'fields' => $fields,
