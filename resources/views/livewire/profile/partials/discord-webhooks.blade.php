@@ -26,9 +26,9 @@
                 <div class="flex-1 min-w-0">
                     <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $webhook['label'] ?? 'Webhook' }}</span>
                     @if(!empty($webhook['channel_id']) && !empty($webhook['guild_id']))
-                        <p class="text-xs"><a href="https://discord.com/channels/{{ $webhook['guild_id'] }}/{{ $webhook['channel_id'] }}" target="_blank" class="text-amber-500 hover:text-amber-700 dark:hover:text-amber-400 transition-colors">#{{ $webhook['channel_id'] }}</a></p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Channel: <a href="https://discord.com/channels/{{ $webhook['guild_id'] }}/{{ $webhook['channel_id'] }}" target="_blank" class="text-amber-500 hover:text-amber-700 dark:hover:text-amber-400 transition-colors">{{ $webhook['channel_id'] }}</a></p>
                     @elseif(!empty($webhook['channel_id']))
-                        <p class="text-xs text-gray-500 dark:text-gray-400">#{{ $webhook['channel_id'] }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Channel: {{ $webhook['channel_id'] }}</p>
                     @else
                         <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $webhook['url'] }}</p>
                     @endif
