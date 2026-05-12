@@ -55,7 +55,7 @@ class GeocodeVenue implements ShouldQueue
                 ]);
             }
         } catch (\Exception $e) {
-            Log::debug("Geocode failed for venue {$this->venue->id}: " . $e->getMessage());
+            Log::debug("Geocode failed for venue {$this->venue->id}: ".$e->getMessage());
         }
     }
 }

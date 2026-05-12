@@ -3,12 +3,12 @@
 namespace App\Livewire;
 
 use App\Events\CheckinCreated;
+use App\Jobs\GeocodeVenue;
 use App\Models\Beer;
 use App\Models\Brewery;
 use App\Models\Checkin;
 use App\Models\Inventory;
 use App\Models\Venue;
-use App\Jobs\GeocodeVenue;
 use App\Services\CatalogBeer;
 use App\Services\LogrDb;
 use App\Services\OpenBreweryDb;
@@ -465,7 +465,7 @@ class BeerForm extends Component
                 // Use beer photo if selected and no other photos added
                 if ($this->useBeerPhoto && empty($this->checkinPhotos) && $beer->photo_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($beer->photo_path)) {
                     $ext = pathinfo($beer->photo_path, PATHINFO_EXTENSION);
-                    $newPath = 'checkin-photos/' . uniqid() . '.' . $ext;
+                    $newPath = 'checkin-photos/'.uniqid().'.'.$ext;
                     \Illuminate\Support\Facades\Storage::disk('public')->copy($beer->photo_path, $newPath);
                     \App\Models\CheckinPhoto::create([
                         'checkin_id' => $checkin->id,

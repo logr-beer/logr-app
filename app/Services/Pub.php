@@ -38,7 +38,7 @@ class Pub
         try {
             $response = Http::accept('application/json')
                 ->timeout(10)
-                ->post(rtrim($pubUrl, '/') . '/api/checkins', $payload);
+                ->post(rtrim($pubUrl, '/').'/api/checkins', $payload);
 
             if (! $response->successful()) {
                 Log::warning('Pub checkin failed', [

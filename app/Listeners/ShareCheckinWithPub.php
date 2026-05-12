@@ -13,7 +13,7 @@ class ShareCheckinWithPub
         try {
             Pub::sendCheckin($event->checkin, $event->user);
         } catch (\Throwable $e) {
-            Log::warning('Failed to share checkin with Pub: ' . $e->getMessage());
+            Log::warning('Failed to share checkin with Pub: '.$e->getMessage());
         }
     }
 }

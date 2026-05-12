@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Events\CheckinCreated;
+use App\Jobs\GeocodeVenue;
 use App\Models\Beer;
 use App\Models\Brewery;
 use App\Models\Checkin;
@@ -15,7 +16,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
-use App\Jobs\GeocodeVenue;
 use Livewire\WithFileUploads;
 
 class CheckinForm extends Component
@@ -369,7 +369,7 @@ class CheckinForm extends Component
                 $beer = Beer::find($this->selectedBeerId);
                 if ($beer?->photo_path && Storage::disk('public')->exists($beer->photo_path)) {
                     $ext = pathinfo($beer->photo_path, PATHINFO_EXTENSION);
-                    $newPath = 'checkin-photos/' . uniqid() . '.' . $ext;
+                    $newPath = 'checkin-photos/'.uniqid().'.'.$ext;
                     Storage::disk('public')->copy($beer->photo_path, $newPath);
                     CheckinPhoto::create([
                         'checkin_id' => $checkin->id,
