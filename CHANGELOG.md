@@ -4,6 +4,48 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-05-12
+
+### Added
+- Per-destination share targets on check-in, beer create, and inventory forms — individually toggle each webhook and bot guild
+- Anonymous check-in data sharing opt-in via pub.logr.beer (Pub service) with example payload preview
+- Venue geocoding on create — new `GeocodeVenue` job when typing free-text venue with geocoding enabled
+- "Use beer photo" checkbox on check-in forms — copies beer photo to check-in
+- Discord webhook image attachments — uploads photos as files so they work behind VPNs
+- Shared Discord embed builders (`buildCheckinEmbed`/`buildPurchaseEmbed`) for consistent formatting
+- Webhook auto-detect — fetches name, channel ID, and guild ID from Discord API on add
+- Docker pulls badge in README
+- Logr Bot name and beer glass avatar on webhook posts
+- Sample Unsplash images in test notification payloads
+- `[TEST]` prefix on test notification titles
+- User name in embed titles and footers
+- Documentation for all environment variables in README
+
+### Changed
+- Discord bot API migrated from discord.logr.beer to pub.logr.beer with `/api/discord/` prefix
+- Hub service renamed to PubDiscord
+- Notification labels changed to "Share check-ins" / "Share inventory"
+- Profile settings now control form checkbox defaults only — no longer gate sending
+- Notifications page restructured: parent Discord block with Logr Bot and Webhooks sub-sections
+- Pill tabs use `focus-visible` for keyboard-only focus rings
+- Venue edit buttons match other forms — delete left, cancel + save right
+- Auto-publish disabled by default for new webhooks and bot connections
+- Demo mode hides all integration data including bot connections
+- Unsplash demo photos for beers and check-ins
+- Logr beer glass logo in footer with logr.beer link
+- Favorites randomly assigned to ~15% of demo beers
+
+### Fixed
+- Untappd API calls missing timeout — could hang indefinitely
+- Double notifications when webhook and bot target same channel
+- Pint code style issues
+- Demo reset race condition and login banner credentials
+- Env API key fallback when user config is empty
+- "Home" venue excluded from missing location counts and geocoding
+
+### Removed
+- `LOGR_DISCORD_BOT_URL` env badge from notifications page
+
 ## [0.2.1] - 2026-05-11
 
 ### Fixed
@@ -220,6 +262,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Database purge and reset tools
 - System info page with version and dependency details
 
+[0.3.0]: https://github.com/logr-beer/logr-app/releases/tag/v0.3.0
 [0.2.1]: https://github.com/logr-beer/logr-app/releases/tag/v0.2.1
 [0.2.0]: https://github.com/logr-beer/logr-app/releases/tag/v0.2.0
 [0.1.15]: https://github.com/logr-beer/logr-app/releases/tag/v0.1.15
