@@ -139,8 +139,8 @@ new class extends Component
                 'username' => 'Logr Bot',
                 'avatar_url' => url('/img/logr-discord.png'),
                 'embeds' => [[
-                    'title' => '[TEST] Check-in: Pliny the Elder',
-                    'description' => "by **Russian River Brewing Company**\n\n**Rating:** 5 / 5 ⭐⭐⭐⭐⭐\n\n**Review:**\n> Perfectly balanced, one of the best DIPAs out there.\n\n**Venue:**\nThe Local Taproom\n\n**Style:**\nDouble IPA, IPA, Pale Ale",
+                    'title' => '[TEST] Check-in: ' . Auth::user()->name,
+                    'description' => "**Pliny the Elder** by **Russian River Brewing Company**\n\n**Rating:** 5 / 5 ⭐⭐⭐⭐⭐\n\n**Review:**\n> Perfectly balanced, one of the best DIPAs out there.\n\n**Venue:**\nThe Local Taproom\n\n**Style:**\nDouble IPA, IPA, Pale Ale",
                     'color' => 0xF59E0B,
                     'fields' => [
                         ['name' => 'ABV', 'value' => '8.0%', 'inline' => true],
@@ -180,7 +180,7 @@ new class extends Component
                 'username' => 'Logr Bot',
                 'avatar_url' => url('/img/logr-discord.png'),
                 'embeds' => [[
-                    'title' => '[TEST] Added to Inventory: Two Hearted Ale',
+                    'title' => '[TEST] Inventory: ' . Auth::user()->name,
                     'description' => "**Two Hearted Ale** by Bell's Brewery\n\n**Quantity:** 6\n**Storage:** Fridge\n**From:** Total Wine",
                     'color' => 0x3B82F6,
                     'fields' => [
