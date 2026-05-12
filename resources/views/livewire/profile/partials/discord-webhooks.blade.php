@@ -17,15 +17,19 @@
             <li>Navigate to <strong>Integrations</strong> &rarr; <strong>Webhooks</strong></li>
             <li>Click <strong>New Webhook</strong>, choose a channel, and copy the webhook URL</li>
         </ol>
-        <p class="pt-1">Use the <strong>Label</strong> to identify which channel this webhook posts to (e.g. <code class="px-1 py-0.5 bg-amber-100 dark:bg-amber-900/40 rounded">#beer-log</code>).</p>
+        <p class="pt-1">Paste the webhook URL below — the channel and server info will be detected automatically.</p>
     </div>
 
     @foreach($discordWebhooks as $index => $webhook)
         <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-2">
             <div class="flex items-center gap-3">
                 <div class="flex-1 min-w-0">
-                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $webhook['label'] ?? 'Untitled Webhook' }}</span>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $webhook['url'] }}</p>
+                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $webhook['label'] ?? 'Webhook' }}</span>
+                    @if(!empty($webhook['channel_id']))
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Channel: {{ $webhook['channel_id'] }}</p>
+                    @else
+                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $webhook['url'] }}</p>
+                    @endif
                 </div>
                 @unless($demoMode)
                     <button type="button" wire:click="testCheckin({{ $index }})" class="shrink-0 inline-flex items-center gap-1 px-2 py-1 bg-gray-600 text-white text-xs font-medium rounded hover:bg-gray-700 transition-colors" title="Send a sample check-in">
@@ -58,23 +62,16 @@
 
     @unless($demoMode)
         <div class="space-y-2">
-            <div class="flex items-start gap-2">
-                <div class="w-36">
-                    <x-input-label for="newWebhookLabel" value="Label" />
-                    <input wire:model="newWebhookLabel" id="newWebhookLabel" type="text" placeholder="e.g. #beer-log"
-                        class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm" />
-                </div>
+            <div class="flex items-end gap-2">
                 <div class="flex-1">
                     <x-input-label for="newWebhookUrl" value="Webhook URL" />
                     <input wire:model="newWebhookUrl" id="newWebhookUrl" type="url" placeholder="https://discord.com/api/webhooks/..."
                         class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm" />
                 </div>
-                <div class="shrink-0">
-                    <x-input-label class="invisible">&nbsp;</x-input-label>
-                    <x-primary-button type="button" wire:click="addWebhook" class="mt-1">
-                        <x-icon name="plus" size="4" /> Add
-                    </x-primary-button>
-                </div>
+                <x-primary-button type="button" wire:click="addWebhook">
+                    <span wire:loading wire:target="addWebhook"><svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
+                    <x-icon name="plus" size="4" wire:loading.remove wire:target="addWebhook" /> Add
+                </x-primary-button>
             </div>
             <div class="flex items-center gap-4 text-xs">
                 <label class="inline-flex items-center gap-1.5 cursor-pointer">

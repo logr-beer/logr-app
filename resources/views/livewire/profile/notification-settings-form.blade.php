@@ -8,7 +8,6 @@ new class extends Component
 {
     // Discord Webhooks
     public array $discordWebhooks = [];
-    public string $newWebhookLabel = '';
     public string $newWebhookUrl = '';
     public bool $newWebhookCheckins = true;
     public bool $newWebhookPurchases = true;
@@ -51,7 +50,6 @@ new class extends Component
 
         $this->validate([
             'newWebhookUrl' => ['required', 'url', 'max:500', new \App\Rules\DiscordWebhookUrl],
-            'newWebhookLabel' => 'nullable|string|max:100',
         ]);
 
         $exists = collect($this->discordWebhooks)->contains('url', $this->newWebhookUrl);
@@ -60,9 +58,27 @@ new class extends Component
             return;
         }
 
+        // Fetch webhook info from Discord
+        $label = null;
+        $channelId = null;
+        $guildId = null;
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(10)->get($this->newWebhookUrl);
+            if ($response->successful()) {
+                $info = $response->json();
+                $label = $info['name'] ?? null;
+                $channelId = $info['channel_id'] ?? null;
+                $guildId = $info['guild_id'] ?? null;
+            }
+        } catch (\Exception $e) {
+            // Non-fatal — just save without metadata
+        }
+
         $this->discordWebhooks[] = [
-            'label' => $this->newWebhookLabel ?: null,
+            'label' => $label,
             'url' => $this->newWebhookUrl,
+            'channel_id' => $channelId,
+            'guild_id' => $guildId,
             'publish_checkins' => $this->newWebhookCheckins,
             'publish_purchases' => $this->newWebhookPurchases,
         ];
@@ -71,7 +87,6 @@ new class extends Component
         $user->setData('discord_webhooks', $this->discordWebhooks);
         $user->save();
 
-        $this->newWebhookLabel = '';
         $this->newWebhookUrl = '';
         $this->newWebhookCheckins = true;
         $this->newWebhookPurchases = true;
