@@ -75,18 +75,6 @@
                     <x-icon name="plus" size="4" wire:loading.remove wire:target="addWebhook" /> Add
                 </x-primary-button>
             </div>
-            <div class="flex items-center gap-4 text-xs">
-                <label class="inline-flex items-center gap-1.5 cursor-pointer">
-                    <input wire:model="newWebhookCheckins" type="checkbox"
-                        class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
-                    <span class="text-gray-700 dark:text-gray-300">Auto-publish check-ins</span>
-                </label>
-                <label class="inline-flex items-center gap-1.5 cursor-pointer">
-                    <input wire:model="newWebhookPurchases" type="checkbox"
-                        class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
-                    <span class="text-gray-700 dark:text-gray-300">Auto-publish inventory</span>
-                </label>
-            </div>
             <x-input-error class="mt-1" :messages="$errors->get('newWebhookUrl')" />
         </div>
     @endunless
