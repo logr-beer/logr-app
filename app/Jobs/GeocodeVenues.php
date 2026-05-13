@@ -61,6 +61,7 @@ class GeocodeVenues implements ShouldQueue
                         ->get('https://nominatim.openstreetmap.org/search', [
                             'q' => $query,
                             'format' => 'json',
+                            'addressdetails' => 1,
                             'limit' => 1,
                         ]);
 
@@ -68,10 +69,24 @@ class GeocodeVenues implements ShouldQueue
                         $results = $response->json();
 
                         if (! empty($results)) {
-                            $venue->update([
+                            $addr = $results[0]['address'] ?? [];
+                            $updates = [
                                 'latitude' => $results[0]['lat'],
                                 'longitude' => $results[0]['lon'],
-                            ]);
+                            ];
+                            if (! $venue->city) {
+                                $city = $addr['city'] ?? $addr['town'] ?? $addr['village'] ?? null;
+                                if ($city) {
+                                    $updates['city'] = $city;
+                                }
+                            }
+                            if (! $venue->state && ! empty($addr['state'])) {
+                                $updates['state'] = $addr['state'];
+                            }
+                            if (! $venue->country && ! empty($addr['country'])) {
+                                $updates['country'] = $addr['country'];
+                            }
+                            $venue->update($updates);
                             $geocoded++;
                         }
                     }

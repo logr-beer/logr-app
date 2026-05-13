@@ -2,11 +2,13 @@
 
 namespace App\Livewire;
 
+use App\Concerns\WithLocationAutocomplete;
 use App\Models\Beer;
 use App\Models\Checkin;
 use App\Models\CheckinPhoto;
 use App\Models\Collection;
 use App\Models\Inventory;
+use App\Models\Store;
 use App\Models\Venue;
 use App\Services\Discord;
 use App\Services\PubDiscord;
@@ -16,13 +18,18 @@ use Livewire\WithFileUploads;
 class BeerShow extends Component
 {
     use WithFileUploads;
+    use WithLocationAutocomplete;
 
     public Beer $beer;
 
     // Fridge form properties
     public string $storageLocation = 'Fridge';
 
-    public string $purchaseLocation = '';
+    public string $storeQuery = '';
+
+    public ?int $selectedStoreId = null;
+
+    public string $selectedStoreName = '';
 
     public string $purchaseDate = '';
 
@@ -94,9 +101,11 @@ class BeerShow extends Component
 
         $inventory->increment('quantity', $this->addQuantity);
 
+        $storeId = $this->resolveLocationId('store', Store::class);
+
         $updates = [];
-        if ($this->purchaseLocation) {
-            $updates['purchase_location'] = $this->purchaseLocation;
+        if ($storeId) {
+            $updates['store_id'] = $storeId;
         }
         if ($this->purchaseDate) {
             $updates['date_acquired'] = $this->purchaseDate;
@@ -113,7 +122,7 @@ class BeerShow extends Component
             PubDiscord::sendPurchase($freshInventory, $currentUser);
         }
 
-        $this->reset(['purchaseLocation', 'purchaseDate', 'isGift']);
+        $this->reset(['storeQuery', 'selectedStoreId', 'selectedStoreName', 'purchaseDate', 'isGift']);
         $this->addQuantity = 1;
     }
 
@@ -184,24 +193,7 @@ class BeerShow extends Component
         $this->redirect(route('beers.index'), navigate: true);
     }
 
-    // -- Check-in / Venue --
-
-    public function selectVenue(int $venueId): void
-    {
-        $venue = Venue::find($venueId);
-        if ($venue) {
-            $this->selectedVenueId = $venue->id;
-            $this->selectedVenueName = $venue->name;
-            $this->venueQuery = '';
-        }
-    }
-
-    public function clearVenue(): void
-    {
-        $this->selectedVenueId = null;
-        $this->selectedVenueName = '';
-        $this->venueQuery = '';
-    }
+    // -- Check-in --
 
     public function removeCheckinPhoto(int $index): void
     {
@@ -220,17 +212,8 @@ class BeerShow extends Component
             'checkinPhotos.*' => 'nullable|image|max:10240',
         ]);
 
-        // Resolve venue: use selected, or auto-create from typed query
-        $venueId = $this->selectedVenueId;
-        $locationText = null;
-
-        if (! $venueId && trim($this->venueQuery)) {
-            $venue = Venue::firstOrCreate(['name' => trim($this->venueQuery)]);
-            $venueId = $venue->id;
-            $locationText = $venue->name;
-        } elseif ($venueId) {
-            $locationText = $this->selectedVenueName;
-        }
+        $venueId = $this->resolveLocationId('venue', Venue::class);
+        $locationText = $venueId ? Venue::find($venueId)->name : null;
 
         $checkin = Checkin::create([
             'user_id' => auth()->id(),
@@ -266,7 +249,8 @@ class BeerShow extends Component
 
     public function render()
     {
-        $inventoryItems = Inventory::where('beer_id', $this->beer->id)
+        $inventoryItems = Inventory::with('store')
+            ->where('beer_id', $this->beer->id)
             ->where('user_id', auth()->id())
             ->where('quantity', '>', 0)
             ->orderBy('storage_location')
@@ -296,19 +280,19 @@ class BeerShow extends Component
             ->orderBy('name')
             ->get();
 
-        $venueSuggestions = [];
-        if (strlen($this->venueQuery) >= 2 && ! $this->selectedVenueId) {
-            $venueSuggestions = Venue::where('name', 'like', '%'.$this->venueQuery.'%')
-                ->orderBy('name')
-                ->limit(8)
-                ->get();
-        }
+        $venueSuggestions = $this->getLocationSuggestions('venue', Venue::class, 8);
+        $venueApiResults = $this->getLocationApiResults('venue');
+        $storeSuggestions = $this->getLocationSuggestions('store', Store::class);
+        $storeApiResults = $this->getLocationApiResults('store');
 
         $checkins = $this->beer->checkins()->with(['user', 'venue'])->latest()->get();
 
         return view('livewire.beer-show', [
             'checkins' => $checkins,
             'venueSuggestions' => $venueSuggestions,
+            'venueApiResults' => $venueApiResults,
+            'storeSuggestions' => $storeSuggestions,
+            'storeApiResults' => $storeApiResults,
             'averageRating' => $checkins->whereNotNull('rating')->avg('rating') ?? 0,
             'totalCheckins' => $checkins->count(),
             'inventoryItems' => $inventoryItems,

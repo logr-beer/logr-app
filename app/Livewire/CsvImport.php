@@ -6,6 +6,7 @@ use App\Models\Beer;
 use App\Models\Brewery;
 use App\Models\Checkin;
 use App\Models\Inventory;
+use App\Models\Store;
 use App\Models\Venue;
 use App\Services\CatalogBeer;
 use App\Services\GeocodingService;
@@ -83,7 +84,7 @@ class CsvImport extends Component
             'beer_ibu' => 'IBU',
             'quantity' => 'Quantity',
             'storage_location' => 'Storage Location',
-            'purchase_location' => 'Purchase Location',
+            'purchase_location' => 'Store',
             'date_acquired' => 'Date Acquired',
             'inventory_notes' => 'Notes',
         ];
@@ -98,7 +99,7 @@ class CsvImport extends Component
             return array_merge($this->getCheckinFields(), [
                 'quantity' => 'Quantity (Inventory)',
                 'storage_location' => 'Storage Location',
-                'purchase_location' => 'Purchase Location',
+                'purchase_location' => 'Store',
                 'date_acquired' => 'Date Acquired',
                 'inventory_notes' => 'Inventory Notes',
             ]);
@@ -439,12 +440,20 @@ class CsvImport extends Component
                 $qty = 1;
             }
 
+            // Resolve store
+            $storeId = null;
+            $purchaseLocation = $getValue('purchase_location');
+            if ($purchaseLocation) {
+                $store = Store::firstOrCreate(['name' => $purchaseLocation]);
+                $storeId = $store->id;
+            }
+
             $inventoryData = [
                 'beer_id' => $beer->id,
                 'user_id' => auth()->id(),
                 'quantity' => $qty,
                 'storage_location' => $storageLocation ?: null,
-                'purchase_location' => $getValue('purchase_location') ?: null,
+                'store_id' => $storeId,
                 'notes' => $getValue('inventory_notes') ?: null,
             ];
 

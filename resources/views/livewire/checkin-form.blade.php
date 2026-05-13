@@ -118,53 +118,17 @@
                 </div>
 
                 {{-- Venue --}}
-                <div x-data="{ open: false }" @click.outside="open = false" class="relative">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Venue</label>
-
-                    @if($selectedVenueId)
-                        <div class="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg">
-                            <x-icon name="map-pin" size="4" class="text-amber-500 flex-shrink-0" />
-                            <span class="text-sm font-medium text-amber-700 dark:text-amber-400 flex-1">{{ $selectedVenueName }}</span>
-                            <button type="button" wire:click="clearVenue" class="text-amber-400 hover:text-amber-600 dark:hover:text-amber-300">
-                                <x-icon name="x-mark" size="4" />
-                            </button>
-                        </div>
-                    @else
-                        <input
-                            wire:model.live.debounce.300ms="venueQuery"
-                            @focus="open = true"
-                            @input="open = true"
-                            type="text"
-                            placeholder="{{ auth()->user()->getData('geocoding_enabled') ? 'Venue name or place, e.g. Hop Lot Suttons Bay MI' : 'Type a venue name...' }}"
-                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
-                        />
-
-                        @if(count($venueSuggestions) > 0)
-                            <div x-show="open" x-transition class="absolute z-30 mt-1 w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                                @foreach($venueSuggestions as $venue)
-                                    <button
-                                        type="button"
-                                        wire:click="selectVenue({{ $venue->id }})"
-                                        @click="open = false"
-                                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors flex items-center gap-2"
-                                    >
-                                        <x-icon name="map-pin" size="4" class="text-gray-400 flex-shrink-0" />
-                                        <div>
-                                            <span class="text-gray-900 dark:text-white">{{ $venue->name }}</span>
-                                            @if($venue->displayLocation())
-                                                <span class="text-gray-500 dark:text-gray-400 text-xs ml-1">{{ $venue->displayLocation() }}</span>
-                                            @endif
-                                        </div>
-                                    </button>
-                                @endforeach
-                            </div>
-                        @endif
-
-                        @if(strlen($venueQuery) >= 2 && count($venueSuggestions) === 0)
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">No matches — "{{ $venueQuery }}" will be created as a new venue.</p>
-                        @endif
-                    @endif
-                </div>
+                <x-location-autocomplete
+                    label="Venue"
+                    prefix="venue"
+                    model="App\\Models\\Venue"
+                    :selectedId="$selectedVenueId"
+                    :selectedName="$selectedVenueName"
+                    :suggestions="$venueSuggestions"
+                    :apiResults="$venueApiResults"
+                    icon="map-pin"
+                    placeholder="Venue name or place, e.g. Hop Lot Suttons Bay MI"
+                />
 
                 {{-- Rating & Serving --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

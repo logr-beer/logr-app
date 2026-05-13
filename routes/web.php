@@ -29,9 +29,12 @@ Route::middleware(['auth'])->group(function () {
     Route::view('checkins/create', 'checkins.create')->name('checkins.create');
     Route::view('checkins/{checkin}/edit', 'checkins.edit')->name('checkins.edit');
     Route::get('checkins/export', [\App\Http\Controllers\ExportController::class, 'checkins'])->name('checkins.export');
-    Route::view('locations/venues', 'venues.index')->name('locations.venues');
-    Route::view('locations/venues/{venue}', 'venues.show')->name('venues.show');
-    Route::view('locations/breweries', 'locations')->name('locations.breweries');
+    Route::view('locations/venues', 'locations.index', ['type' => 'venue'])->name('locations.venues');
+    Route::view('locations/venues/{venue}', 'locations.show-venue')->name('venues.show');
+    Route::view('locations/breweries', 'locations.index', ['type' => 'brewery'])->name('locations.breweries');
+    Route::view('locations/breweries/{brewery}', 'locations.show-brewery')->name('breweries.show');
+    Route::view('locations/stores', 'locations.index', ['type' => 'store'])->name('locations.stores');
+    Route::view('locations/stores/{store}', 'locations.show-store')->name('stores.show');
     Route::view('stats', 'rankings')->name('stats');
     Route::view('import', 'import')->name('import');
 

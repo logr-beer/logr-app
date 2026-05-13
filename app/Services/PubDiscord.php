@@ -59,7 +59,7 @@ class PubDiscord
             return false;
         }
 
-        $inventory->loadMissing(['beer.brewery']);
+        $inventory->loadMissing(['beer.brewery', 'store']);
         $beer = $inventory->beer;
 
         $payload = [
@@ -67,7 +67,7 @@ class PubDiscord
             'brewery' => $beer->brewery?->name,
             'quantity' => $inventory->quantity,
             'storage_location' => $inventory->storage_location,
-            'purchase_location' => $inventory->purchase_location,
+            'purchase_location' => $inventory->store?->name,
             'is_gift' => $inventory->is_gift,
             'style' => $beer->style ? implode(', ', $beer->style) : null,
             'abv' => $beer->abv,

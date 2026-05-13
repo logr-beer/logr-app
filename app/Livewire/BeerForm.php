@@ -2,12 +2,13 @@
 
 namespace App\Livewire;
 
+use App\Concerns\WithLocationAutocomplete;
 use App\Events\CheckinCreated;
-use App\Jobs\GeocodeVenue;
 use App\Models\Beer;
 use App\Models\Brewery;
 use App\Models\Checkin;
 use App\Models\Inventory;
+use App\Models\Store;
 use App\Models\Venue;
 use App\Services\CatalogBeer;
 use App\Services\LogrDb;
@@ -20,6 +21,7 @@ use Livewire\WithFileUploads;
 class BeerForm extends Component
 {
     use WithFileUploads;
+    use WithLocationAutocomplete;
 
     public ?Beer $beer = null;
 
@@ -52,7 +54,11 @@ class BeerForm extends Component
 
     public int $addQuantity = 1;
 
-    public string $purchaseLocation = '';
+    public string $storeQuery = '';
+
+    public ?int $selectedStoreId = null;
+
+    public string $selectedStoreName = '';
 
     public string $purchaseDate = '';
 
@@ -65,11 +71,11 @@ class BeerForm extends Component
 
     public string $checkinServingType = '';
 
-    public string $checkinVenue = '';
+    public string $venueQuery = '';
 
-    public ?int $checkinVenueId = null;
+    public ?int $selectedVenueId = null;
 
-    public string $checkinVenueName = '';
+    public string $selectedVenueName = '';
 
     public string $checkinNotes = '';
 
@@ -275,38 +281,6 @@ class BeerForm extends Component
         $this->showBreweryDropdown = false;
     }
 
-    // -- Checkin venue autocomplete --
-
-    public function getCheckinVenueSuggestionsProperty(): array
-    {
-        if (strlen($this->checkinVenue) < 2 || $this->checkinVenueId) {
-            return [];
-        }
-
-        return Venue::where('name', 'like', '%'.$this->checkinVenue.'%')
-            ->orderBy('name')
-            ->limit(8)
-            ->get()
-            ->toArray();
-    }
-
-    public function selectCheckinVenue(int $venueId): void
-    {
-        $venue = Venue::find($venueId);
-        if ($venue) {
-            $this->checkinVenueId = $venue->id;
-            $this->checkinVenueName = $venue->name;
-            $this->checkinVenue = '';
-        }
-    }
-
-    public function clearCheckinVenue(): void
-    {
-        $this->checkinVenueId = null;
-        $this->checkinVenueName = '';
-        $this->checkinVenue = '';
-    }
-
     private function fetchBreweryResults(): array
     {
         $local = Brewery::where('name', 'like', "%{$this->brewerySearch}%")
@@ -413,12 +387,14 @@ class BeerForm extends Component
             if ($this->addToInventory) {
                 $location = trim($this->storageLocation) ?: 'Fridge';
 
+                $storeId = $this->resolveLocationId('store', Store::class);
+
                 $inventory = Inventory::create([
                     'beer_id' => $beer->id,
                     'user_id' => auth()->id(),
                     'storage_location' => $location,
                     'quantity' => $this->addQuantity,
-                    'purchase_location' => $this->purchaseLocation ?: null,
+                    'store_id' => $storeId,
                     'date_acquired' => $this->purchaseDate ?: now()->toDateString(),
                     'is_gift' => $this->isGift,
                 ]);
@@ -432,15 +408,7 @@ class BeerForm extends Component
 
             // Create check-in if requested
             if ($this->addCheckin) {
-                $venueId = $this->checkinVenueId;
-                if (! $venueId && trim($this->checkinVenue)) {
-                    $venue = Venue::firstOrCreate(['name' => trim($this->checkinVenue)]);
-                    $venueId = $venue->id;
-
-                    if ($venue->wasRecentlyCreated && auth()->user()->getData('geocoding_enabled')) {
-                        GeocodeVenue::dispatch($venue);
-                    }
-                }
+                $venueId = $this->resolveLocationId('venue', Venue::class);
 
                 $checkin = Checkin::create([
                     'user_id' => auth()->id(),
@@ -495,6 +463,10 @@ class BeerForm extends Component
             'styles' => $this->getStyles(),
             'isEditing' => $isEditing,
             'hasApiKey' => LogrDb::forUser() !== null || (bool) (auth()->user()->untappd_client_id || config('services.untappd.api_key') || auth()->user()->catalog_beer_api_key || config('services.catalog_beer.key')),
+            'venueSuggestions' => $this->getLocationSuggestions('venue', Venue::class, 8),
+            'venueApiResults' => $this->getLocationApiResults('venue'),
+            'storeSuggestions' => $this->getLocationSuggestions('store', Store::class),
+            'storeApiResults' => $this->getLocationApiResults('store'),
         ])->title($isEditing ? 'Edit '.$this->beer->name.' | Beers' : 'Add Beer | Beers');
     }
 

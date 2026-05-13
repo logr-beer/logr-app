@@ -43,7 +43,7 @@ new class extends Component
                     <x-nav-link :href="route('checkins.index')" :active="request()->routeIs('checkins.*')" wire:navigate>
                         Check-ins
                     </x-nav-link>
-                    <x-nav-link :href="route('locations.venues')" :active="request()->routeIs('locations.*') || request()->routeIs('venues.*')" wire:navigate>
+                    <x-nav-link :href="route('locations.breweries')" :active="request()->routeIs('locations.*') || request()->routeIs('venues.*') || request()->routeIs('breweries.*') || request()->routeIs('stores.*')" wire:navigate>
                         Locations
                     </x-nav-link>
                     <x-nav-link :href="route('stats')" :active="request()->routeIs('stats')" wire:navigate>
@@ -133,7 +133,7 @@ new class extends Component
             <x-responsive-nav-link :href="route('checkins.index')" :active="request()->routeIs('checkins.*')" wire:navigate>
                 Check-ins
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('locations.venues')" :active="request()->routeIs('locations.*') || request()->routeIs('venues.*')" wire:navigate>
+            <x-responsive-nav-link :href="route('locations.breweries')" :active="request()->routeIs('locations.*') || request()->routeIs('venues.*') || request()->routeIs('breweries.*') || request()->routeIs('stores.*')" wire:navigate>
                 Locations
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('stats')" :active="request()->routeIs('stats')" wire:navigate>

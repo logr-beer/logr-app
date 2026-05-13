@@ -59,7 +59,7 @@ class Discord
             return false;
         }
 
-        $inventory->loadMissing(['beer.brewery']);
+        $inventory->loadMissing(['beer.brewery', 'store']);
         $beer = $inventory->beer;
 
         $imagePath = $beer->photo_path ?? $beer->brewery?->logo_path;
@@ -69,7 +69,7 @@ class Discord
             'brewery' => $beer->brewery?->name,
             'quantity' => $inventory->quantity,
             'storage_location' => $inventory->storage_location,
-            'purchase_location' => $inventory->purchase_location,
+            'purchase_location' => $inventory->store?->name,
             'is_gift' => $inventory->is_gift,
             'style' => $beer->style ? implode(', ', $beer->style) : null,
             'abv' => $beer->abv,

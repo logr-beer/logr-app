@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Livewire\VenueShow;
+use App\Livewire\LocationShow;
 use App\Models\Beer;
 use App\Models\Checkin;
 use App\Models\User;
@@ -27,7 +27,7 @@ class VenueAuthTest extends TestCase
         ]);
 
         Livewire::actingAs($user)
-            ->test(VenueShow::class, ['venue' => $venue])
+            ->test(LocationShow::class, ['location' => $venue])
             ->call('edit')
             ->set('name', 'Updated Pub')
             ->set('city', 'Seattle')
@@ -56,7 +56,7 @@ class VenueAuthTest extends TestCase
         ]);
 
         Livewire::actingAs($user)
-            ->test(VenueShow::class, ['venue' => $venue])
+            ->test(LocationShow::class, ['location' => $venue])
             ->call('delete');
 
         $this->assertDatabaseMissing('venues', [
@@ -81,7 +81,7 @@ class VenueAuthTest extends TestCase
         ]);
 
         Livewire::actingAs($user2)
-            ->test(VenueShow::class, ['venue' => $venue])
+            ->test(LocationShow::class, ['location' => $venue])
             ->call('delete')
             ->assertStatus(403);
 
@@ -99,7 +99,7 @@ class VenueAuthTest extends TestCase
         config(['app.demo_mode' => true]);
 
         Livewire::actingAs($user)
-            ->test(VenueShow::class, ['venue' => $venue])
+            ->test(LocationShow::class, ['location' => $venue])
             ->call('delete');
 
         $this->assertDatabaseHas('venues', [

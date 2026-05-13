@@ -195,7 +195,7 @@ class BeerCrudTest extends TestCase
             ->set('addCheckin', true)
             ->set('checkinRating', 4.0)
             ->set('checkinServingType', 'can')
-            ->set('checkinVenue', 'Home')
+            ->set('venueQuery', 'Home')
             ->set('checkinNotes', 'Great first try')
             ->call('save');
 

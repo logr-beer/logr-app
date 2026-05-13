@@ -2,8 +2,8 @@
 
 namespace App\Livewire;
 
+use App\Concerns\WithLocationAutocomplete;
 use App\Events\CheckinCreated;
-use App\Jobs\GeocodeVenue;
 use App\Models\Beer;
 use App\Models\Brewery;
 use App\Models\Checkin;
@@ -21,6 +21,7 @@ use Livewire\WithFileUploads;
 class CheckinForm extends Component
 {
     use WithFileUploads;
+    use WithLocationAutocomplete;
 
     // Edit mode
     public ?int $checkinId = null;
@@ -256,23 +257,6 @@ class CheckinForm extends Component
         }
     }
 
-    public function selectVenue(int $venueId): void
-    {
-        $venue = Venue::find($venueId);
-        if ($venue) {
-            $this->selectedVenueId = $venue->id;
-            $this->selectedVenueName = $venue->name;
-            $this->venueQuery = '';
-        }
-    }
-
-    public function clearVenue(): void
-    {
-        $this->selectedVenueId = null;
-        $this->selectedVenueName = '';
-        $this->venueQuery = '';
-    }
-
     public function removePhoto(int $index): void
     {
         $photos = collect($this->photos)->values()->all();
@@ -304,20 +288,8 @@ class CheckinForm extends Component
         ]);
 
         // Resolve venue
-        $venueId = $this->selectedVenueId;
-        $locationText = null;
-
-        if (! $venueId && trim($this->venueQuery)) {
-            $venue = Venue::firstOrCreate(['name' => trim($this->venueQuery)]);
-            $venueId = $venue->id;
-            $locationText = $venue->name;
-
-            if ($venue->wasRecentlyCreated && auth()->user()->getData('geocoding_enabled')) {
-                GeocodeVenue::dispatch($venue);
-            }
-        } elseif ($venueId) {
-            $locationText = $this->selectedVenueName;
-        }
+        $venueId = $this->resolveLocationId('venue', Venue::class);
+        $locationText = $venueId ? Venue::find($venueId)->name : null;
 
         $data = [
             'user_id' => auth()->id(),
@@ -429,18 +401,14 @@ class CheckinForm extends Component
             $apiResults = $this->fetchApiBeerResults();
         }
 
-        $venueSuggestions = [];
-        if (strlen($this->venueQuery) >= 2 && ! $this->selectedVenueId) {
-            $venueSuggestions = Venue::where('name', 'like', '%'.$this->venueQuery.'%')
-                ->orderBy('name')
-                ->limit(8)
-                ->get();
-        }
+        $venueSuggestions = $this->getLocationSuggestions('venue', Venue::class, 8);
+        $venueApiResults = $this->getLocationApiResults('venue');
 
         return view('livewire.checkin-form', [
             'beerSuggestions' => $beerSuggestions,
             'apiResults' => $apiResults,
             'venueSuggestions' => $venueSuggestions,
+            'venueApiResults' => $venueApiResults,
         ])->title($this->checkinId ? 'Edit Check-in | Check-ins' : 'New Check-in | Check-ins');
     }
 }
