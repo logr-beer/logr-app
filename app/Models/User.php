@@ -116,6 +116,7 @@ class User extends Authenticatable
     public static function dataKeys(): array
     {
         return [
+            'pub_secret_key',
             'catalog_beer_api_key',
             'untappd_client_id',
             'untappd_client_secret',

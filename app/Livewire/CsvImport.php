@@ -8,7 +8,6 @@ use App\Models\Checkin;
 use App\Models\Inventory;
 use App\Models\Store;
 use App\Models\Venue;
-use App\Services\CatalogBeer;
 use App\Services\GeocodingService;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -384,16 +383,6 @@ class CsvImport extends Component
                 'ibu' => ($ibu = $getValue('beer_ibu')) ? (float) $ibu : null,
             ], fn ($v) => $v !== null));
             $this->results['created_beers']++;
-
-            // Submit new beer to catalog.beer
-            $catalogKey = auth()->user()->catalog_beer_api_key ?: config('services.catalog_beer.key');
-            if ($catalogKey) {
-                try {
-                    app(CatalogBeer::class)->submitBeer($beer, $catalogKey);
-                } catch (\Exception $e) {
-                    // Non-critical — don't block import
-                }
-            }
         }
 
         // Import checkin

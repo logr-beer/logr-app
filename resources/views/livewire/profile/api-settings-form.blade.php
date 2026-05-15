@@ -5,6 +5,7 @@ use Livewire\Volt\Component;
 
 new class extends Component
 {
+    public string $pub_secret_key = '';
     public string $untappd_username = '';
     public string $untappd_client_id = '';
     public string $untappd_client_secret = '';
@@ -31,6 +32,62 @@ new class extends Component
     public function mount(): void
     {
         $this->loadFromUser();
+
+        // Exchange claim code for secret key (server-to-server)
+        $claimCode = request()->query('pub_claim_code');
+        if ($claimCode && !config('app.demo_mode')) {
+            $this->exchangeClaimCode($claimCode);
+        }
+    }
+
+    private function exchangeClaimCode(string $code): void
+    {
+        $pubUrl = rtrim(config('services.logr.pub_url', ''), '/');
+        $apiKey = \App\Models\Setting::get('pub_api_key');
+
+        if (!$pubUrl || !$apiKey) {
+            $this->testSection = 'pub';
+            $this->testResult = 'No instance API key found.';
+            $this->testStatus = 'error';
+            return;
+        }
+
+        try {
+            $http = \Illuminate\Support\Facades\Http::withToken($apiKey)
+                ->accept('application/json')
+                ->timeout(10);
+
+            if (app()->environment('local')) {
+                $http = $http->withoutVerifying();
+            }
+
+            $response = $http->post($pubUrl . '/api/claim-exchange', [
+                'code' => $code,
+            ]);
+
+            if ($response->successful()) {
+                $token = $response->json('token');
+                if ($token) {
+                    $user = Auth::user();
+                    $user->setData('pub_secret_key', $token);
+                    $user->save();
+                    $this->pub_secret_key = $token;
+
+                    $this->testSection = 'pub';
+                    $this->testResult = 'Account linked! Your secret key has been saved.';
+                    $this->testStatus = 'success';
+                    return;
+                }
+            }
+
+            $this->testSection = 'pub';
+            $this->testResult = 'The claim code has expired or is invalid. Please try again.';
+            $this->testStatus = 'error';
+        } catch (\Exception $e) {
+            $this->testSection = 'pub';
+            $this->testResult = 'Could not exchange claim code: ' . $e->getMessage();
+            $this->testStatus = 'error';
+        }
     }
 
     private function loadFromUser(): void
@@ -42,7 +99,7 @@ new class extends Component
 
         $user = Auth::user();
         $keys = [
-            'untappd_username', 'untappd_client_id', 'untappd_client_secret',
+            'pub_secret_key', 'untappd_username', 'untappd_client_id', 'untappd_client_secret',
             'catalog_beer_api_key',
         ];
         foreach ($keys as $key) {
@@ -60,7 +117,7 @@ new class extends Component
         $user = Auth::user();
 
         $strings = [
-            'untappd_username', 'untappd_client_id', 'untappd_client_secret',
+            'pub_secret_key', 'untappd_username', 'untappd_client_id', 'untappd_client_secret',
             'catalog_beer_api_key',
         ];
         foreach ($strings as $key) {
@@ -107,6 +164,29 @@ new class extends Component
         $user->save();
     }
 
+    public function resetPubConnection(): void
+    {
+        $this->testSection = 'pub';
+
+        // Clear keys and linked account
+        \App\Models\Setting::remove('pub_api_key');
+        $user = Auth::user();
+        $user->setData('pub_secret_key', null);
+        $user->save();
+        $this->pub_secret_key = '';
+
+        // Provision a fresh instance key
+        $token = \App\Services\PubBeerDb::provisionKey();
+
+        if ($token) {
+            $this->testResult = 'Connection reset. New instance key provisioned.';
+            $this->testStatus = 'success';
+        } else {
+            $this->testResult = 'Connection cleared, but could not provision a new key. Try "Get API Key" again later.';
+            $this->testStatus = 'error';
+        }
+    }
+
     public function provisionPubKey(): void
     {
         $this->testSection = 'pub';
@@ -117,6 +197,53 @@ new class extends Component
             $this->testStatus = 'success';
         } else {
             $this->testResult = 'Could not get API key. The service may be temporarily unavailable — try again later.';
+            $this->testStatus = 'error';
+        }
+    }
+
+    public function claimPubKey(): void
+    {
+        $this->testSection = 'pub';
+        $pubUrl = rtrim(config('services.logr.pub_url', ''), '/');
+        $apiKey = \App\Models\Setting::get('pub_api_key');
+
+        if (!$pubUrl || !$apiKey) {
+            $this->testResult = 'No instance API key found. Get an API key first.';
+            $this->testStatus = 'error';
+            return;
+        }
+
+        try {
+            $http = \Illuminate\Support\Facades\Http::withToken($apiKey)
+                ->accept('application/json')
+                ->timeout(10);
+
+            if (app()->environment('local')) {
+                $http = $http->withoutVerifying();
+            }
+
+            $response = $http->post($pubUrl . '/api/claim-token', [
+                'redirect_url' => route('admin.api'),
+            ]);
+
+            if ($response->status() === 409) {
+                $this->testResult = 'This API key has already been linked to a Logr Pub account.';
+                $this->testStatus = 'success';
+                return;
+            }
+
+            if ($response->successful()) {
+                $claimUrl = $response->json('claim_url');
+                if ($claimUrl) {
+                    $this->redirect($claimUrl);
+                    return;
+                }
+            }
+
+            $this->testResult = 'Could not start claim flow. The service may be temporarily unavailable.';
+            $this->testStatus = 'error';
+        } catch (\Exception $e) {
+            $this->testResult = 'Connection error: ' . $e->getMessage();
             $this->testStatus = 'error';
         }
     }
@@ -343,10 +470,37 @@ new class extends Component
                             </button>
                         </div>
                     </div>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        Read-only access to the Logr Pub beer and brewery database.
-                    </p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Read-only access to the Logr Pub beer and brewery database.</p>
                 </div>
+
+                <div>
+                    <x-input-label for="pub_secret_key" value="Secret Key (write access)" />
+                    <div x-data="{ show: false }" class="mt-1">
+                        <div class="flex items-center gap-2">
+                            <input :type="show ? 'text' : 'password'" wire:model.live="pub_secret_key" id="pub_secret_key" autocomplete="off" {{ $demoMode ? 'disabled' : '' }}
+                                class="flex-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm font-mono text-sm {{ $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
+                            <button type="button" @click="show = !show" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Toggle visibility">
+                                <svg x-show="!show" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+                                <svg x-show="show" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12c1.292 4.338 5.31 7.5 10.066 7.5.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Link your Pub account to contribute beers and breweries you check in back to the community database. Click "Link to Logr Pub Account" below or paste a token manually.</p>
+                </div>
+
+                @unless($demoMode)
+                    <div class="flex items-center gap-2">
+                        <button type="button" wire:click="claimPubKey" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors">
+                            <span wire:loading wire:target="claimPubKey"><svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
+                            <x-icon name="external-link" size="3" />
+                            Link to Logr Pub Account
+                        </button>
+                        <button type="button" wire:click="resetPubConnection" wire:confirm="This will clear your instance key and secret key, and provision a new one. Continue?" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">
+                            <x-icon name="refresh" size="3" />
+                            Reset
+                        </button>
+                    </div>
+                @endunless
             @else
                 <div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-sm text-amber-800 dark:text-amber-200 space-y-3">
                     <p>Connect to the Logr Pub to enable beer and brewery search.</p>
@@ -362,41 +516,17 @@ new class extends Component
                     {{ $testResult }}
                 </div>
             @endif
-
-            <details class="text-xs">
-                <summary class="font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
-                    Submit Beers &amp; Breweries
-                </summary>
-                <div class="mt-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-2 text-gray-600 dark:text-gray-400">
-                    <p>A read-only API key is automatically assigned when your Logr instance connects to the Pub. This key lets you search the Pub's beer and brewery database.</p>
-                    <p>If you'd like to submit new beers and breweries to the Logr Pub database, register an account to get your secret key:</p>
-                    <ol class="list-decimal list-inside space-y-1 ml-1">
-                        <li>Create an account at <a href="{{ $pubUrl }}/register" target="_blank" rel="noopener" class="font-medium underline hover:text-amber-500">{{ str_replace('https://', '', $pubUrl) }}/register</a></li>
-                        <li>Your account will include a personal API token for write access</li>
-                        <li>Use that token to submit new beers and breweries via the Pub API</li>
-                    </ol>
-                    <p class="pt-1 text-gray-500 dark:text-gray-500">Automatic submission from Logr is coming in a future update.</p>
-                </div>
-            </details>
         </div>
 
         {{-- Catalog.beer --}}
         <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
-            <div class="flex items-center justify-between">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Catalog.beer</h3>
-                @if(config('services.catalog_beer.key'))
-                    <x-env-badge name="CATALOG_BEER_API_KEY" />
-                @endif
-            </div>
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Catalog.beer</h3>
             <div>
                 <x-input-label for="catalog_beer_api_key" value="API Key" />
-                <input wire:model.live="catalog_beer_api_key" id="catalog_beer_api_key" type="text" autocomplete="off" {{ $demoMode ? 'disabled' : '' }}
-                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm {{ $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
+                <input wire:model.live="catalog_beer_api_key" id="catalog_beer_api_key" type="password" autocomplete="off" {{ $demoMode ? 'disabled' : '' }}
+                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm font-mono text-sm {{ $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Get a free API key at <span class="font-medium">catalog.beer</span>.
-                    @if(config('services.catalog_beer.key'))
-                        Default provided by environment variable.
-                    @endif
+                    An additional beer database for search and auto-submission of new beers. Get a free API key at <a href="https://catalog.beer" target="_blank" rel="noopener" class="font-medium underline hover:text-amber-500">catalog.beer</a>.
                 </p>
             </div>
             <button type="button" wire:click="testCatalogBeer" {{ $demoMode ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50">
@@ -514,6 +644,7 @@ new class extends Component
                     @endif
                 </summary>
                 <div class="mt-3 space-y-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">If you're lucky enough to have Untappd API credentials, enter them here to enable beer and brewery search via the Untappd database. Untappd has not been accepting new API applications for some time.</p>
                     <div>
                         <div class="flex items-center justify-between">
                             <x-input-label for="untappd_client_id" value="Client ID" />
@@ -521,9 +652,9 @@ new class extends Component
                                 <x-env-badge name="UNTAPPD_API_KEY" />
                             @endif
                         </div>
-                        <input wire:model.live="untappd_client_id" id="untappd_client_id" type="text" autocomplete="off"
+                        <input wire:model.live="untappd_client_id" id="untappd_client_id" type="password" autocomplete="off"
                             {{ config('services.untappd.api_key') || $demoMode ? 'disabled' : '' }}
-                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm {{ config('services.untappd.api_key') || $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
+                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm font-mono text-sm {{ config('services.untappd.api_key') || $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
                     </div>
                     <div>
                         <div class="flex items-center justify-between">
@@ -532,10 +663,9 @@ new class extends Component
                                 <x-env-badge name="UNTAPPD_API_SECRET" />
                             @endif
                         </div>
-                        <input wire:model.live="untappd_client_secret" id="untappd_client_secret" type="text" autocomplete="off"
+                        <input wire:model.live="untappd_client_secret" id="untappd_client_secret" type="password" autocomplete="off"
                             {{ config('services.untappd.api_secret') || $demoMode ? 'disabled' : '' }}
-                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm {{ config('services.untappd.api_secret') || $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Register at <span class="font-medium">untappd.com/api/docs</span>.</p>
+                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm font-mono text-sm {{ config('services.untappd.api_secret') || $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
                     </div>
                     <button type="button" wire:click="testUntappd" {{ $demoMode ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50">
                         <span wire:loading wire:target="testUntappd"><svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
