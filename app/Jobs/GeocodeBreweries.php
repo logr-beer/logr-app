@@ -24,24 +24,32 @@ class GeocodeBreweries implements ShouldQueue
     public function handle(): void
     {
         try {
-            $breweries = Brewery::whereNull('latitude')
-                ->where(function ($q) {
-                    $q->whereNotNull('city')
-                        ->orWhereNotNull('state')
-                        ->orWhereNotNull('country');
-                })
-                ->get();
+            $breweries = Brewery::geocodable()->get();
 
             $geocoded = 0;
 
             foreach ($breweries as $brewery) {
-                $result = GeocodingService::geocode($brewery->city, $brewery->state, $brewery->country);
+                $result = GeocodingService::geocode(
+                    $brewery->city ?? $brewery->name,
+                    $brewery->state,
+                    $brewery->country
+                );
 
                 if ($result) {
-                    $brewery->update([
+                    $updates = [
                         'latitude' => $result['lat'],
                         'longitude' => $result['lng'],
-                    ]);
+                    ];
+                    if (! $brewery->city && ! empty($result['city'])) {
+                        $updates['city'] = $result['city'];
+                    }
+                    if (! $brewery->state && ! empty($result['state'])) {
+                        $updates['state'] = $result['state'];
+                    }
+                    if (! $brewery->country && ! empty($result['country'])) {
+                        $updates['country'] = $result['country'];
+                    }
+                    $brewery->update($updates);
                     $geocoded++;
                 }
 

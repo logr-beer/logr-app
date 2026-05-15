@@ -36,8 +36,12 @@ window.LeafletMap = {
         const defaultView = options.center || [41.8781, -87.6298]; // Chicago, IL
         const defaultZoom = options.zoom || 4;
 
-        const map = L.map(el, { scrollWheelZoom: false, dragging: true })
-            .setView(defaultView, defaultZoom);
+        const map = L.map(el, {
+            scrollWheelZoom: false,
+            dragging: true,
+            tap: true,
+            touchZoom: true,
+        }).setView(defaultView, defaultZoom);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -66,7 +70,7 @@ window.LeafletMap = {
 
         const fitPoints = inliers.length > 0 ? inliers : points;
         const bounds = L.latLngBounds(fitPoints.map(p => [p.lat, p.lng]));
-        map.fitBounds(bounds.pad(0.1));
+        map.fitBounds(bounds.pad(0.1), { maxZoom: 12 });
     },
 
     createMarker(map, point, { color = '#f59e0b', size = 12, label = '', popup = '' }) {

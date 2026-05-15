@@ -29,18 +29,14 @@
                                     {{ __('Export Data') }}
                                 </h2>
                                 <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                    {{ __('Download your data as CSV files.') }}
+                                    {{ __('Download all your data as a JSON file.') }}
                                 </p>
                             </header>
 
-                            <div class="mt-6 space-y-3">
-                                <x-primary-button :href="route('beers.export')" class="w-full justify-center sm:w-auto sm:justify-start">
+                            <div class="mt-6">
+                                <x-primary-button :href="route('export')" class="w-full justify-center sm:w-auto sm:justify-start">
                                     <x-icon name="download" size="4" />
-                                    Export Beers
-                                </x-primary-button>
-                                <x-primary-button :href="route('checkins.export')" class="w-full justify-center sm:w-auto sm:justify-start">
-                                    <x-icon name="download" size="4" />
-                                    Export Check-Ins
+                                    Export All Data
                                 </x-primary-button>
                             </div>
                         </div>

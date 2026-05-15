@@ -6,8 +6,8 @@ use App\Models\Beer;
 use App\Models\Brewery;
 use App\Models\Checkin;
 use App\Models\Inventory;
+use App\Models\Store;
 use App\Models\Venue;
-use App\Services\CatalogBeer;
 use App\Services\GeocodingService;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -50,7 +50,9 @@ class CsvImport extends Component
         return [
             '' => '— Skip —',
             'beer_name' => 'Beer Name',
+            'beer_pub_uuid' => 'Beer Pub UUID',
             'brewery_name' => 'Brewery Name',
+            'brewery_pub_uuid' => 'Brewery Pub UUID',
             'brewery_city' => 'Brewery City',
             'brewery_state' => 'Brewery State',
             'brewery_country' => 'Brewery Country',
@@ -74,7 +76,9 @@ class CsvImport extends Component
         return [
             '' => '— Skip —',
             'beer_name' => 'Beer Name',
+            'beer_pub_uuid' => 'Beer Pub UUID',
             'brewery_name' => 'Brewery Name',
+            'brewery_pub_uuid' => 'Brewery Pub UUID',
             'brewery_city' => 'Brewery City',
             'brewery_state' => 'Brewery State',
             'brewery_country' => 'Brewery Country',
@@ -83,7 +87,7 @@ class CsvImport extends Component
             'beer_ibu' => 'IBU',
             'quantity' => 'Quantity',
             'storage_location' => 'Storage Location',
-            'purchase_location' => 'Purchase Location',
+            'purchase_location' => 'Store',
             'date_acquired' => 'Date Acquired',
             'inventory_notes' => 'Notes',
         ];
@@ -98,7 +102,7 @@ class CsvImport extends Component
             return array_merge($this->getCheckinFields(), [
                 'quantity' => 'Quantity (Inventory)',
                 'storage_location' => 'Storage Location',
-                'purchase_location' => 'Purchase Location',
+                'purchase_location' => 'Store',
                 'date_acquired' => 'Date Acquired',
                 'inventory_notes' => 'Inventory Notes',
             ]);
@@ -162,7 +166,9 @@ class CsvImport extends Component
         $headerMap = [
             // Untappd export format
             'beer_name' => ['beer_name', 'beer name', 'beer'],
+            'beer_pub_uuid' => ['beer_pub_uuid', 'beer pub uuid', 'beer_uuid', 'beer uuid'],
             'brewery_name' => ['brewery_name', 'brewery name', 'brewery'],
+            'brewery_pub_uuid' => ['brewery_pub_uuid', 'brewery pub uuid', 'brewery_uuid', 'brewery uuid'],
             'brewery_city' => ['brewery_city', 'brewery city'],
             'brewery_state' => ['brewery_state', 'brewery state'],
             'brewery_country' => ['brewery_country', 'brewery country'],
@@ -264,25 +270,36 @@ class CsvImport extends Component
         // Find or create brewery
         $brewery = null;
         $breweryName = $getValue('brewery_name');
-        if ($breweryName) {
+        $breweryPubUuid = $getValue('brewery_pub_uuid') ?: null;
+        if ($breweryName || $breweryPubUuid) {
             $breweryCity = $getValue('brewery_city') ?: null;
             $breweryState = $getValue('brewery_state') ?: null;
             $breweryCountry = $getValue('brewery_country') ?: null;
 
-            // Try exact match on name + city/state first (disambiguates same-name breweries)
-            $brewery = Brewery::where('name', $breweryName)
-                ->when($breweryCity, fn ($q) => $q->where('city', $breweryCity))
-                ->when($breweryState, fn ($q) => $q->where('state', $breweryState))
-                ->first();
+            // Try pub_uuid match first (most reliable)
+            if ($breweryPubUuid) {
+                $brewery = Brewery::where('pub_uuid', $breweryPubUuid)->first();
+            }
+
+            // Try exact match on name + city/state (disambiguates same-name breweries)
+            if (! $brewery && $breweryName) {
+                $brewery = Brewery::where('name', $breweryName)
+                    ->when($breweryCity, fn ($q) => $q->where('city', $breweryCity))
+                    ->when($breweryState, fn ($q) => $q->where('state', $breweryState))
+                    ->first();
+            }
 
             // Fall back to name-only match if no location-specific match found
-            if (! $brewery) {
+            if (! $brewery && $breweryName) {
                 $brewery = Brewery::where('name', $breweryName)->first();
             }
 
             if ($brewery) {
-                // Backfill missing location data on existing brewery
+                // Backfill missing data on existing brewery
                 $breweryUpdates = [];
+                if (! $brewery->pub_uuid && $breweryPubUuid) {
+                    $breweryUpdates['pub_uuid'] = $breweryPubUuid;
+                }
                 if (! $brewery->city && $breweryCity) {
                     $breweryUpdates['city'] = $breweryCity;
                 }
@@ -305,28 +322,41 @@ class CsvImport extends Component
                 }
             } else {
                 $coords = GeocodingService::geocode($breweryCity, $breweryState, $breweryCountry);
-                $brewery = Brewery::create([
+                $brewery = Brewery::create(array_filter([
                     'name' => $breweryName,
+                    'pub_uuid' => $breweryPubUuid,
                     'city' => $breweryCity,
                     'state' => $breweryState,
                     'country' => $breweryCountry,
                     'latitude' => $coords['lat'] ?? null,
                     'longitude' => $coords['lng'] ?? null,
-                ]);
+                ], fn ($v) => $v !== null));
             }
         }
 
         // Find or create beer
-        $beerQuery = Beer::where('name', $beerName);
-        if ($brewery) {
-            $beerQuery->where('brewery_id', $brewery->id);
+        $beerPubUuid = $getValue('beer_pub_uuid') ?: null;
+        $beer = null;
+
+        if ($beerPubUuid) {
+            $beer = Beer::where('pub_uuid', $beerPubUuid)->first();
         }
-        $beer = $beerQuery->first();
+
+        if (! $beer) {
+            $beerQuery = Beer::where('name', $beerName);
+            if ($brewery) {
+                $beerQuery->where('brewery_id', $brewery->id);
+            }
+            $beer = $beerQuery->first();
+        }
 
         if ($beer) {
             $this->results['existing_beers']++;
             // Backfill missing fields
             $updates = [];
+            if (! $beer->pub_uuid && $beerPubUuid) {
+                $updates['pub_uuid'] = $beerPubUuid;
+            }
             if (! $beer->brewery_id && $brewery) {
                 $updates['brewery_id'] = $brewery->id;
             }
@@ -344,24 +374,15 @@ class CsvImport extends Component
             }
         } else {
             $style = $getValue('beer_style');
-            $beer = Beer::create([
+            $beer = Beer::create(array_filter([
                 'name' => $beerName,
+                'pub_uuid' => $beerPubUuid,
                 'brewery_id' => $brewery?->id,
                 'style' => $style ? $this->parseStyles($style) : [],
                 'abv' => ($abv = $getValue('beer_abv')) ? (float) $abv : null,
                 'ibu' => ($ibu = $getValue('beer_ibu')) ? (float) $ibu : null,
-            ]);
+            ], fn ($v) => $v !== null));
             $this->results['created_beers']++;
-
-            // Submit new beer to catalog.beer
-            $catalogKey = auth()->user()->catalog_beer_api_key ?: config('services.catalog_beer.key');
-            if ($catalogKey) {
-                try {
-                    app(CatalogBeer::class)->submitBeer($beer, $catalogKey);
-                } catch (\Exception $e) {
-                    // Non-critical — don't block import
-                }
-            }
         }
 
         // Import checkin
@@ -439,12 +460,20 @@ class CsvImport extends Component
                 $qty = 1;
             }
 
+            // Resolve store
+            $storeId = null;
+            $purchaseLocation = $getValue('purchase_location');
+            if ($purchaseLocation) {
+                $store = Store::firstOrCreate(['name' => $purchaseLocation]);
+                $storeId = $store->id;
+            }
+
             $inventoryData = [
                 'beer_id' => $beer->id,
                 'user_id' => auth()->id(),
                 'quantity' => $qty,
                 'storage_location' => $storageLocation ?: null,
-                'purchase_location' => $getValue('purchase_location') ?: null,
+                'store_id' => $storeId,
                 'notes' => $getValue('inventory_notes') ?: null,
             ];
 

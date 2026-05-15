@@ -40,7 +40,7 @@ php artisan tinker
 
 **Key directories**:
 - `app/Livewire/` — Page-level components (BeerForm, CheckinForm, BeerIndex, etc.)
-- `app/Services/` — External integrations (Untappd, Discord, CatalogBeer, Hub, LogrDb)
+- `app/Services/` — External integrations (Untappd, Discord, CatalogBeer, Pub, PubBeerDb)
 - `app/Jobs/` — Background queue jobs (geocoding, scraping, RSS sync)
 - `app/Models/` — Eloquent models with relationships
 - `app/Events/` + `app/Listeners/` — CheckinCreated fires Discord/Hub notifications
@@ -59,6 +59,18 @@ php artisan tinker
 
 Version lives in `config/logr.php`. Bump patch level only (e.g., 0.1.12 -> 0.1.13). Pushing a `v*` tag triggers GitHub Actions to build and push Docker images to Docker Hub + GHCR.
 
+**Release process**: Run `composer test:all` (PHPUnit + Playwright E2E) before tagging. If tests fail, fix before release. Push version bump directly to main, then tag.
+
 ## Testing
 
 Tests use in-memory SQLite (configured in `phpunit.xml`). Test suite is in `tests/Feature/` and `tests/Unit/`.
+
+```bash
+composer test          # PHPUnit only
+npm run test:e2e       # Playwright E2E only (headless, requires DDEV running)
+composer test:all      # Both PHPUnit + Playwright (run before release)
+npm run test:e2e:headed  # Playwright with visible browser
+npm run test:e2e:ui    # Playwright interactive debugger
+```
+
+Playwright tests require Chromium installed locally (`npm run test:e2e:install`) and DDEV running with a seeded demo user.

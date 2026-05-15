@@ -3,12 +3,16 @@
 namespace App\Livewire;
 
 use App\Models\User;
+use App\Services\JsonImportService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class Setup extends Component
 {
+    use WithFileUploads;
+
     public function boot(): void
     {
         if (User::count() > 0) {
@@ -24,6 +28,10 @@ class Setup extends Component
     public string $password_confirmation = '';
 
     public bool $loadDemoData = false;
+
+    public $backupFile;
+
+    public array $backupSummary = [];
 
     public bool $geocodingEnabled = true;
 
@@ -85,6 +93,34 @@ class Setup extends Component
     public function hasEnvVars(): bool
     {
         return ! empty($this->envLocked);
+    }
+
+    public function updatedBackupFile(): void
+    {
+        $this->validate([
+            'backupFile' => 'required|file|max:51200',
+        ]);
+
+        $contents = file_get_contents($this->backupFile->getRealPath());
+        $data = json_decode($contents, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->addError('backupFile', 'Invalid JSON file.');
+            $this->backupSummary = [];
+
+            return;
+        }
+
+        $this->backupSummary = JsonImportService::preview($data);
+
+        // If we have a backup, disable demo data
+        $this->loadDemoData = false;
+    }
+
+    public function removeBackup(): void
+    {
+        $this->backupFile = null;
+        $this->backupSummary = [];
     }
 
     // -- RSS Feeds (only when not env-locked) --
@@ -195,7 +231,13 @@ class Setup extends Component
 
         $user->save();
 
-        if ($this->loadDemoData) {
+        // Provision a Logr Pub API key for beer database search
+        \App\Services\PubBeerDb::provisionKey();
+
+        if ($this->backupFile) {
+            Auth::login($user);
+            $this->importBackup($user);
+        } elseif ($this->loadDemoData) {
             $seeder = new \Database\Seeders\DemoSeeder;
             $seeder->run();
         }
@@ -209,9 +251,24 @@ class Setup extends Component
             \App\Jobs\SyncUntappdRss::dispatch($user);
         }
 
-        Auth::login($user);
+        if (! Auth::check()) {
+            Auth::login($user);
+        }
 
         $this->redirect(route('dashboard'), navigate: true);
+    }
+
+    private function importBackup(User $user): void
+    {
+        $contents = file_get_contents($this->backupFile->getRealPath());
+        $data = json_decode($contents, true);
+
+        if (! $data) {
+            return;
+        }
+
+        $service = new JsonImportService($user->id);
+        $service->import($data);
     }
 
     public function render()

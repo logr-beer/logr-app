@@ -18,10 +18,6 @@ return [
         'key' => env('CATALOG_BEER_API_KEY'),
     ],
 
-    'logr_db' => [
-        'url' => env('LOGR_DB_URL'),
-    ],
-
     'logr' => [
         'discord_bot_url' => env('LOGR_DISCORD_BOT_URL', 'https://pub.logr.beer'),
         'pub_url' => env('LOGR_PUB_URL', 'https://pub.logr.beer'),

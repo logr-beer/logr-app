@@ -10,7 +10,7 @@ class Inventory extends Model
     protected $table = 'inventory';
 
     protected $fillable = [
-        'beer_id', 'user_id', 'quantity', 'storage_location', 'purchase_location', 'is_gift', 'date_acquired', 'notes',
+        'beer_id', 'user_id', 'store_id', 'quantity', 'storage_location', 'is_gift', 'date_acquired', 'notes',
     ];
 
     protected $casts = [
@@ -26,5 +26,10 @@ class Inventory extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function store(): BelongsTo
+    {
+        return $this->belongsTo(Store::class);
     }
 }

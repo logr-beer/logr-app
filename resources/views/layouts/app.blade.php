@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ isset($title) ? $title . ' | ' . config('app.name', 'Logr') : config('app.name', 'Logr') }}</title>
+        <title>{!! isset($title) ? strip_tags($title) . ' | ' . config('app.name', 'Logr') : config('app.name', 'Logr') !!}</title>
 
         <!-- Favicon -->
         <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
@@ -17,6 +17,11 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <!-- Dark mode (before render to prevent flash) -->
+        <script>
+            (function(){var t=localStorage.getItem('theme');if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark');else document.documentElement.classList.remove('dark')})();
+        </script>
 
         @if(config('app.google_analytics_id'))
             <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('app.google_analytics_id') }}"></script>
@@ -66,6 +71,15 @@
             <main class="relative z-0">
                 {{ $slot }}
             </main>
+
+            <!-- Toast Notifications -->
+            <x-toast />
+            @if(session('message'))
+                <script>window.addEventListener('DOMContentLoaded', () => window.dispatchEvent(new CustomEvent('toast', { detail: { message: @json(session('message')) } })));</script>
+            @endif
+            @if(session('error'))
+                <script>window.addEventListener('DOMContentLoaded', () => window.dispatchEvent(new CustomEvent('toast', { detail: { message: @json(session('error')), type: 'error' } })));</script>
+            @endif
 
             <!-- Footer -->
             <footer class="border-t border-gray-200 dark:border-gray-700 mt-12">

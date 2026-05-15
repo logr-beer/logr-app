@@ -96,6 +96,7 @@ class DemoSeeder extends Seeder
                 $breweryAttrs = [
                     'city' => $data['city'] ?: null,
                     'state' => $data['state'] ?: null,
+                    'country' => ($data['brewery_country'] ?? null) ?: null,
                 ];
 
                 if (! empty($data['brewery_latitude'])) {
@@ -103,8 +104,17 @@ class DemoSeeder extends Seeder
                     $breweryAttrs['longitude'] = $data['brewery_longitude'];
                 }
 
+                $breweryMatch = ! empty($data['brewery_pub_uuid'])
+                    ? ['pub_uuid' => $data['brewery_pub_uuid']]
+                    : ['name' => $data['brewery']];
+
+                if (! empty($data['brewery_pub_uuid'])) {
+                    $breweryAttrs['name'] = $data['brewery'];
+                    $breweryAttrs['pub_uuid'] = $data['brewery_pub_uuid'];
+                }
+
                 $breweryCache[$breweryKey] = Brewery::firstOrCreate(
-                    ['name' => $data['brewery']],
+                    $breweryMatch,
                     $breweryAttrs,
                 );
             }
@@ -119,7 +129,13 @@ class DemoSeeder extends Seeder
                 ];
                 $beerPhotoIndex++;
 
-                if (! empty($data['catalog_beer_id'])) {
+                if (! empty($data['beer_pub_uuid'])) {
+                    $beerAttrs['pub_uuid'] = $data['beer_pub_uuid'];
+                    $beerCache[$beerKey] = Beer::firstOrCreate(
+                        ['pub_uuid' => $data['beer_pub_uuid']],
+                        ['name' => $data['beer_name'], 'brewery_id' => $brewery->id] + $beerAttrs,
+                    );
+                } elseif (! empty($data['catalog_beer_id'])) {
                     $beerCache[$beerKey] = Beer::firstOrCreate(
                         ['catalog_beer_id' => $data['catalog_beer_id']],
                         ['name' => $data['beer_name'], 'brewery_id' => $brewery->id] + $beerAttrs,

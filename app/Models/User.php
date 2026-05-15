@@ -116,12 +116,12 @@ class User extends Authenticatable
     public static function dataKeys(): array
     {
         return [
+            'pub_secret_key',
             'catalog_beer_api_key',
             'untappd_client_id',
             'untappd_client_secret',
             'untappd_username',
             'untappd_password',
-            'logr_db_token',
             'untappd_rss_feeds',
             'discord_webhooks',
             'discord_bots',

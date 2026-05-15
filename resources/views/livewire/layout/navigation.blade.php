@@ -43,7 +43,7 @@ new class extends Component
                     <x-nav-link :href="route('checkins.index')" :active="request()->routeIs('checkins.*')" wire:navigate>
                         Check-ins
                     </x-nav-link>
-                    <x-nav-link :href="route('locations.venues')" :active="request()->routeIs('locations.*') || request()->routeIs('venues.*')" wire:navigate>
+                    <x-nav-link :href="route('locations.breweries')" :active="request()->routeIs('locations.*') || request()->routeIs('venues.*') || request()->routeIs('breweries.*') || request()->routeIs('stores.*')" wire:navigate>
                         Locations
                     </x-nav-link>
                     <x-nav-link :href="route('stats')" :active="request()->routeIs('stats')" wire:navigate>
@@ -60,6 +60,15 @@ new class extends Component
                 <x-primary-button :href="route('beers.create')" wire:navigate size="sm">
                     <x-icon name="plus" size="4" /> Add Beer
                 </x-primary-button>
+                <button
+                    x-data="{ dark: document.documentElement.classList.contains('dark') }"
+                    x-on:click="dark = !dark; localStorage.setItem('theme', dark ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', dark)"
+                    class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    title="Toggle dark mode"
+                >
+                    <x-icon x-show="!dark" x-cloak name="moon" size="5" />
+                    <x-icon x-show="dark" x-cloak name="sun" size="5" />
+                </button>
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-lg text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
@@ -105,8 +114,16 @@ new class extends Component
                 </x-dropdown>
             </div>
 
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
+            <!-- Dark mode toggle + Hamburger -->
+            <div class="-me-2 flex items-center sm:hidden gap-1">
+                <button
+                    x-data="{ dark: document.documentElement.classList.contains('dark') }"
+                    x-on:click="dark = !dark; localStorage.setItem('theme', dark ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', dark)"
+                    class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 transition"
+                >
+                    <x-icon x-show="!dark" x-cloak name="moon" size="5" />
+                    <x-icon x-show="dark" x-cloak name="sun" size="5" />
+                </button>
                 <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -133,7 +150,7 @@ new class extends Component
             <x-responsive-nav-link :href="route('checkins.index')" :active="request()->routeIs('checkins.*')" wire:navigate>
                 Check-ins
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('locations.venues')" :active="request()->routeIs('locations.*') || request()->routeIs('venues.*')" wire:navigate>
+            <x-responsive-nav-link :href="route('locations.breweries')" :active="request()->routeIs('locations.*') || request()->routeIs('venues.*') || request()->routeIs('breweries.*') || request()->routeIs('stores.*')" wire:navigate>
                 Locations
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('stats')" :active="request()->routeIs('stats')" wire:navigate>

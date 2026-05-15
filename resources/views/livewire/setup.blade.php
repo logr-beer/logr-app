@@ -70,13 +70,51 @@
                     </div>
                 </div>
 
-                <label class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 cursor-pointer">
-                    <input wire:model="loadDemoData" type="checkbox"
-                        class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
-                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Load demo data</span>
-                    <span></span>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Pre-populate with sample beers, breweries, check-ins, and collections.</p>
-                </label>
+                {{-- Restore from backup --}}
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-3 mt-1">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Restore from backup</label>
+                    @if (count($backupSummary) > 0)
+                        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-green-700 dark:text-green-400">Backup loaded</span>
+                                <button type="button" wire:click="removeBackup" class="text-xs text-gray-500 hover:text-red-500 transition-colors">Remove</button>
+                            </div>
+                            @if ($backupSummary['exported_at'])
+                                <p class="text-xs text-green-600 dark:text-green-500">
+                                    Exported {{ \Carbon\Carbon::parse($backupSummary['exported_at'])->diffForHumans() }}
+                                    (v{{ $backupSummary['version'] }})
+                                </p>
+                            @endif
+                            <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-green-600 dark:text-green-500">
+                                @foreach (['beers', 'breweries', 'checkins', 'inventory', 'venues', 'stores', 'collections', 'tags'] as $section)
+                                    @if (($backupSummary[$section] ?? 0) > 0)
+                                        <span>{{ $backupSummary[$section] }} {{ $section }}</span>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+                    @else
+                        <input type="file" wire:model="backupFile" accept=".json"
+                            class="block w-full text-sm text-gray-500 dark:text-gray-400
+                                file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0
+                                file:text-sm file:font-medium
+                                file:bg-gray-200 dark:file:bg-gray-600 file:text-gray-700 dark:file:text-gray-200
+                                hover:file:bg-gray-300 dark:hover:file:bg-gray-500" />
+                        @error('backupFile') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                        <div wire:loading wire:target="backupFile" class="text-xs text-gray-500 dark:text-gray-400 mt-1">Reading file...</div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Upload a <code class="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded font-mono">logr-export-*.json</code> file to restore your data.</p>
+                    @endif
+                </div>
+
+                @if (count($backupSummary) === 0)
+                    <label class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 cursor-pointer">
+                        <input wire:model="loadDemoData" type="checkbox"
+                            class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Load demo data</span>
+                        <span></span>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Pre-populate with sample beers, breweries, check-ins, and collections.</p>
+                    </label>
+                @endif
             </div>
 
             {{-- Integrations Section --}}

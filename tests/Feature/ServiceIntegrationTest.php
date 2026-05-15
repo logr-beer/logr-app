@@ -8,7 +8,6 @@ use App\Models\Checkin;
 use App\Models\User;
 use App\Services\CatalogBeer;
 use App\Services\Discord;
-use App\Services\LogrDb;
 use App\Services\Untappd;
 use App\Services\UntappdRss;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -68,30 +67,6 @@ class ServiceIntegrationTest extends TestCase
         $results = $catalog->search('stout', 5, $apiKey);
 
         $this->assertNotEmpty($results, 'Catalog Beer search returned no results.');
-        $this->assertArrayHasKey('name', $results[0]);
-    }
-
-    public function test_logr_db_beer_search(): void
-    {
-        $url = config('services.logr_db.url');
-
-        if (! $url) {
-            $this->markTestSkipped('LogrDb URL not configured.');
-        }
-
-        $user = User::factory()->create();
-        $user->setData('logr_db_token', 'test-token');
-        $user->save();
-
-        $logrDb = LogrDb::forUser($user);
-
-        if (! $logrDb) {
-            $this->markTestSkipped('LogrDb token not available for user.');
-        }
-
-        $results = $logrDb->searchBeers('lager', 5);
-
-        $this->assertNotEmpty($results, 'LogrDb beer search returned no results.');
         $this->assertArrayHasKey('name', $results[0]);
     }
 

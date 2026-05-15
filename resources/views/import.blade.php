@@ -2,7 +2,8 @@
     <x-slot name="title">Import</x-slot>
 
     <div class="py-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+            <livewire:json-import />
             <livewire:csv-import />
         </div>
     </div>

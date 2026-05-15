@@ -25,3 +25,6 @@ Thumbs.db
 /database/database.sqlite
 /public/js/filament
 /public/css/filament
+/playwright/.auth/
+/test-results/
+/playwright-report/

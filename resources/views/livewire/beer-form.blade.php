@@ -10,19 +10,40 @@
         @if($hasApiKey && !$isEditing)
         <div x-data="{ open: @entangle('showBeerDropdown') }" @click.outside="open = false" class="relative mb-6">
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
-                <label for="beer_search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Search to auto-fill</label>
-                <div class="relative">
-                    <x-icon name="search" size="4" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input
-                        wire:model.live.debounce.400ms="beerSearch"
-                        @focus="if ($wire.beerSearch.length >= 2) open = true"
-                        type="text"
-                        id="beer_search"
-                        autocomplete="off"
-                        class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
-                        placeholder="Search for a beer to import (e.g. Pliny the Elder)..."
-                    />
-                </div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Search to auto-fill</label>
+
+                @if($selectedSearchBeer)
+                    <div class="flex items-center gap-2 px-3 py-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg">
+                        <x-icon name="flask" size="4" class="text-amber-500 flex-shrink-0" />
+                        <span class="text-sm font-medium text-amber-700 dark:text-amber-400 flex-1">{{ $selectedSearchBeer }}</span>
+                        <button type="button" wire:click="clearSearchBeer" class="text-amber-400 hover:text-amber-600 dark:hover:text-amber-300">
+                            <x-icon name="x-mark" size="4" />
+                        </button>
+                    </div>
+                @else
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <x-icon name="search" size="4" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input
+                                wire:model.live.debounce.400ms="beerSearch"
+                                @focus="if ($wire.beerSearch.length >= 2) open = true"
+                                type="text"
+                                id="beer_search"
+                                autocomplete="off"
+                                class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
+                                placeholder="Search for a beer to import (e.g. Pliny the Elder)..."
+                            />
+                        </div>
+                        @if(count($availableSources) > 1)
+                            <select wire:model.live="beerSearchSource" class="w-auto py-2.5 pl-3 pr-8 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-xs text-gray-600 dark:text-gray-300 focus:ring-amber-500 focus:border-amber-500">
+                                <option value="">All Sources</option>
+                                @foreach($availableSources as $key => $label)
+                                    <option value="{{ $key }}">{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        @endif
+                    </div>
+                @endif
 
                 <div x-show="open" x-cloak class="absolute z-50 left-4 right-4 mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-72 overflow-y-auto">
                     <div wire:loading.delay wire:target="beerSearch" class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
@@ -52,8 +73,8 @@
                                             @if(isset($result['rating']) && $result['rating'])
                                                 <span class="text-xs text-yellow-500">{{ number_format($result['rating'], 1) }} ★</span>
                                             @endif
-                                            @if(config('app.debug') && ($result['_source'] ?? null))
-                                                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">{{ $result['_source'] }}</span>
+                                            @if($result['_source'] ?? null)
+                                                <x-api-source-badge :source="$result['_source']" />
                                             @endif
                                         </div>
                                     </div>
@@ -128,9 +149,8 @@
                                         @if(($apiBrewery['city'] ?? null) || ($apiBrewery['state'] ?? null))
                                             <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">{{ collect([$apiBrewery['city'] ?? null, $apiBrewery['state'] ?? null])->filter()->join(', ') }}</span>
                                         @endif
-                                        <span class="ml-1 inline-flex items-center text-xs text-amber-600 dark:text-amber-400">+ Import</span>
-                                        @if(config('app.debug') && ($apiBrewery['_source'] ?? null))
-                                            <span class="ml-1 text-[10px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">{{ $apiBrewery['_source'] }}</span>
+                                        @if($apiBrewery['_source'] ?? null)
+                                            <x-api-source-badge :source="$apiBrewery['_source']" class="ml-1" />
                                         @endif
                                     </button>
                                 @endforeach
@@ -329,42 +349,7 @@
 
                 <div x-show="showCheckin" x-cloak x-transition class="mt-4 space-y-4">
                     {{-- Venue --}}
-                    <div x-data="{ venueOpen: false }" @click.outside="venueOpen = false" class="relative">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Venue</label>
-                        @if($checkinVenueId)
-                            <div class="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg">
-                                <x-icon name="map-pin" size="4" class="text-amber-500 flex-shrink-0" />
-                                <span class="text-sm font-medium text-amber-700 dark:text-amber-400 flex-1">{{ $checkinVenueName }}</span>
-                                <button type="button" wire:click="clearCheckinVenue" class="text-amber-400 hover:text-amber-600 dark:hover:text-amber-300">
-                                    <x-icon name="x-mark" size="4" />
-                                </button>
-                            </div>
-                        @else
-                            <input
-                                wire:model.live.debounce.300ms="checkinVenue"
-                                @focus="venueOpen = true"
-                                @input="venueOpen = true"
-                                type="text"
-                                placeholder="{{ auth()->user()->getData('geocoding_enabled') ? 'Venue name or place, e.g. Hop Lot Suttons Bay MI' : 'Type a venue name...' }}"
-                                class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
-                            />
-                            @if(count($this->checkinVenueSuggestions) > 0)
-                                <div x-show="venueOpen" x-transition class="absolute z-30 mt-1 w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                                    @foreach($this->checkinVenueSuggestions as $venue)
-                                        <button
-                                            type="button"
-                                            wire:click="selectCheckinVenue({{ $venue['id'] }})"
-                                            @click="venueOpen = false"
-                                            class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-2"
-                                        >
-                                            <x-icon name="map-pin" size="4" class="text-gray-400 flex-shrink-0" />
-                                            <span class="text-gray-900 dark:text-white">{{ $venue['name'] }}</span>
-                                        </button>
-                                    @endforeach
-                                </div>
-                            @endif
-                        @endif
-                    </div>
+                    <x-location-autocomplete label="Venue" prefix="venue" model="App\\Models\\Venue" :selectedId="$selectedVenueId" :selectedName="$selectedVenueName" :suggestions="$venueSuggestions" :apiResults="$venueApiResults" icon="map-pin" placeholder="e.g. Hop Lot Suttons Bay MI..." />
 
                     {{-- Rating & Serving --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -485,16 +470,7 @@
                             class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
                         />
                     </div>
-                    <div>
-                        <label for="purchaseLocation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Source</label>
-                        <input
-                            wire:model="purchaseLocation"
-                            type="text"
-                            id="purchaseLocation"
-                            placeholder="e.g. Total Wine, local brewery, friend..."
-                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
-                        />
-                    </div>
+                    <x-location-autocomplete label="Store" prefix="store" model="App\\Models\\Store" :selectedId="$selectedStoreId" :selectedName="$selectedStoreName" :suggestions="$storeSuggestions" :apiResults="$storeApiResults" icon="building" placeholder="e.g. Total Wine Chicago IL..." />
                     <div>
                         <label for="purchaseDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date Acquired</label>
                         <input

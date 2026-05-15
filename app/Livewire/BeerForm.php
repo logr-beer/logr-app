@@ -2,16 +2,17 @@
 
 namespace App\Livewire;
 
+use App\Concerns\WithLocationAutocomplete;
 use App\Events\CheckinCreated;
-use App\Jobs\GeocodeVenue;
 use App\Models\Beer;
 use App\Models\Brewery;
 use App\Models\Checkin;
 use App\Models\Inventory;
+use App\Models\Store;
 use App\Models\Venue;
 use App\Services\CatalogBeer;
-use App\Services\LogrDb;
 use App\Services\OpenBreweryDb;
+use App\Services\PubBeerDb;
 use App\Services\Untappd;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
@@ -20,6 +21,7 @@ use Livewire\WithFileUploads;
 class BeerForm extends Component
 {
     use WithFileUploads;
+    use WithLocationAutocomplete;
 
     public ?Beer $beer = null;
 
@@ -52,7 +54,11 @@ class BeerForm extends Component
 
     public int $addQuantity = 1;
 
-    public string $purchaseLocation = '';
+    public string $storeQuery = '';
+
+    public ?int $selectedStoreId = null;
+
+    public string $selectedStoreName = '';
 
     public string $purchaseDate = '';
 
@@ -65,11 +71,11 @@ class BeerForm extends Component
 
     public string $checkinServingType = '';
 
-    public string $checkinVenue = '';
+    public string $venueQuery = '';
 
-    public ?int $checkinVenueId = null;
+    public ?int $selectedVenueId = null;
 
-    public string $checkinVenueName = '';
+    public string $selectedVenueName = '';
 
     public string $checkinNotes = '';
 
@@ -83,6 +89,10 @@ class BeerForm extends Component
 
     // Beer search
     public string $beerSearch = '';
+
+    public string $beerSearchSource = '';
+
+    public string $selectedSearchBeer = '';
 
     public bool $showBeerDropdown = false;
 
@@ -125,55 +135,82 @@ class BeerForm extends Component
         $this->beerResults = $this->fetchBeerResults();
     }
 
+    public function getAvailableSourcesProperty(): array
+    {
+        $sources = [];
+        if (PubBeerDb::forInstance()) {
+            $sources['pub'] = 'Logr Pub';
+        }
+        $user = auth()->user();
+        if (($user->untappd_client_id ?: config('services.untappd.api_key')) && ($user->untappd_client_secret ?: config('services.untappd.api_secret'))) {
+            $sources['untappd'] = 'Untappd';
+        }
+        if ($user->catalog_beer_api_key ?: config('services.catalog_beer.key')) {
+            $sources['catalog'] = 'Catalog.beer';
+        }
+
+        return $sources;
+    }
+
     private function fetchBeerResults(): array
     {
         $user = auth()->user();
+        $source = $this->beerSearchSource;
 
         try {
-            // Logr DB is primary when configured
-            $logrDb = LogrDb::forUser();
-            if ($logrDb) {
-                $results = $logrDb->searchBeers($this->beerSearch, 8);
-                foreach ($results as &$result) {
-                    $result['_source'] = 'logr_db';
-                    Cache::put("beer_api_{$result['id']}", array_merge($result, [
-                        'brewery' => [
-                            'name' => $result['brewery_name'],
-                            'city' => $result['brewery_city'],
-                            'state' => $result['brewery_state'],
-                            'country' => $result['brewery_country'] ?? null,
-                            'website' => $result['brewery_website'] ?? null,
-                        ],
-                    ]), now()->addMinutes(5));
-                }
+            if ($source === '' || $source === 'pub') {
+                $pub = PubBeerDb::forInstance();
+                if ($pub) {
+                    $results = $pub->searchBeers($this->beerSearch, 8);
+                    foreach ($results as &$result) {
+                        $result['_source'] = 'pub';
+                        Cache::put("beer_api_{$result['id']}", array_merge($result, [
+                            '_source' => 'pub',
+                            'brewery' => [
+                                'id' => $result['brewery_id'] ?? null,
+                                'name' => $result['brewery_name'],
+                                'city' => $result['brewery_city'],
+                                'state' => $result['brewery_state'],
+                                'country' => $result['brewery_country'] ?? null,
+                                'website' => $result['brewery_website'] ?? null,
+                            ],
+                        ]), now()->addMinutes(5));
+                    }
 
-                return $results;
+                    if ($source === 'pub' || count($results) > 0) {
+                        return $results;
+                    }
+                }
             }
 
-            // Untappd when configured
-            $untappdKey = $user->untappd_client_id ?: config('services.untappd.api_key');
-            $untappdSecret = $user->untappd_client_secret ?: config('services.untappd.api_secret');
-            if ($untappdKey && $untappdSecret) {
-                $untappd = new Untappd($untappdKey, $untappdSecret);
-                $results = $untappd->searchBeers($this->beerSearch, 8);
-                foreach ($results as &$result) {
-                    $result['_source'] = 'untappd';
-                    Cache::put("beer_api_{$result['bid']}", array_merge($result, ['_source' => 'untappd']), now()->addMinutes(5));
-                }
+            if ($source === '' || $source === 'untappd') {
+                $untappdKey = $user->untappd_client_id ?: config('services.untappd.api_key');
+                $untappdSecret = $user->untappd_client_secret ?: config('services.untappd.api_secret');
+                if ($untappdKey && $untappdSecret) {
+                    $untappd = new Untappd($untappdKey, $untappdSecret);
+                    $results = $untappd->searchBeers($this->beerSearch, 8);
+                    foreach ($results as &$result) {
+                        $result['_source'] = 'untappd';
+                        Cache::put("beer_api_{$result['bid']}", array_merge($result, ['_source' => 'untappd']), now()->addMinutes(5));
+                    }
 
-                return $results;
+                    if ($source === 'untappd' || count($results) > 0) {
+                        return $results;
+                    }
+                }
             }
 
-            // Catalog.beer as fallback
-            $catalogKey = $user->catalog_beer_api_key ?: config('services.catalog_beer.key');
-            if ($catalogKey) {
-                $results = app(CatalogBeer::class)->search($this->beerSearch, 8, $catalogKey);
-                foreach ($results as &$result) {
-                    $result['_source'] = 'catalog';
-                    Cache::put("beer_api_{$result['id']}", array_merge($result, ['_source' => 'catalog']), now()->addMinutes(5));
-                }
+            if ($source === '' || $source === 'catalog') {
+                $catalogKey = $user->catalog_beer_api_key ?: config('services.catalog_beer.key');
+                if ($catalogKey) {
+                    $results = app(CatalogBeer::class)->search($this->beerSearch, 8, $catalogKey);
+                    foreach ($results as &$result) {
+                        $result['_source'] = 'catalog';
+                        Cache::put("beer_api_{$result['id']}", array_merge($result, ['_source' => 'catalog']), now()->addMinutes(5));
+                    }
 
-                return $results;
+                    return $results;
+                }
             }
 
             return [];
@@ -201,23 +238,44 @@ class BeerForm extends Component
         $this->description = $data['description'] ?? '';
 
         // Get brewery data from either format
+        $isPub = ($data['_source'] ?? null) === 'pub';
         $breweryData = $data['brewery'] ?? $data['brewer'] ?? null;
         if (! empty($breweryData['name'])) {
+            $breweryMatch = $isPub && ! empty($breweryData['id'])
+                ? ['pub_uuid' => $breweryData['id']]
+                : ['name' => $breweryData['name']];
+
             $brewery = Brewery::firstOrCreate(
-                ['name' => $breweryData['name']],
-                [
+                $breweryMatch,
+                array_filter([
+                    'name' => $breweryData['name'],
                     'city' => $breweryData['city'] ?? null,
                     'state' => $breweryData['state'] ?? null,
                     'country' => $breweryData['country'] ?? null,
                     'website' => $breweryData['url'] ?? $breweryData['website'] ?? null,
-                ]
+                    'pub_uuid' => $isPub ? ($breweryData['id'] ?? null) : null,
+                ], fn ($v) => $v !== null)
             );
             $this->brewery_id = $brewery->id;
             $this->brewerySearch = $brewery->name;
         }
 
+        $breweryLabel = $this->brewerySearch ? ' — '.$this->brewerySearch : '';
+        $this->selectedSearchBeer = $this->name.$breweryLabel;
         $this->beerSearch = '';
         $this->showBeerDropdown = false;
+    }
+
+    public function clearSearchBeer(): void
+    {
+        $this->selectedSearchBeer = '';
+        $this->name = '';
+        $this->brewery_id = null;
+        $this->brewerySearch = '';
+        $this->style = [];
+        $this->abv = null;
+        $this->ibu = null;
+        $this->description = '';
     }
 
     // -- Brewery search (Open Brewery DB) --
@@ -253,14 +311,21 @@ class BeerForm extends Component
             return;
         }
 
+        $isPub = ($data['_source'] ?? null) === 'pub';
+        $match = $isPub && ! empty($data['id'])
+            ? ['pub_uuid' => $data['id']]
+            : ['name' => $data['name']];
+
         $brewery = Brewery::firstOrCreate(
-            ['name' => $data['name']],
-            [
+            $match,
+            array_filter([
+                'name' => $data['name'],
                 'city' => $data['city'] ?? null,
                 'state' => $data['state'] ?? null,
                 'country' => $data['country'] ?? null,
                 'website' => $data['website'] ?? $data['url'] ?? null,
-            ]
+                'pub_uuid' => $isPub ? ($data['id'] ?? null) : null,
+            ], fn ($v) => $v !== null)
         );
 
         $this->brewery_id = $brewery->id;
@@ -275,38 +340,6 @@ class BeerForm extends Component
         $this->showBreweryDropdown = false;
     }
 
-    // -- Checkin venue autocomplete --
-
-    public function getCheckinVenueSuggestionsProperty(): array
-    {
-        if (strlen($this->checkinVenue) < 2 || $this->checkinVenueId) {
-            return [];
-        }
-
-        return Venue::where('name', 'like', '%'.$this->checkinVenue.'%')
-            ->orderBy('name')
-            ->limit(8)
-            ->get()
-            ->toArray();
-    }
-
-    public function selectCheckinVenue(int $venueId): void
-    {
-        $venue = Venue::find($venueId);
-        if ($venue) {
-            $this->checkinVenueId = $venue->id;
-            $this->checkinVenueName = $venue->name;
-            $this->checkinVenue = '';
-        }
-    }
-
-    public function clearCheckinVenue(): void
-    {
-        $this->checkinVenueId = null;
-        $this->checkinVenueName = '';
-        $this->checkinVenue = '';
-    }
-
     private function fetchBreweryResults(): array
     {
         $local = Brewery::where('name', 'like', "%{$this->brewerySearch}%")
@@ -317,11 +350,11 @@ class BeerForm extends Component
         $api = [];
         try {
             $user = auth()->user();
-            $logrDb = LogrDb::forUser($user);
+            $pub = PubBeerDb::forInstance();
             $source = null;
-            if ($logrDb) {
-                $api = $logrDb->searchBreweries($this->brewerySearch, 5);
-                $source = 'logr_db';
+            if ($pub) {
+                $api = $pub->searchBreweries($this->brewerySearch, 5);
+                $source = 'pub';
             } elseif (($user->untappd_client_id ?: config('services.untappd.api_key')) && ($user->untappd_client_secret ?: config('services.untappd.api_secret'))) {
                 $untappd = new Untappd($user->untappd_client_id ?: config('services.untappd.api_key'), $user->untappd_client_secret ?: config('services.untappd.api_secret'));
                 $api = $untappd->searchBreweries($this->brewerySearch, 5);
@@ -413,12 +446,14 @@ class BeerForm extends Component
             if ($this->addToInventory) {
                 $location = trim($this->storageLocation) ?: 'Fridge';
 
+                $storeId = $this->resolveLocationId('store', Store::class);
+
                 $inventory = Inventory::create([
                     'beer_id' => $beer->id,
                     'user_id' => auth()->id(),
                     'storage_location' => $location,
                     'quantity' => $this->addQuantity,
-                    'purchase_location' => $this->purchaseLocation ?: null,
+                    'store_id' => $storeId,
                     'date_acquired' => $this->purchaseDate ?: now()->toDateString(),
                     'is_gift' => $this->isGift,
                 ]);
@@ -432,15 +467,7 @@ class BeerForm extends Component
 
             // Create check-in if requested
             if ($this->addCheckin) {
-                $venueId = $this->checkinVenueId;
-                if (! $venueId && trim($this->checkinVenue)) {
-                    $venue = Venue::firstOrCreate(['name' => trim($this->checkinVenue)]);
-                    $venueId = $venue->id;
-
-                    if ($venue->wasRecentlyCreated && auth()->user()->getData('geocoding_enabled')) {
-                        GeocodeVenue::dispatch($venue);
-                    }
-                }
+                $venueId = $this->resolveLocationId('venue', Venue::class);
 
                 $checkin = Checkin::create([
                     'user_id' => auth()->id(),
@@ -478,8 +505,6 @@ class BeerForm extends Component
                 }
             }
 
-            // Submit to catalog.beer if the user has an API key
-            $this->submitToCatalogBeer($beer);
         }
 
         session()->flash('message', $this->beer ? 'Beer updated successfully.' : 'Beer added successfully.');
@@ -494,25 +519,13 @@ class BeerForm extends Component
         return view('livewire.beer-form', [
             'styles' => $this->getStyles(),
             'isEditing' => $isEditing,
-            'hasApiKey' => LogrDb::forUser() !== null || (bool) (auth()->user()->untappd_client_id || config('services.untappd.api_key') || auth()->user()->catalog_beer_api_key || config('services.catalog_beer.key')),
+            'hasApiKey' => ! empty($this->availableSources),
+            'availableSources' => $this->availableSources,
+            'venueSuggestions' => $this->getLocationSuggestions('venue', Venue::class, 8),
+            'venueApiResults' => $this->getLocationApiResults('venue'),
+            'storeSuggestions' => $this->getLocationSuggestions('store', Store::class),
+            'storeApiResults' => $this->getLocationApiResults('store'),
         ])->title($isEditing ? 'Edit '.$this->beer->name.' | Beers' : 'Add Beer | Beers');
-    }
-
-    private function submitToCatalogBeer(Beer $beer): void
-    {
-        $apiKey = auth()->user()->catalog_beer_api_key ?: config('services.catalog_beer.key');
-        if (! $apiKey) {
-            return;
-        }
-
-        try {
-            app(CatalogBeer::class)->submitBeer($beer, $apiKey);
-        } catch (\Exception $e) {
-            \Log::warning('Failed to submit beer to catalog.beer', [
-                'beer_id' => $beer->id,
-                'error' => $e->getMessage(),
-            ]);
-        }
     }
 
     private function parseApiStyle(string $apiStyle): array
