@@ -60,6 +60,44 @@ class SystemInfo extends Component
         $pending = DB::table('jobs')->count();
         $failed = DB::table('failed_jobs')->count();
 
+        $pendingJobs = DB::table('jobs')
+            ->orderBy('created_at')
+            ->limit(25)
+            ->get()
+            ->map(function ($job) {
+                $payload = json_decode($job->payload, true);
+                $class = $payload['displayName'] ?? $payload['job'] ?? 'Unknown';
+                // Shorten to just the class name
+                $short = class_basename(str_replace(['App\\Jobs\\', 'App\\'], '', $class));
+
+                return [
+                    'id' => $job->id,
+                    'name' => $short,
+                    'queue' => $job->queue,
+                    'attempts' => $job->attempts,
+                    'created_at' => \Carbon\Carbon::createFromTimestamp($job->created_at)->diffForHumans(),
+                ];
+            });
+
+        $failedJobs = DB::table('failed_jobs')
+            ->orderByDesc('failed_at')
+            ->limit(10)
+            ->get()
+            ->map(function ($job) {
+                $payload = json_decode($job->payload, true);
+                $class = $payload['displayName'] ?? $payload['job'] ?? 'Unknown';
+                $short = class_basename(str_replace(['App\\Jobs\\', 'App\\'], '', $class));
+
+                return [
+                    'id' => $job->id,
+                    'uuid' => $job->uuid,
+                    'name' => $short,
+                    'queue' => $job->queue,
+                    'exception' => \Illuminate\Support\Str::limit($job->exception, 150),
+                    'failed_at' => \Carbon\Carbon::parse($job->failed_at)->diffForHumans(),
+                ];
+            });
+
         $batches = DB::table('job_batches')
             ->orderByDesc('created_at')
             ->limit(5)
@@ -77,6 +115,8 @@ class SystemInfo extends Component
         return [
             'pending' => $pending,
             'failed' => $failed,
+            'pendingJobs' => $pendingJobs,
+            'failedJobs' => $failedJobs,
             'batches' => $batches,
         ];
     }

@@ -55,7 +55,6 @@ APP_URL=http://localhost:8337
 
 # Beer database integrations
 CATALOG_BEER_API_KEY=          # catalog.beer API key for beer search
-LOGR_DB_URL=                   # Logr DB URL for shared beer database lookups
 UNTAPPD_API_KEY=               # Untappd API client ID
 UNTAPPD_API_SECRET=            # Untappd API client secret
 

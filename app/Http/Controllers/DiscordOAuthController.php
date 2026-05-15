@@ -18,12 +18,15 @@ class DiscordOAuthController extends Controller
             return redirect()->route('admin.notifications')->with('error', 'No Discord bot configured.');
         }
 
+        $state = bin2hex(random_bytes(16));
+        session(['discord_link_state' => $state]);
+
         $response = Http::withToken($bot['hub_api_key'])
             ->accept('application/json')
             ->timeout(15)
             ->post(rtrim($bot['hub_url'], '/').'/api/discord/users/link-token', [
                 'user_identifier' => Auth::user()->name,
-                'callback_url' => route('discord.callback'),
+                'callback_url' => route('discord.callback').'?state='.$state,
             ]);
 
         if (! $response->successful()) {
@@ -49,6 +52,12 @@ class DiscordOAuthController extends Controller
         if ($request->has('error')) {
             return redirect()->route('admin.notifications')->with('error', 'Discord authorization was cancelled.');
         }
+
+        if ($request->state !== session('discord_link_state')) {
+            return redirect()->route('admin.notifications')->with('error', 'Invalid state. Please try again.');
+        }
+
+        session()->forget('discord_link_state');
 
         $validated = $request->validate([
             'discord_username' => 'required|string|max:100',

@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ isset($title) ? $title : 'Setup | ' . config('app.name', 'Logr') }}</title>
+        <title>{!! isset($title) ? strip_tags($title) : 'Setup | ' . config('app.name', 'Logr') !!}</title>
 
         <!-- Favicon -->
         <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
@@ -17,6 +17,10 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <script>
+            (function(){var t=localStorage.getItem('theme');if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark');else document.documentElement.classList.remove('dark')})();
+        </script>
 
         @if(config('app.google_analytics_id'))
             <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('app.google_analytics_id') }}"></script>

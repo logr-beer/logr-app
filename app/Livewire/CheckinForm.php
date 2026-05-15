@@ -10,7 +10,7 @@ use App\Models\Checkin;
 use App\Models\CheckinPhoto;
 use App\Models\Venue;
 use App\Services\CatalogBeer;
-use App\Services\LogrDb;
+use App\Services\PubBeerDb;
 use App\Services\Untappd;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +28,8 @@ class CheckinForm extends Component
 
     // Beer search
     public string $beerQuery = '';
+
+    public string $beerSearchSource = '';
 
     public ?int $selectedBeerId = null;
 
@@ -171,82 +173,127 @@ class CheckinForm extends Component
             return;
         }
 
+        $isPub = ($data['_source'] ?? null) === 'pub';
+
         // Find or create brewery
         $breweryId = null;
         $breweryData = $data['brewery'] ?? $data['brewer'] ?? null;
         if (! empty($breweryData['name'])) {
+            $breweryMatch = $isPub && ! empty($breweryData['id'])
+                ? ['pub_uuid' => $breweryData['id']]
+                : ['name' => $breweryData['name']];
+
             $brewery = Brewery::firstOrCreate(
-                ['name' => $breweryData['name']],
-                [
+                $breweryMatch,
+                array_filter([
+                    'name' => $breweryData['name'],
                     'city' => $breweryData['city'] ?? null,
                     'state' => $breweryData['state'] ?? null,
                     'country' => $breweryData['country'] ?? null,
                     'website' => $breweryData['url'] ?? $breweryData['website'] ?? null,
-                ]
+                    'pub_uuid' => $isPub ? ($breweryData['id'] ?? null) : null,
+                ], fn ($v) => $v !== null)
             );
             $breweryId = $brewery->id;
         }
 
         // Find or create beer
+        $beerMatch = $isPub
+            ? ['pub_uuid' => $data['id']]
+            : ['name' => $data['name'], 'brewery_id' => $breweryId];
+
         $beer = Beer::firstOrCreate(
-            ['name' => $data['name'], 'brewery_id' => $breweryId],
-            [
+            $beerMatch,
+            array_filter([
+                'name' => $data['name'],
+                'brewery_id' => $breweryId,
                 'style' => ! empty($data['style']) ? (is_array($data['style']) ? $data['style'] : [$data['style']]) : null,
                 'abv' => ($data['abv'] ?? null) ? (float) $data['abv'] : null,
                 'ibu' => ($data['ibu'] ?? null) ? (int) $data['ibu'] : null,
                 'description' => $data['description'] ?? null,
-            ]
+                'pub_uuid' => $isPub ? $data['id'] : null,
+            ], fn ($v) => $v !== null)
         );
 
         $this->selectBeer($beer->id);
     }
 
+    public function getAvailableSourcesProperty(): array
+    {
+        $sources = [];
+        if (PubBeerDb::forInstance()) {
+            $sources['pub'] = 'Logr Pub';
+        }
+        $user = auth()->user();
+        if (($user->untappd_client_id ?: config('services.untappd.api_key')) && ($user->untappd_client_secret ?: config('services.untappd.api_secret'))) {
+            $sources['untappd'] = 'Untappd';
+        }
+        if ($user->catalog_beer_api_key ?: config('services.catalog_beer.key')) {
+            $sources['catalog'] = 'Catalog.beer';
+        }
+
+        return $sources;
+    }
+
     private function fetchApiBeerResults(): array
     {
         $user = auth()->user();
+        $source = $this->beerSearchSource;
 
         try {
-            $logrDb = LogrDb::forUser();
-            if ($logrDb) {
-                $results = $logrDb->searchBeers($this->beerQuery, 5);
-                foreach ($results as &$result) {
-                    $result['_source'] = 'logr_db';
-                    Cache::put("beer_api_{$result['id']}", array_merge($result, [
-                        'brewery' => [
-                            'name' => $result['brewery_name'],
-                            'city' => $result['brewery_city'],
-                            'state' => $result['brewery_state'],
-                            'country' => $result['brewery_country'] ?? null,
-                            'website' => $result['brewery_website'] ?? null,
-                        ],
-                    ]), now()->addMinutes(5));
-                }
+            if ($source === '' || $source === 'pub') {
+                $pub = PubBeerDb::forInstance();
+                if ($pub) {
+                    $results = $pub->searchBeers($this->beerQuery, 5);
+                    foreach ($results as &$result) {
+                        $result['_source'] = 'pub';
+                        Cache::put("beer_api_{$result['id']}", array_merge($result, [
+                            '_source' => 'pub',
+                            'brewery' => [
+                                'id' => $result['brewery_id'] ?? null,
+                                'name' => $result['brewery_name'],
+                                'city' => $result['brewery_city'],
+                                'state' => $result['brewery_state'],
+                                'country' => $result['brewery_country'] ?? null,
+                                'website' => $result['brewery_website'] ?? null,
+                            ],
+                        ]), now()->addMinutes(5));
+                    }
 
-                return $results;
+                    if ($source === 'pub' || count($results) > 0) {
+                        return $results;
+                    }
+                }
             }
 
-            $untappdKey = $user->untappd_client_id ?: config('services.untappd.api_key');
-            $untappdSecret = $user->untappd_client_secret ?: config('services.untappd.api_secret');
-            if ($untappdKey && $untappdSecret) {
-                $untappd = new Untappd($untappdKey, $untappdSecret);
-                $results = $untappd->searchBeers($this->beerQuery, 5);
-                foreach ($results as &$result) {
-                    $result['_source'] = 'untappd';
-                    Cache::put("beer_api_{$result['bid']}", array_merge($result, ['_source' => 'untappd']), now()->addMinutes(5));
-                }
+            if ($source === '' || $source === 'untappd') {
+                $untappdKey = $user->untappd_client_id ?: config('services.untappd.api_key');
+                $untappdSecret = $user->untappd_client_secret ?: config('services.untappd.api_secret');
+                if ($untappdKey && $untappdSecret) {
+                    $untappd = new Untappd($untappdKey, $untappdSecret);
+                    $results = $untappd->searchBeers($this->beerQuery, 5);
+                    foreach ($results as &$result) {
+                        $result['_source'] = 'untappd';
+                        Cache::put("beer_api_{$result['bid']}", array_merge($result, ['_source' => 'untappd']), now()->addMinutes(5));
+                    }
 
-                return $results;
+                    if ($source === 'untappd' || count($results) > 0) {
+                        return $results;
+                    }
+                }
             }
 
-            $catalogKey = $user->catalog_beer_api_key ?: config('services.catalog_beer.key');
-            if ($catalogKey) {
-                $results = app(CatalogBeer::class)->search($this->beerQuery, 5, $catalogKey);
-                foreach ($results as &$result) {
-                    $result['_source'] = 'catalog';
-                    Cache::put("beer_api_{$result['id']}", array_merge($result, ['_source' => 'catalog']), now()->addMinutes(5));
-                }
+            if ($source === '' || $source === 'catalog') {
+                $catalogKey = $user->catalog_beer_api_key ?: config('services.catalog_beer.key');
+                if ($catalogKey) {
+                    $results = app(CatalogBeer::class)->search($this->beerQuery, 5, $catalogKey);
+                    foreach ($results as &$result) {
+                        $result['_source'] = 'catalog';
+                        Cache::put("beer_api_{$result['id']}", array_merge($result, ['_source' => 'catalog']), now()->addMinutes(5));
+                    }
 
-                return $results;
+                    return $results;
+                }
             }
 
             return [];
@@ -407,6 +454,7 @@ class CheckinForm extends Component
         return view('livewire.checkin-form', [
             'beerSuggestions' => $beerSuggestions,
             'apiResults' => $apiResults,
+            'availableSources' => $this->availableSources,
             'venueSuggestions' => $venueSuggestions,
             'venueApiResults' => $venueApiResults,
         ])->title($this->checkinId ? 'Edit Check-in | Check-ins' : 'New Check-in | Check-ins');

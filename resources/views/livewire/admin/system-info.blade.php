@@ -46,6 +46,41 @@
                     </div>
                 @endif
 
+                @if($this->queueStats['pendingJobs']->isNotEmpty())
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pending Jobs</h4>
+                    <div class="space-y-1 mb-4">
+                        @foreach($this->queueStats['pendingJobs'] as $job)
+                            <div class="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg text-sm">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0"></span>
+                                    <span class="font-medium text-gray-900 dark:text-white">{{ $job['name'] }}</span>
+                                    @if($job['attempts'] > 0)
+                                        <span class="text-xs text-gray-400">(attempt {{ $job['attempts'] + 1 }})</span>
+                                    @endif
+                                </div>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">{{ $job['created_at'] }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
+                @if($this->queueStats['failedJobs']->isNotEmpty())
+                    <h4 class="text-sm font-medium text-red-600 dark:text-red-400 mb-2">Failed Jobs</h4>
+                    <div class="space-y-1 mb-4">
+                        @foreach($this->queueStats['failedJobs'] as $job)
+                            <div class="px-3 py-2 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-lg text-sm">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium text-red-700 dark:text-red-400">{{ $job['name'] }}</span>
+                                    <span class="text-xs text-red-500 dark:text-red-500">{{ $job['failed_at'] }}</span>
+                                </div>
+                                @if($job['exception'])
+                                    <p class="text-xs text-red-600/70 dark:text-red-400/70 mt-1 font-mono truncate">{{ $job['exception'] }}</p>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
                 @if($this->queueStats['batches']->isNotEmpty())
                     <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Recent Batches</h4>
                     <div class="space-y-2">
@@ -122,7 +157,7 @@
                         {{-- Purge Data --}}
                         <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                             <div>
-                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Purge All Data</h4>
+                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Purge Beer Data</h4>
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Delete all beers, check-ins, inventory, and collections. User accounts are preserved.</p>
                             </div>
                             <button wire:click="confirmPurge" class="shrink-0 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
@@ -195,7 +230,7 @@
                 <div class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75 transition-opacity" wire:click="$set('showPurgeModal', false)"></div>
 
                 <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 z-10">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Purge All Data</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Purge Beer Data</h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
                         This will permanently delete all beers, breweries, check-ins, inventory, collections, tags, and companions. Your user account will be preserved.
                     </p>

@@ -8,7 +8,6 @@ new class extends Component
     public string $untappd_username = '';
     public string $untappd_client_id = '';
     public string $untappd_client_secret = '';
-    public string $logr_db_token = '';
     public string $catalog_beer_api_key = '';
     public array $rssFeeds = [];
     public string $newFeedLabel = '';
@@ -24,9 +23,10 @@ new class extends Component
     public string $geocodeStatus = '';
     public bool $geocoding = false;
 
-    // Test results
+    // Test results (per-section)
     public string $testResult = '';
     public string $testStatus = '';
+    public string $testSection = '';
 
     public function mount(): void
     {
@@ -43,7 +43,7 @@ new class extends Component
         $user = Auth::user();
         $keys = [
             'untappd_username', 'untappd_client_id', 'untappd_client_secret',
-            'logr_db_token', 'catalog_beer_api_key',
+            'catalog_beer_api_key',
         ];
         foreach ($keys as $key) {
             $this->{$key} = (string) ($user->getData($key) ?? '');
@@ -61,7 +61,7 @@ new class extends Component
 
         $strings = [
             'untappd_username', 'untappd_client_id', 'untappd_client_secret',
-            'logr_db_token', 'catalog_beer_api_key',
+            'catalog_beer_api_key',
         ];
         foreach ($strings as $key) {
             $user->setData($key, trim($this->{$key}) ?: null);
@@ -107,41 +107,23 @@ new class extends Component
         $user->save();
     }
 
-    public function testLogrDb(): void
+    public function provisionPubKey(): void
     {
-        $url = config('services.logr_db.url');
-        $token = $this->logr_db_token;
+        $this->testSection = 'pub';
+        $token = \App\Services\PubBeerDb::provisionKey();
 
-        if (!$url || !$token) {
-            $this->testResult = 'Missing URL or token.';
-            $this->testStatus = 'error';
-            return;
-        }
-
-        try {
-            $response = \Illuminate\Support\Facades\Http::withToken($token)
-                ->accept('application/json')
-                ->withoutVerifying()
-                ->timeout(10)
-                ->get(rtrim($url, '/') . '/api/beers', ['per_page' => 1]);
-
-            if ($response->successful()) {
-                $data = $response->json();
-                $total = $data['meta']['total'] ?? $data['total'] ?? count($data['data'] ?? []);
-                $this->testResult = "Connected! {$total} result(s).";
-                $this->testStatus = 'success';
-            } else {
-                $this->testResult = "HTTP {$response->status()}";
-                $this->testStatus = 'error';
-            }
-        } catch (\Exception $e) {
-            $this->testResult = $e->getMessage();
+        if ($token) {
+            $this->testResult = 'Connected! Beer database search is now active.';
+            $this->testStatus = 'success';
+        } else {
+            $this->testResult = 'Could not get API key. The service may be temporarily unavailable — try again later.';
             $this->testStatus = 'error';
         }
     }
 
     public function testUntappd(): void
     {
+        $this->testSection = 'untappd';
         if (!$this->untappd_client_id || !$this->untappd_client_secret) {
             $this->testResult = 'Missing Client ID or Secret.';
             $this->testStatus = 'error';
@@ -175,6 +157,7 @@ new class extends Component
 
     public function testCatalogBeer(): void
     {
+        $this->testSection = 'catalog';
         if (!$this->catalog_beer_api_key) {
             $this->testResult = 'Missing API key.';
             $this->testStatus = 'error';
@@ -209,8 +192,32 @@ new class extends Component
             return;
         }
         $this->syncing = true;
-        $this->syncStatus = 'Queued...';
+        $this->syncStatus = 'Syncing ' . count($feeds) . ' feed(s)...';
         \App\Jobs\SyncUntappdRss::dispatch($user);
+    }
+
+    public function syncFeed(int $index): void
+    {
+        $user = Auth::user();
+        $feeds = $user->getData('untappd_rss_feeds') ?? [];
+        $feed = $feeds[$index] ?? null;
+        if (! $feed || empty($feed['url'])) {
+            return;
+        }
+
+        $label = $feed['label'] ?? 'feed';
+
+        try {
+            $rss = app(\App\Services\UntappdRss::class);
+            $result = $rss->syncFeed($user, $feed['url']);
+            $message = "{$label}: Imported {$result['imported']}, Skipped {$result['skipped']}";
+            $this->syncStatus = $message;
+            $this->dispatch('toast', message: $message);
+        } catch (\Exception $e) {
+            $message = "{$label}: " . $e->getMessage();
+            $this->syncStatus = $message;
+            $this->dispatch('toast', message: $message, type: 'error');
+        }
     }
 
     public function scrapeProfile(): void
@@ -306,32 +313,72 @@ new class extends Component
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Connect external services to enhance your beer library.</p>
     </header>
 
-    @if($testResult)
-        <div class="mt-4 p-3 rounded-lg text-sm {{ $testStatus === 'success' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' }}">
-            {{ $testResult }}
-        </div>
-    @endif
-
     <form wire:submit="save" class="mt-6 space-y-6">
-        {{-- Logr DB --}}
-        @if(config('services.logr_db.url'))
-            <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Logr DB</h3>
-                    <x-env-badge name="LOGR_DB_URL" />
-                </div>
-                <div>
-                    <x-input-label for="logr_db_token" value="API Token" />
-                    <input wire:model.live="logr_db_token" id="logr_db_token" type="text" autocomplete="off" {{ $demoMode ? 'disabled' : '' }}
-                        class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm {{ $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Bearer token for the Logr DB API.</p>
-                </div>
-                <button type="button" wire:click="testLogrDb" {{ $demoMode ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50">
-                    <span wire:loading wire:target="testLogrDb"><svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
-                    Test Connection
-                </button>
+        {{-- Logr Pub --}}
+        @php
+            $pubUrl = config('services.logr.pub_url');
+            $instanceToken = \App\Models\Setting::get('pub_api_key');
+        @endphp
+        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Logr Pub</h3>
+                @if(env('LOGR_PUB_URL'))
+                    <x-env-badge name="LOGR_PUB_URL" />
+                @endif
             </div>
-        @endif
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+                The <a href="{{ $pubUrl }}" target="_blank" rel="noopener" class="font-medium underline hover:text-amber-500">Logr Pub</a> beer database powers beer and brewery search with 14k+ breweries and 55k+ beers.
+            </p>
+
+            @if($instanceToken)
+                <div>
+                    <x-input-label value="Instance API Key (read access)" />
+                    <div x-data="{ show: false }" class="mt-1">
+                        <div class="flex items-center gap-2">
+                            <input :type="show ? 'text' : 'password'" value="{{ $instanceToken }}" readonly
+                                class="flex-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm font-mono text-sm opacity-80 cursor-default" />
+                            <button type="button" @click="show = !show" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Toggle visibility">
+                                <svg x-show="!show" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+                                <svg x-show="show" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12c1.292 4.338 5.31 7.5 10.066 7.5.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Read-only access to the Logr Pub beer and brewery database.
+                    </p>
+                </div>
+            @else
+                <div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-sm text-amber-800 dark:text-amber-200 space-y-3">
+                    <p>Connect to the Logr Pub to enable beer and brewery search.</p>
+                    <button type="button" wire:click="provisionPubKey" {{ $demoMode ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-3 py-1.5 bg-amber-600 text-white text-xs font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50">
+                        <span wire:loading wire:target="provisionPubKey"><svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
+                        Get API Key
+                    </button>
+                </div>
+            @endif
+
+            @if($testResult && $testSection === 'pub')
+                <div class="p-3 rounded-lg text-sm {{ $testStatus === 'success' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' }}">
+                    {{ $testResult }}
+                </div>
+            @endif
+
+            <details class="text-xs">
+                <summary class="font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                    Submit Beers &amp; Breweries
+                </summary>
+                <div class="mt-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-2 text-gray-600 dark:text-gray-400">
+                    <p>A read-only API key is automatically assigned when your Logr instance connects to the Pub. This key lets you search the Pub's beer and brewery database.</p>
+                    <p>If you'd like to submit new beers and breweries to the Logr Pub database, register an account to get your secret key:</p>
+                    <ol class="list-decimal list-inside space-y-1 ml-1">
+                        <li>Create an account at <a href="{{ $pubUrl }}/register" target="_blank" rel="noopener" class="font-medium underline hover:text-amber-500">{{ str_replace('https://', '', $pubUrl) }}/register</a></li>
+                        <li>Your account will include a personal API token for write access</li>
+                        <li>Use that token to submit new beers and breweries via the Pub API</li>
+                    </ol>
+                    <p class="pt-1 text-gray-500 dark:text-gray-500">Automatic submission from Logr is coming in a future update.</p>
+                </div>
+            </details>
+        </div>
 
         {{-- Catalog.beer --}}
         <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
@@ -356,6 +403,11 @@ new class extends Component
                 <span wire:loading wire:target="testCatalogBeer"><svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
                 Test Connection
             </button>
+            @if($testResult && $testSection === 'catalog')
+                <div class="p-3 rounded-lg text-sm {{ $testStatus === 'success' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' }}">
+                    {{ $testResult }}
+                </div>
+            @endif
         </div>
 
         {{-- Untappd --}}
@@ -409,7 +461,10 @@ new class extends Component
                             <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $feed['url'] }}</p>
                         </div>
                         @unless($demoMode)
-                            <button type="button" wire:click="removeFeed({{ $index }})" wire:confirm="Remove this RSS feed?" class="shrink-0 p-1.5 text-gray-400 hover:text-red-500 transition-colors">
+                            <button type="button" wire:click="syncFeed({{ $index }})" class="shrink-0 p-1.5 text-gray-400 hover:text-amber-500 transition-colors" title="Sync this feed">
+                                <x-icon name="refresh" size="4" wire:loading.class="animate-spin" wire:target="syncFeed({{ $index }})" />
+                            </button>
+                            <button type="button" wire:click="removeFeed({{ $index }})" wire:confirm="Remove this RSS feed?" class="shrink-0 p-1.5 text-gray-400 hover:text-red-500 transition-colors" title="Remove this feed">
                                 <x-icon name="trash" size="4" />
                             </button>
                         @endunless
@@ -486,6 +541,11 @@ new class extends Component
                         <span wire:loading wire:target="testUntappd"><svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
                         Test Connection
                     </button>
+                    @if($testResult && $testSection === 'untappd')
+                        <div class="p-3 rounded-lg text-sm {{ $testStatus === 'success' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' }}">
+                            {{ $testResult }}
+                        </div>
+                    @endif
                 </div>
             </details>
         </div>

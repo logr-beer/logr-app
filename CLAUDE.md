@@ -40,7 +40,7 @@ php artisan tinker
 
 **Key directories**:
 - `app/Livewire/` — Page-level components (BeerForm, CheckinForm, BeerIndex, etc.)
-- `app/Services/` — External integrations (Untappd, Discord, CatalogBeer, Hub, LogrDb)
+- `app/Services/` — External integrations (Untappd, Discord, CatalogBeer, Pub, PubBeerDb)
 - `app/Jobs/` — Background queue jobs (geocoding, scraping, RSS sync)
 - `app/Models/` — Eloquent models with relationships
 - `app/Events/` + `app/Listeners/` — CheckinCreated fires Discord/Hub notifications

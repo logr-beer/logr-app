@@ -27,17 +27,27 @@
                             </button>
                         </div>
                     @else
-                        <div class="relative">
-                            <x-icon name="search" size="4" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input
-                                wire:model.live.debounce.300ms="beerQuery"
-                                @focus="open = true"
-                                @input="open = true"
-                                type="text"
-                                autocomplete="off"
-                                placeholder="Search for a beer..."
-                                class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
-                            />
+                        <div class="relative flex gap-2">
+                            <div class="relative flex-1">
+                                <x-icon name="search" size="4" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <input
+                                    wire:model.live.debounce.300ms="beerQuery"
+                                    @focus="open = true"
+                                    @input="open = true"
+                                    type="text"
+                                    autocomplete="off"
+                                    placeholder="Search for a beer..."
+                                    class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
+                                />
+                            </div>
+                            @if(count($availableSources) > 1)
+                                <select wire:model.live="beerSearchSource" class="w-auto py-2.5 pl-3 pr-8 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-xs text-gray-600 dark:text-gray-300 focus:ring-amber-500 focus:border-amber-500">
+                                    <option value="">All Sources</option>
+                                    @foreach($availableSources as $key => $label)
+                                        <option value="{{ $key }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            @endif
                         </div>
 
                         @if(count($beerSuggestions) > 0 || count($apiResults) > 0)
@@ -92,9 +102,14 @@
                                                     <span class="text-gray-500 dark:text-gray-400 text-xs block">{{ $breweryName }}</span>
                                                 @endif
                                             </div>
-                                            @if($result['abv'] ?? null)
-                                                <span class="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">{{ $result['abv'] }}%</span>
-                                            @endif
+                                            <div class="flex items-center gap-2 flex-shrink-0">
+                                                @if($result['abv'] ?? null)
+                                                    <span class="text-xs text-gray-400 dark:text-gray-500">{{ $result['abv'] }}%</span>
+                                                @endif
+                                                @if($result['_source'] ?? null)
+                                                    <x-api-source-badge :source="$result['_source']" />
+                                                @endif
+                                            </div>
                                         </button>
                                     @endforeach
                                 @endif

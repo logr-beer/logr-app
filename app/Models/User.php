@@ -121,7 +121,6 @@ class User extends Authenticatable
             'untappd_client_secret',
             'untappd_username',
             'untappd_password',
-            'logr_db_token',
             'untappd_rss_feeds',
             'discord_webhooks',
             'discord_bots',

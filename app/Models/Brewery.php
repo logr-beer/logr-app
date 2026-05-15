@@ -12,7 +12,7 @@ class Brewery extends Model
 
     protected $fillable = [
         'name', 'address', 'city', 'state', 'country', 'latitude', 'longitude', 'website', 'logo_path',
-        'catalog_beer_brewer_id',
+        'catalog_beer_brewer_id', 'pub_uuid',
     ];
 
     public function beers(): HasMany

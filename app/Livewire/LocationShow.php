@@ -175,9 +175,9 @@ class LocationShow extends Component
         $this->country = $this->location->country ?? '';
 
         if ($this->location->latitude) {
-            session()->flash('message', 'Location updated!');
+            $this->dispatch('toast', message: 'Location updated!');
         } else {
-            session()->flash('message', 'Could not find coordinates for this location.');
+            $this->dispatch('toast', message: 'Could not find coordinates for this location.', type: 'error');
         }
     }
 

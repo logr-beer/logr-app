@@ -3,121 +3,218 @@
 namespace App\Http\Controllers;
 
 use App\Models\Beer;
+use App\Models\Brewery;
 use App\Models\Checkin;
+use App\Models\Collection;
+use App\Models\Companion;
+use App\Models\Inventory;
+use App\Models\Store;
+use App\Models\Tag;
+use App\Models\Venue;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExportController extends Controller
 {
-    public function checkins(): StreamedResponse
+    public function __invoke(): StreamedResponse
     {
         abort_if(config('app.demo_mode'), 403);
 
-        $filename = 'logr-checkins-'.now()->format('Y-m-d').'.csv';
+        $userId = auth()->id();
+        $filename = 'logr-export-'.now()->format('Y-m-d').'.json';
 
-        return response()->streamDownload(function () {
-            $handle = fopen('php://output', 'w');
-
-            fputcsv($handle, [
-                'beer_name',
-                'brewery_name',
-                'brewery_city',
-                'brewery_state',
-                'brewery_country',
-                'beer_style',
-                'beer_abv',
-                'beer_ibu',
-                'rating_score',
-                'serving_type',
-                'comment',
-                'venue_name',
-                'venue_city',
-                'venue_state',
-                'venue_country',
-                'created_at',
-            ]);
-
-            Checkin::where('user_id', auth()->id())
-                ->with(['beer.brewery', 'venue'])
-                ->latest()
-                ->chunk(200, function ($checkins) use ($handle) {
-                    foreach ($checkins as $checkin) {
-                        fputcsv($handle, [
-                            $checkin->beer->name ?? '',
-                            $checkin->beer->brewery->name ?? '',
-                            $checkin->beer->brewery->city ?? '',
-                            $checkin->beer->brewery->state ?? '',
-                            $checkin->beer->brewery->country ?? '',
-                            $checkin->beer->style ? implode(', ', $checkin->beer->style) : '',
-                            $checkin->beer->abv ?? '',
-                            $checkin->beer->ibu ?? '',
-                            $checkin->rating ?? '',
-                            $checkin->serving_type ?? '',
-                            $checkin->notes ?? '',
-                            $checkin->venue->name ?? ($checkin->location ?? ''),
-                            $checkin->venue->city ?? '',
-                            $checkin->venue->state ?? '',
-                            $checkin->venue->country ?? '',
-                            $checkin->created_at->toIso8601String(),
-                        ]);
-                    }
-                });
-
-            fclose($handle);
+        return response()->streamDownload(function () use ($userId) {
+            echo json_encode($this->buildExport($userId), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         }, $filename, [
-            'Content-Type' => 'text/csv',
+            'Content-Type' => 'application/json',
         ]);
     }
 
-    public function beers(): StreamedResponse
+    private function buildExport(int $userId): array
     {
-        abort_if(config('app.demo_mode'), 403);
+        return [
+            'exported_at' => now()->toIso8601String(),
+            'version' => config('logr.version'),
+            'tags' => $this->exportTags(),
+            'companions' => $this->exportCompanions($userId),
+            'breweries' => $this->exportBreweries($userId),
+            'beers' => $this->exportBeers($userId),
+            'venues' => $this->exportVenues($userId),
+            'stores' => $this->exportStores($userId),
+            'checkins' => $this->exportCheckins($userId),
+            'inventory' => $this->exportInventory($userId),
+            'collections' => $this->exportCollections($userId),
+        ];
+    }
 
-        $filename = 'logr-beers-'.now()->format('Y-m-d').'.csv';
+    private function exportTags(): array
+    {
+        return Tag::orderBy('name')->get()->map(fn (Tag $tag) => [
+            'name' => $tag->name,
+            'color' => $tag->color,
+        ])->toArray();
+    }
 
-        return response()->streamDownload(function () {
-            $handle = fopen('php://output', 'w');
+    private function exportCompanions(int $userId): array
+    {
+        return Companion::whereHas('checkins', fn ($q) => $q->where('user_id', $userId))
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Companion $c) => [
+                'name' => $c->name,
+            ])->toArray();
+    }
 
-            fputcsv($handle, [
-                'beer_name',
-                'brewery_name',
-                'brewery_city',
-                'brewery_state',
-                'brewery_country',
-                'beer_style',
-                'beer_abv',
-                'beer_ibu',
-                'average_rating',
-                'total_checkins',
-                'is_favorite',
-                'description',
-            ]);
+    private function exportBreweries(int $userId): array
+    {
+        return Brewery::whereHas('beers', function ($q) use ($userId) {
+            $q->where(function ($q2) use ($userId) {
+                $q2->whereHas('checkins', fn ($q3) => $q3->where('user_id', $userId))
+                    ->orWhereHas('inventory', fn ($q3) => $q3->where('user_id', $userId));
+            });
+        })
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Brewery $b) => [
+                'name' => $b->name,
+                'pub_uuid' => $b->pub_uuid,
+                'catalog_beer_brewer_id' => $b->catalog_beer_brewer_id,
+                'address' => $b->address,
+                'city' => $b->city,
+                'state' => $b->state,
+                'country' => $b->country,
+                'latitude' => $b->latitude,
+                'longitude' => $b->longitude,
+                'website' => $b->website,
+            ])->toArray();
+    }
 
-            Beer::with('brewery')
-                ->whereHas('checkins', fn ($q) => $q->where('user_id', auth()->id()))
-                ->withCount('checkins')
-                ->orderBy('name')
-                ->chunk(200, function ($beers) use ($handle) {
-                    foreach ($beers as $beer) {
-                        fputcsv($handle, [
-                            $beer->name,
-                            $beer->brewery->name ?? '',
-                            $beer->brewery->city ?? '',
-                            $beer->brewery->state ?? '',
-                            $beer->brewery->country ?? '',
-                            $beer->style ? implode(', ', $beer->style) : '',
-                            $beer->abv ?? '',
-                            $beer->ibu ?? '',
-                            $beer->averageRating() ?: '',
-                            $beer->checkins_count,
-                            $beer->is_favorite ? 'yes' : 'no',
-                            $beer->description ?? '',
-                        ]);
-                    }
-                });
+    private function exportBeers(int $userId): array
+    {
+        return Beer::with(['brewery', 'tags'])
+            ->where(function ($q) use ($userId) {
+                $q->whereHas('checkins', fn ($q2) => $q2->where('user_id', $userId))
+                    ->orWhereHas('inventory', fn ($q2) => $q2->where('user_id', $userId));
+            })
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Beer $beer) => [
+                'name' => $beer->name,
+                'pub_uuid' => $beer->pub_uuid,
+                'catalog_beer_id' => $beer->catalog_beer_id,
+                'brewery_name' => $beer->brewery->name ?? null,
+                'brewery_pub_uuid' => $beer->brewery->pub_uuid ?? null,
+                'style' => $beer->style,
+                'abv' => $beer->abv,
+                'ibu' => $beer->ibu,
+                'release_year' => $beer->release_year,
+                'brewer_master' => $beer->brewer_master,
+                'description' => $beer->description,
+                'is_favorite' => $beer->is_favorite,
+                'tags' => $beer->tags->pluck('name')->toArray(),
+            ])->toArray();
+    }
 
-            fclose($handle);
-        }, $filename, [
-            'Content-Type' => 'text/csv',
-        ]);
+    private function exportVenues(int $userId): array
+    {
+        return Venue::whereHas('checkins', fn ($q) => $q->where('user_id', $userId))
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Venue $v) => [
+                'name' => $v->name,
+                'untappd_venue_id' => $v->untappd_venue_id,
+                'address' => $v->address,
+                'city' => $v->city,
+                'state' => $v->state,
+                'country' => $v->country,
+                'latitude' => $v->latitude,
+                'longitude' => $v->longitude,
+                'website' => $v->website,
+            ])->toArray();
+    }
+
+    private function exportStores(int $userId): array
+    {
+        return Store::whereHas('inventory', fn ($q) => $q->where('user_id', $userId))
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Store $s) => [
+                'name' => $s->name,
+                'address' => $s->address,
+                'city' => $s->city,
+                'state' => $s->state,
+                'country' => $s->country,
+                'latitude' => $s->latitude,
+                'longitude' => $s->longitude,
+                'website' => $s->website,
+            ])->toArray();
+    }
+
+    private function exportCheckins(int $userId): array
+    {
+        $checkins = [];
+
+        Checkin::where('user_id', $userId)
+            ->with(['beer.brewery', 'venue', 'photos', 'tags', 'companions'])
+            ->latest()
+            ->chunk(200, function ($chunk) use (&$checkins) {
+                foreach ($chunk as $checkin) {
+                    $checkins[] = [
+                        'beer_name' => $checkin->beer->name ?? null,
+                        'beer_pub_uuid' => $checkin->beer->pub_uuid ?? null,
+                        'brewery_name' => $checkin->beer->brewery->name ?? null,
+                        'brewery_pub_uuid' => $checkin->beer->brewery->pub_uuid ?? null,
+                        'rating' => $checkin->rating,
+                        'serving_type' => $checkin->serving_type,
+                        'notes' => $checkin->notes,
+                        'location' => $checkin->location,
+                        'venue_name' => $checkin->venue->name ?? null,
+                        'untappd_id' => $checkin->untappd_id,
+                        'tags' => $checkin->tags->pluck('name')->toArray(),
+                        'companions' => $checkin->companions->pluck('name')->toArray(),
+                        'created_at' => $checkin->created_at->toIso8601String(),
+                    ];
+                }
+            });
+
+        return $checkins;
+    }
+
+    private function exportInventory(int $userId): array
+    {
+        return Inventory::where('user_id', $userId)
+            ->with(['beer.brewery', 'store'])
+            ->get()
+            ->map(fn (Inventory $inv) => [
+                'beer_name' => $inv->beer->name ?? null,
+                'beer_pub_uuid' => $inv->beer->pub_uuid ?? null,
+                'brewery_name' => $inv->beer->brewery->name ?? null,
+                'brewery_pub_uuid' => $inv->beer->brewery->pub_uuid ?? null,
+                'quantity' => $inv->quantity,
+                'storage_location' => $inv->storage_location,
+                'store_name' => $inv->store->name ?? null,
+                'is_gift' => $inv->is_gift,
+                'date_acquired' => $inv->date_acquired?->toDateString(),
+                'notes' => $inv->notes,
+            ])->toArray();
+    }
+
+    private function exportCollections(int $userId): array
+    {
+        return Collection::where('user_id', $userId)
+            ->with('beers.brewery')
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Collection $c) => [
+                'name' => $c->name,
+                'description' => $c->description,
+                'is_dynamic' => $c->is_dynamic,
+                'rules' => $c->rules,
+                'beers' => $c->is_dynamic ? [] : $c->beers->map(fn (Beer $b) => [
+                    'name' => $b->name,
+                    'pub_uuid' => $b->pub_uuid,
+                    'brewery_name' => $b->brewery->name ?? null,
+                    'sort_order' => $b->pivot->sort_order,
+                ])->toArray(),
+            ])->toArray();
     }
 }
