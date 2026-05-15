@@ -149,6 +149,26 @@ class PubBeerDb
         });
     }
 
+    /**
+     * Handle a 401 response on a Sanctum-authenticated request.
+     * Clears the stored secret key so the user can re-link.
+     */
+    public static function handleSecretKeyRevoked(?int $userId = null): void
+    {
+        $userId ??= auth()->id();
+        if (! $userId) {
+            return;
+        }
+
+        $user = \App\Models\User::find($userId);
+        if ($user) {
+            $user->setData('pub_secret_key', null);
+            $user->save();
+        }
+
+        Log::info('PubBeerDb: secret key revoked/expired, cleared for user', ['user_id' => $userId]);
+    }
+
     public function getBeer(string $uuid): ?array
     {
         return $this->request("/api/beers/{$uuid}");

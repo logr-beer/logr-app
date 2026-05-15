@@ -38,6 +38,44 @@ new class extends Component
         if ($claimCode && !config('app.demo_mode')) {
             $this->exchangeClaimCode($claimCode);
         }
+
+        // Verify stored secret key is still valid
+        if ($this->pub_secret_key && !config('app.demo_mode')) {
+            $this->verifyPubSecretKey();
+        }
+    }
+
+    private function verifyPubSecretKey(): void
+    {
+        $pubUrl = rtrim(config('services.logr.pub_url', ''), '/');
+        if (!$pubUrl) {
+            return;
+        }
+
+        try {
+            $http = \Illuminate\Support\Facades\Http::withToken($this->pub_secret_key)
+                ->accept('application/json')
+                ->timeout(5);
+
+            if (app()->environment('local')) {
+                $http = $http->withoutVerifying();
+            }
+
+            $response = $http->get($pubUrl . '/api/auth/user');
+
+            if ($response->status() === 401) {
+                $user = Auth::user();
+                $user->setData('pub_secret_key', null);
+                $user->save();
+                $this->pub_secret_key = '';
+
+                $this->testSection = 'pub';
+                $this->testResult = 'Your Logr Pub secret key was revoked or expired. Click "Link to Logr Pub Account" to reconnect.';
+                $this->testStatus = 'error';
+            }
+        } catch (\Exception $e) {
+            // Network error — don't clear the key, it might still be valid
+        }
     }
 
     private function exchangeClaimCode(string $code): void
