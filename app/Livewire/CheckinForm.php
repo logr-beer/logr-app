@@ -222,7 +222,7 @@ class CheckinForm extends Component
     {
         $sources = [];
         if (PubBeerDb::forInstance()) {
-            $sources['pub'] = 'Logr Pub';
+            $sources['pub'] = 'LogrDB';
         }
         $user = auth()->user();
         if (($user->untappd_client_id ?: config('services.untappd.api_key')) && ($user->untappd_client_secret ?: config('services.untappd.api_secret'))) {

@@ -25,6 +25,40 @@
             </div>
 
             <div class="pt-2 space-y-3">
+                {{-- Theme preference --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Theme</label>
+                    <div x-data="{ theme: '{{ $themePreference }}' }" class="flex gap-2">
+                        @foreach (['system' => 'System', 'light' => 'Light', 'dark' => 'Dark'] as $value => $label)
+                            <button type="button"
+                                wire:model.live="themePreference"
+                                @click="
+                                    theme = '{{ $value }}';
+                                    $wire.set('themePreference', '{{ $value }}');
+                                    if ('{{ $value }}' === 'system') {
+                                        localStorage.removeItem('theme');
+                                        document.documentElement.classList.toggle('dark', matchMedia('(prefers-color-scheme: dark)').matches);
+                                    } else {
+                                        localStorage.setItem('theme', '{{ $value }}');
+                                        document.documentElement.classList.toggle('dark', '{{ $value }}' === 'dark');
+                                    }
+                                "
+                                :class="theme === '{{ $value }}' ? 'bg-amber-500 text-white border-amber-500' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-amber-400'"
+                                class="flex-1 px-3 py-2 text-sm font-medium rounded-lg border transition-colors text-center"
+                            >{{ $label }}</button>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- LogrDB --}}
+                <label class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 cursor-pointer">
+                    <input wire:model="connectPub" type="checkbox"
+                        class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Connect to LogrDB beer database</span>
+                    <span></span>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Get a free read-only API key to search 14k+ breweries and 55k+ beers when adding check-ins or new beers. No account required.</p>
+                </label>
+
                 <div>
                     <label class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 cursor-pointer">
                         <input wire:model="geocodingEnabled" type="checkbox"
@@ -70,9 +104,21 @@
                     </div>
                 </div>
 
+                {{-- Demo data --}}
+                @if (count($backupSummary) === 0)
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-3 mt-1">
+                        <label class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 cursor-pointer">
+                            <input wire:model="loadDemoData" type="checkbox"
+                                class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Load sample data</span>
+                            <span></span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">New to Logr? Start with a curated set of beers, breweries, check-ins, and collections so you can explore the app right away.</p>
+                        </label>
+                    </div>
+                @endif
+
                 {{-- Restore from backup --}}
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-3 mt-1">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Restore from backup</label>
                     @if (count($backupSummary) > 0)
                         <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 space-y-2">
                             <div class="flex items-center justify-between">
@@ -94,27 +140,22 @@
                             </div>
                         </div>
                     @else
-                        <input type="file" wire:model="backupFile" accept=".json"
-                            class="block w-full text-sm text-gray-500 dark:text-gray-400
-                                file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0
-                                file:text-sm file:font-medium
-                                file:bg-gray-200 dark:file:bg-gray-600 file:text-gray-700 dark:file:text-gray-200
-                                hover:file:bg-gray-300 dark:hover:file:bg-gray-500" />
-                        @error('backupFile') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
-                        <div wire:loading wire:target="backupFile" class="text-xs text-gray-500 dark:text-gray-400 mt-1">Reading file...</div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Upload a <code class="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded font-mono">logr-export-*.json</code> file to restore your data.</p>
+                        <details>
+                            <summary class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer select-none hover:text-amber-500 transition-colors">Restore from backup</summary>
+                            <div class="mt-2">
+                                <input type="file" wire:model="backupFile" accept=".json"
+                                    class="block w-full text-sm text-gray-500 dark:text-gray-400
+                                        file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0
+                                        file:text-sm file:font-medium
+                                        file:bg-gray-200 dark:file:bg-gray-600 file:text-gray-700 dark:file:text-gray-200
+                                        hover:file:bg-gray-300 dark:hover:file:bg-gray-500" />
+                                @error('backupFile') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                                <div wire:loading wire:target="backupFile" class="text-xs text-gray-500 dark:text-gray-400 mt-1">Reading file...</div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Upload a <code class="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded font-mono">logr-export-*.json</code> file from a previous Logr installation.</p>
+                            </div>
+                        </details>
                     @endif
                 </div>
-
-                @if (count($backupSummary) === 0)
-                    <label class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 cursor-pointer">
-                        <input wire:model="loadDemoData" type="checkbox"
-                            class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Load demo data</span>
-                        <span></span>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Pre-populate with sample beers, breweries, check-ins, and collections.</p>
-                    </label>
-                @endif
             </div>
 
             {{-- Integrations Section --}}

@@ -181,7 +181,7 @@ class BeerCrudTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(BeerForm::class)
-            ->set('beerSearch', 'IP')
+            ->set('name', 'IP')
             ->assertSet('showBeerDropdown', true);
     }
 

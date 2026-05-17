@@ -70,7 +70,7 @@ new class extends Component
                 $this->pub_secret_key = '';
 
                 $this->testSection = 'pub';
-                $this->testResult = 'Your Logr Pub secret key was revoked or expired. Click "Link to Logr Pub Account" to reconnect.';
+                $this->testResult = 'Your LogrDB secret key was revoked or expired. Click "Link to LogrDB Account" to reconnect.';
                 $this->testStatus = 'error';
             }
         } catch (\Exception $e) {
@@ -202,11 +202,41 @@ new class extends Component
         $user->save();
     }
 
+    public function toggleFeedSubmit(int $index): void
+    {
+        if (! isset($this->rssFeeds[$index])) {
+            return;
+        }
+
+        $this->rssFeeds[$index]['submit_to_logrdb'] = ! ($this->rssFeeds[$index]['submit_to_logrdb'] ?? false);
+
+        $user = Auth::user();
+        $user->setData('untappd_rss_feeds', $this->rssFeeds);
+        $user->save();
+    }
+
     public function resetPubConnection(): void
     {
         $this->testSection = 'pub';
 
-        // Clear keys and linked account
+        // Revoke the old key on the pub side
+        $pubUrl = rtrim(config('services.logr.pub_url', ''), '/');
+        $oldKey = \App\Models\Setting::get('pub_api_key');
+        if ($pubUrl && $oldKey) {
+            try {
+                $http = \Illuminate\Support\Facades\Http::withToken($oldKey)
+                    ->accept('application/json')
+                    ->timeout(10);
+                if (app()->environment('local')) {
+                    $http = $http->withoutVerifying();
+                }
+                $http->delete($pubUrl . '/api/instances');
+            } catch (\Exception $e) {
+                // Best-effort — don't block reset if pub is unreachable
+            }
+        }
+
+        // Clear keys and linked account locally
         \App\Models\Setting::remove('pub_api_key');
         $user = Auth::user();
         $user->setData('pub_secret_key', null);
@@ -265,7 +295,7 @@ new class extends Component
             ]);
 
             if ($response->status() === 409) {
-                $this->testResult = 'This API key has already been linked to a Logr Pub account.';
+                $this->testResult = 'This API key has already been linked to a LogrDB account.';
                 $this->testStatus = 'success';
                 return;
             }
@@ -374,7 +404,7 @@ new class extends Component
 
         try {
             $rss = app(\App\Services\UntappdRss::class);
-            $result = $rss->syncFeed($user, $feed['url']);
+            $result = $rss->syncFeed($user, $feed['url'], $feed);
             $message = "{$label}: Imported {$result['imported']}, Skipped {$result['skipped']}";
             $this->syncStatus = $message;
             $this->dispatch('toast', message: $message);
@@ -479,20 +509,20 @@ new class extends Component
     </header>
 
     <form wire:submit="save" class="mt-6 space-y-6">
-        {{-- Logr Pub --}}
+        {{-- LogrDB --}}
         @php
             $pubUrl = config('services.logr.pub_url');
             $instanceToken = \App\Models\Setting::get('pub_api_key');
         @endphp
         <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
             <div class="flex items-center justify-between">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Logr Pub</h3>
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">LogrDB</h3>
                 @if(env('LOGR_PUB_URL'))
                     <x-env-badge name="LOGR_PUB_URL" />
                 @endif
             </div>
             <p class="text-xs text-gray-500 dark:text-gray-400">
-                The <a href="{{ $pubUrl }}" target="_blank" rel="noopener" class="font-medium underline hover:text-amber-500">Logr Pub</a> beer database powers beer and brewery search with 14k+ breweries and 55k+ beers.
+                The <a href="{{ $pubUrl }}" target="_blank" rel="noopener" class="font-medium underline hover:text-amber-500">LogrDB</a> beer database powers beer and brewery search with 14k+ breweries and 55k+ beers.
             </p>
 
             @if($instanceToken)
@@ -508,7 +538,7 @@ new class extends Component
                             </button>
                         </div>
                     </div>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Read-only access to the Logr Pub beer and brewery database.</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Read-only access to the LogrDB beer and brewery database.</p>
                 </div>
 
                 <div>
@@ -523,7 +553,7 @@ new class extends Component
                             </button>
                         </div>
                     </div>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Link your Pub account to contribute beers and breweries you check in back to the community database. Click "Link to Logr Pub Account" below or paste a token manually.</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Link your Pub account to contribute beers and breweries you check in back to the community database. Click "Link to LogrDB Account" below or paste a token manually.</p>
                 </div>
 
                 @unless($demoMode)
@@ -531,7 +561,7 @@ new class extends Component
                         <button type="button" wire:click="claimPubKey" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors">
                             <span wire:loading wire:target="claimPubKey"><svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
                             <x-icon name="external-link" size="3" />
-                            Link to Logr Pub Account
+                            Link to LogrDB Account
                         </button>
                         <button type="button" wire:click="resetPubConnection" wire:confirm="This will clear your instance key and secret key, and provision a new one. Continue?" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">
                             <x-icon name="refresh" size="3" />
@@ -541,7 +571,7 @@ new class extends Component
                 @endunless
             @else
                 <div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-sm text-amber-800 dark:text-amber-200 space-y-3">
-                    <p>Connect to the Logr Pub to enable beer and brewery search.</p>
+                    <p>Connect to the LogrDB to enable beer and brewery search.</p>
                     <button type="button" wire:click="provisionPubKey" {{ $demoMode ? 'disabled' : '' }} class="inline-flex items-center gap-2 px-3 py-1.5 bg-amber-600 text-white text-xs font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50">
                         <span wire:loading wire:target="provisionPubKey"><svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
                         Get API Key
@@ -623,19 +653,28 @@ new class extends Component
                 </div>
 
                 @foreach($rssFeeds as $index => $feed)
-                    <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <div class="flex-1 min-w-0">
-                            <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $feed['label'] ?? 'Untitled Feed' }}</span>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $feed['url'] }}</p>
+                    <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-2">
+                        <div class="flex items-center gap-3">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $feed['label'] ?? 'Untitled Feed' }}</span>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $feed['url'] }}</p>
+                            </div>
+                            @unless($demoMode)
+                                <button type="button" wire:click="syncFeed({{ $index }})" class="shrink-0 p-1.5 text-gray-400 hover:text-amber-500 transition-colors" title="Sync this feed">
+                                    <x-icon name="refresh" size="4" wire:loading.class="animate-spin" wire:target="syncFeed({{ $index }})" />
+                                </button>
+                                <button type="button" wire:click="removeFeed({{ $index }})" wire:confirm="Remove this RSS feed?" class="shrink-0 p-1.5 text-gray-400 hover:text-red-500 transition-colors" title="Remove this feed">
+                                    <x-icon name="trash" size="4" />
+                                </button>
+                            @endunless
                         </div>
-                        @unless($demoMode)
-                            <button type="button" wire:click="syncFeed({{ $index }})" class="shrink-0 p-1.5 text-gray-400 hover:text-amber-500 transition-colors" title="Sync this feed">
-                                <x-icon name="refresh" size="4" wire:loading.class="animate-spin" wire:target="syncFeed({{ $index }})" />
-                            </button>
-                            <button type="button" wire:click="removeFeed({{ $index }})" wire:confirm="Remove this RSS feed?" class="shrink-0 p-1.5 text-gray-400 hover:text-red-500 transition-colors" title="Remove this feed">
-                                <x-icon name="trash" size="4" />
-                            </button>
-                        @endunless
+                        @if(Auth::user()->pub_secret_key && !$demoMode)
+                            <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                <input type="checkbox" wire:click="toggleFeedSubmit({{ $index }})" {{ !empty($feed['submit_to_logrdb']) ? 'checked' : '' }}
+                                    class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Submit new beers to LogrDB</span>
+                            </label>
+                        @endif
                     </div>
                 @endforeach
 

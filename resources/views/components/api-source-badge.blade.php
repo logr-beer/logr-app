@@ -2,7 +2,7 @@
 
 @php
     $labels = [
-        'pub' => 'Logr Pub',
+        'pub' => 'LogrDB',
         'catalog' => 'Catalog.beer',
         'untappd' => 'Untappd',
         'openbrewerydb' => 'Open Brewery DB',

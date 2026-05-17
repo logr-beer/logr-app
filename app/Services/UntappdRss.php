@@ -27,7 +27,7 @@ class UntappdRss
         $errors = [];
 
         foreach ($feeds as $feed) {
-            $result = $this->syncFeed($user, $feed['url']);
+            $result = $this->syncFeed($user, $feed['url'], $feed);
 
             $totalImported += $result['imported'];
             $totalSkipped += $result['skipped'];
@@ -45,7 +45,7 @@ class UntappdRss
         ];
     }
 
-    public function syncFeed(User $user, string $url): array
+    public function syncFeed(User $user, string $url, array $feedConfig = []): array
     {
         if (! $url) {
             return ['imported' => 0, 'skipped' => 0, 'error' => 'No RSS URL configured.'];
@@ -65,6 +65,8 @@ class UntappdRss
             return ['imported' => 0, 'skipped' => 0, 'error' => 'Invalid RSS feed format.'];
         }
 
+        $resolver = PubBeerResolver::make($user);
+        $submitToLogrDb = ! empty($feedConfig['submit_to_logrdb']) && $user->getData('pub_secret_key');
         $imported = 0;
         $skipped = 0;
 
@@ -84,7 +86,6 @@ class UntappdRss
 
             // Skip if we've already imported this check-in
             if (Checkin::where('user_id', $user->id)->where('untappd_id', $untappdId)->exists()) {
-                // Also check by guid in case older imports used it
                 $skipped++;
 
                 continue;
@@ -98,18 +99,25 @@ class UntappdRss
             // Find or create brewery
             $brewery = null;
             if ($parsed['brewery']) {
-                $brewery = Brewery::firstOrCreate(
-                    ['name' => $parsed['brewery']],
-                );
+                $brewery = $resolver
+                    ? $resolver->resolveBrewery($parsed['brewery'])
+                    : Brewery::firstOrCreate(['name' => $parsed['brewery']]);
             }
 
             // Find or create beer
-            $beer = Beer::firstOrCreate(
-                [
+            if ($resolver) {
+                $beer = $resolver->resolveBeer($parsed['beer'], $brewery);
+
+                // Submit to LogrDB if unmatched and feed setting is enabled
+                if (! $beer->pub_uuid && $submitToLogrDb) {
+                    $resolver->submitUnmatched($beer, $brewery);
+                }
+            } else {
+                $beer = Beer::firstOrCreate([
                     'name' => $parsed['beer'],
                     'brewery_id' => $brewery?->id,
-                ],
-            );
+                ]);
+            }
 
             // Find or create venue from location
             $venueId = null;
