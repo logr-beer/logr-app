@@ -61,7 +61,8 @@ new class extends Component
                     <x-icon name="plus" size="4" /> Add Beer
                 </x-primary-button>
                 <button
-                    x-data="{ dark: document.documentElement.classList.contains('dark') }"
+                    x-data="{ dark: localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && matchMedia('(prefers-color-scheme: dark)').matches) }"
+                    x-init="document.documentElement.classList.toggle('dark', dark)"
                     x-on:click="dark = !dark; localStorage.setItem('theme', dark ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', dark)"
                     class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     title="Toggle dark mode"
@@ -117,7 +118,8 @@ new class extends Component
             <!-- Dark mode toggle + Hamburger -->
             <div class="-me-2 flex items-center sm:hidden gap-1">
                 <button
-                    x-data="{ dark: document.documentElement.classList.contains('dark') }"
+                    x-data="{ dark: localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && matchMedia('(prefers-color-scheme: dark)').matches) }"
+                    x-init="document.documentElement.classList.toggle('dark', dark)"
                     x-on:click="dark = !dark; localStorage.setItem('theme', dark ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', dark)"
                     class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 transition"
                 >
