@@ -37,6 +37,7 @@ class UntappdScraper
     protected function importViaApi(User $user): array
     {
         $api = new Untappd($user->untappd_client_id ?: config('services.untappd.api_key'), $user->untappd_client_secret ?: config('services.untappd.api_secret'));
+        $resolver = PubBeerResolver::make($user);
         $imported = 0;
         $skipped = 0;
         $offset = 0;
@@ -71,7 +72,7 @@ class UntappdScraper
                     'recent_checkin_date' => $beerData['recent_checkin_date'],
                     'total_checkins' => $beerData['total_checkins'],
                     'checkin_url' => null,
-                ]);
+                ], $resolver);
 
                 if ($result) {
                     $imported++;
@@ -93,6 +94,7 @@ class UntappdScraper
 
     public function importViaHtml(User $user): array
     {
+        $resolver = PubBeerResolver::make($user);
         $imported = 0;
         $skipped = 0;
         $seen = [];
@@ -119,7 +121,7 @@ class UntappdScraper
                 }
                 $seen[$bid] = true;
 
-                $result = $this->importBeer($user, $beerData);
+                $result = $this->importBeer($user, $beerData, $resolver);
                 if ($result) {
                     $imported++;
                 } else {
@@ -285,33 +287,28 @@ class UntappdScraper
         ];
     }
 
-    protected function importBeer(User $user, array $data): bool
+    protected function importBeer(User $user, array $data, ?PubBeerResolver $resolver = null): bool
     {
         // Find or create brewery
         $brewery = null;
         if ($data['brewery_name']) {
-            $brewery = Brewery::firstOrCreate(
-                ['name' => $data['brewery_name']],
-            );
+            $brewery = $resolver
+                ? $resolver->resolveBrewery($data['brewery_name'])
+                : Brewery::firstOrCreate(['name' => $data['brewery_name']]);
         }
 
         // Find or create beer
-        $beer = Beer::where('name', $data['beer_name'])
-            ->where('brewery_id', $brewery?->id)
-            ->first();
+        $localData = [
+            'style' => $data['style'] ?? null,
+            'abv' => $data['abv'] ?? null,
+            'ibu' => $data['ibu'] ?? null,
+        ];
 
-        $isNew = ! $beer;
+        if ($resolver) {
+            $beer = $resolver->resolveBeer($data['beer_name'], $brewery, $localData);
+            $isNew = $beer->wasRecentlyCreated;
 
-        if (! $beer) {
-            $beer = Beer::create([
-                'name' => $data['beer_name'],
-                'brewery_id' => $brewery?->id,
-                'style' => $data['style'] ? [$data['style']] : null,
-                'abv' => $data['abv'],
-                'ibu' => $data['ibu'],
-            ]);
-        } else {
-            // Update missing fields on existing beer
+            // Backfill from scraper data if resolver didn't enrich
             $updates = [];
             if (! $beer->style && $data['style']) {
                 $updates['style'] = [$data['style']];
@@ -324,6 +321,36 @@ class UntappdScraper
             }
             if (! empty($updates)) {
                 $beer->update($updates);
+            }
+        } else {
+            $beer = Beer::where('name', $data['beer_name'])
+                ->where('brewery_id', $brewery?->id)
+                ->first();
+
+            $isNew = ! $beer;
+
+            if (! $beer) {
+                $beer = Beer::create([
+                    'name' => $data['beer_name'],
+                    'brewery_id' => $brewery?->id,
+                    'style' => $data['style'] ? [$data['style']] : null,
+                    'abv' => $data['abv'],
+                    'ibu' => $data['ibu'],
+                ]);
+            } else {
+                $updates = [];
+                if (! $beer->style && $data['style']) {
+                    $updates['style'] = [$data['style']];
+                }
+                if (! $beer->abv && $data['abv']) {
+                    $updates['abv'] = $data['abv'];
+                }
+                if (! $beer->ibu && $data['ibu']) {
+                    $updates['ibu'] = $data['ibu'];
+                }
+                if (! empty($updates)) {
+                    $beer->update($updates);
+                }
             }
         }
 

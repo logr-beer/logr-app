@@ -169,6 +169,72 @@ class PubBeerDb
         Log::info('PubBeerDb: secret key revoked/expired, cleared for user', ['user_id' => $userId]);
     }
 
+    /**
+     * Unified search. Returns ['beers' => [...], 'breweries' => [...]].
+     */
+    public function search(string $query): array
+    {
+        $cacheKey = 'pub_search_'.md5($query);
+
+        return Cache::remember($cacheKey, now()->addHour(), function () use ($query) {
+            $response = $this->request('/api/search', ['q' => $query]);
+
+            if (! $response) {
+                return ['beers' => [], 'breweries' => []];
+            }
+
+            return [
+                'beers' => $response['beers'] ?? [],
+                'breweries' => $response['breweries'] ?? [],
+            ];
+        });
+    }
+
+    /**
+     * Submit a beer for review. Requires user's secret key (write access).
+     *
+     * @return array|null Response on success, null on failure. Returns ['status' => 401] on auth failure.
+     */
+    public function submitBeer(string $userToken, array $data): ?array
+    {
+        if (! $this->baseUrl) {
+            return null;
+        }
+
+        $url = "{$this->baseUrl}/api/submissions";
+        $payload = [
+            'type' => 'beer',
+            'data' => $data,
+        ];
+
+        try {
+            $http = Http::withToken($userToken)->accept('application/json')->timeout(10);
+            if (app()->environment('local')) {
+                $http = $http->withoutVerifying();
+            }
+            $response = $http->post($url, $payload);
+        } catch (\Exception $e) {
+            Log::error('PubBeerDb: submitBeer exception', ['error' => $e->getMessage()]);
+
+            return null;
+        }
+
+        if ($response->status() === 401) {
+            return ['status' => 401];
+        }
+
+        if ($response->failed()) {
+            Log::warning('PubBeerDb: submitBeer failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return null;
+        }
+
+        return $response->json();
+    }
+
     public function getBeer(string $uuid): ?array
     {
         return $this->request("/api/beers/{$uuid}");

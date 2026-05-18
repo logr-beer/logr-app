@@ -33,6 +33,10 @@ class Setup extends Component
 
     public array $backupSummary = [];
 
+    public string $themePreference = 'system';
+
+    public bool $connectPub = true;
+
     public bool $geocodingEnabled = true;
 
     public bool $shareCheckinData = false;
@@ -231,8 +235,10 @@ class Setup extends Component
 
         $user->save();
 
-        // Provision a Logr Pub API key for beer database search
-        \App\Services\PubBeerDb::provisionKey();
+        // Provision a LogrDB API key for beer database search
+        if ($this->connectPub) {
+            \App\Services\PubBeerDb::provisionKey();
+        }
 
         if ($this->backupFile) {
             Auth::login($user);

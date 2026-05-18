@@ -16,8 +16,8 @@
     @if($selectedId)
         <div class="flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
             <x-icon :name="$icon" size="4" class="text-amber-500 flex-shrink-0" />
-            <span class="text-sm text-gray-900 dark:text-white flex-1">{{ $selectedName }}</span>
-            <button type="button" wire:click="clearLocation('{{ $prefix }}')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+            <span class="text-sm font-medium text-amber-700 dark:text-amber-400 flex-1">{{ $selectedName }}</span>
+            <button type="button" wire:click="clearLocation('{{ $prefix }}')" class="text-amber-400 hover:text-amber-600 dark:hover:text-amber-300">
                 <x-icon name="x-mark" size="4" />
             </button>
         </div>
