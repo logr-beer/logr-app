@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'version' => '0.4.0',
+    'version' => '0.4.2',
 
     'user_agent' => 'Logr/1.0 (personal beer tracker)',
 
