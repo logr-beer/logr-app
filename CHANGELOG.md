@@ -4,6 +4,45 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.2] - 2026-05-21
+
+### Added
+- Google Tag Manager support via `GOOGLE_TAG_MANAGER_ID` env var (off by default; renders independently of GA).
+- Laravel scheduler now runs in both the production Docker container (via supervisord) and DDEV (via `web_extra_daemons`), so the nightly `untappd:sync` at 03:00 UTC and the hourly `demo:reset` fire automatically.
+
+### Changed
+- Consolidated Google Analytics tracking from three duplicated `<head>` blocks into a single `partials/analytics.blade.php` include.
+
+## [0.4.1] - 2026-05-18
+
+### Added
+- `PubBeerResolver` service that resolves beers/breweries against LogrDB during RSS sync and Untappd scraping, backfilling `pub_uuid` and enrichment data.
+- Unified search in `BeerForm` — local library and LogrDB results merged into the name field, with source filter and "load more" pagination.
+- Per-feed `submit_to_logrdb` toggle on Untappd RSS feeds.
+- `test:pub-rss` artisan command for dry-run feed testing.
+- `PubBeerDb::search()` and `PubBeerDb::submitBeer()` methods for unified search and pending beer submissions.
+- 12 new `PubBeerResolver` unit tests.
+
+### Changed
+- Renamed "Logr Pub" to "LogrDB" across the UI.
+- `UntappdScraper` now resolves brewery/beer via the new resolver.
+
+### Fixed
+- Venue selected-state icon and text color now use amber instead of the default.
+
+## [0.4.0] - 2026-05-15
+
+### Added
+- Logr Pub beer database integration — lookup, claim flow, secret key management.
+- JSON export/import for full user data.
+- Dark mode toggle with localStorage persistence and pre-render flash prevention.
+- Store model with shared location components and Nominatim address search.
+- 401 handling for revoked or rotated Pub secret keys (auto-reprovision).
+- Test suite covering Pub beer DB, JSON export/import, dark mode, and API settings.
+
+### Changed
+- Security hardening across Pub integration touchpoints.
+
 ## [0.3.1] - 2026-05-12
 
 ### Added
@@ -267,6 +306,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Database purge and reset tools
 - System info page with version and dependency details
 
+[0.4.2]: https://github.com/logr-beer/logr-app/releases/tag/v0.4.2
+[0.4.1]: https://github.com/logr-beer/logr-app/releases/tag/v0.4.1
+[0.4.0]: https://github.com/logr-beer/logr-app/releases/tag/v0.4.0
 [0.3.1]: https://github.com/logr-beer/logr-app/releases/tag/v0.3.1
 [0.3.0]: https://github.com/logr-beer/logr-app/releases/tag/v0.3.0
 [0.2.1]: https://github.com/logr-beer/logr-app/releases/tag/v0.2.1
