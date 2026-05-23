@@ -183,7 +183,7 @@
                 <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Recent Check-ins</h2>
                 @if($checkins->isEmpty())
                     <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-                        <x-icon name="check-circle" size="12" class="text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                        <x-icon name="check-circle" size="12" class="text-gray-400 dark:text-gray-500 mx-auto mb-3" />
                         <p class="text-gray-500 dark:text-gray-400">No check-ins yet.</p>
                     </div>
                 @else
@@ -203,7 +203,7 @@
                 <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Inventory</h2>
                 @if($inventoryItems->isEmpty())
                     <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-                        <x-icon name="archive-box" size="12" class="text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                        <x-icon name="archive-box" size="12" class="text-gray-400 dark:text-gray-500 mx-auto mb-3" />
                         <p class="text-gray-500 dark:text-gray-400">No inventory yet.</p>
                     </div>
                 @else
@@ -224,7 +224,7 @@
         <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Recent Check-ins</h2>
         @if($checkins->isEmpty())
             <div class="text-center py-16 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-                <x-icon name="check-circle" size="16" class="text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <x-icon name="check-circle" size="16" class="text-gray-400 dark:text-gray-500 mx-auto mb-4" />
                 <p class="text-gray-500 dark:text-gray-400 text-lg">No check-ins at this venue yet.</p>
             </div>
         @else
@@ -243,7 +243,7 @@
         <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Purchases</h2>
         @if($inventoryItems->isEmpty())
             <div class="text-center py-16 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-                <x-icon name="archive-box" size="16" class="text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <x-icon name="archive-box" size="16" class="text-gray-400 dark:text-gray-500 mx-auto mb-4" />
                 <p class="text-gray-500 dark:text-gray-400 text-lg">No purchases from this store yet.</p>
             </div>
         @else

@@ -228,7 +228,7 @@
                             <x-primary-button type="button" wire:click="addToFridge" @click="open = false">Add to Inventory</x-primary-button>
                             @if(count($inventoryShareTargets) > 0)
                                 <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                                    <span class="text-xs text-gray-400 dark:text-gray-500">Share:</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">Share:</span>
                                     @foreach($inventoryShareTargets as $i => $target)
                                         <label class="inline-flex items-center gap-1 cursor-pointer">
                                             <input wire:model="inventoryShareTargets.{{ $i }}.enabled" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
@@ -342,7 +342,7 @@
                     <div class="mt-4 flex items-center justify-end gap-3">
                         @if(count($checkinShareTargets) > 0)
                             <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mr-auto">
-                                <span class="text-xs text-gray-400 dark:text-gray-500">Share:</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Share:</span>
                                 @foreach($checkinShareTargets as $i => $target)
                                     <label class="inline-flex items-center gap-1 cursor-pointer">
                                         <input wire:model="checkinShareTargets.{{ $i }}.enabled" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
@@ -403,7 +403,7 @@
                     </div>
                 @else
                     <div class="text-center py-8">
-                        <x-icon name="clock" size="12" class="text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                        <x-icon name="clock" size="12" class="text-gray-400 dark:text-gray-500 mx-auto mb-3" aria-hidden="true" />
                         <p class="text-gray-500 dark:text-gray-400">No check-ins yet. Be the first!</p>
                     </div>
                 @endif
