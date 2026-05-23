@@ -4,6 +4,18 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.3] - 2026-05-22
+
+### Changed
+- Rating distribution bars on the rankings page now use the amber brand primary instead of yellow.
+- Dark-mode disabled pagination text, empty-state icons, and small label text raised to meet logr-shared brand contrast and WCAG AA (no text below `gray-400` in dark mode).
+
+### Removed
+- Orphaned Laravel installer leftovers (`welcome.blade.php` and `livewire/welcome/navigation.blade.php`) — both unreferenced since `/` redirects to `/dashboard`.
+
+### Fixed
+- Missing `aria-hidden` on decorative empty-state icons.
+
 ## [0.4.2] - 2026-05-21
 
 ### Added
@@ -306,6 +318,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Database purge and reset tools
 - System info page with version and dependency details
 
+[0.4.3]: https://github.com/logr-beer/logr-app/releases/tag/v0.4.3
 [0.4.2]: https://github.com/logr-beer/logr-app/releases/tag/v0.4.2
 [0.4.1]: https://github.com/logr-beer/logr-app/releases/tag/v0.4.1
 [0.4.0]: https://github.com/logr-beer/logr-app/releases/tag/v0.4.0
