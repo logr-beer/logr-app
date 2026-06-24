@@ -21,7 +21,7 @@
                 @if($checkin->rating !== null)
                     <div class="flex items-center gap-0.5">
                         @for($i = 1; $i <= 5; $i++)
-                            <x-icon name="star" size="3" :solid="true" class="{{ $i <= $checkin->rating ? 'text-amber-400' : 'text-gray-300 dark:text-gray-600' }}" />
+                            <x-icon name="star" size="3" :solid="true" class="{{ $i <= $checkin->rating ? 'text-amber-400' : 'text-gray-400 dark:text-gray-500' }}" />
                         @endfor
                     </div>
                 @endif

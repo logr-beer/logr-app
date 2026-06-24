@@ -93,7 +93,7 @@
 
         @if($beers->isEmpty())
             <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-                <x-icon name="flask" size="12" class="text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                <x-icon name="flask" size="12" class="text-gray-400 dark:text-gray-500 mx-auto mb-3" aria-hidden="true" />
                 <p class="text-gray-500 dark:text-gray-400">No beers in this collection yet. Search above to add some.</p>
             </div>
         @else

@@ -188,7 +188,7 @@
                             <span class="text-sm text-gray-700 dark:text-gray-300 w-12 flex-shrink-0">{{ $r }} ★</span>
                             <div class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full h-5 overflow-hidden">
                                 @if($count > 0)
-                                    <div class="bg-yellow-500 h-full rounded-full flex items-center justify-end pr-2" style="width: {{ $maxRating > 0 ? ($count / $maxRating) * 100 : 0 }}%">
+                                    <div class="bg-amber-500 h-full rounded-full flex items-center justify-end pr-2" style="width: {{ $maxRating > 0 ? ($count / $maxRating) * 100 : 0 }}%">
                                         <span class="text-[10px] font-bold text-white">{{ $count }}</span>
                                     </div>
                                 @endif

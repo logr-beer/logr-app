@@ -68,7 +68,7 @@
                                                     <span class="text-gray-500 dark:text-gray-400 text-xs block">{{ $localBeer['brewery']['name'] }}</span>
                                                 @endif
                                             </div>
-                                            <span class="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">In Library</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">In Library</span>
                                         </button>
                                     @endforeach
                                     @if($beerResults['localTotal'] > count($beerResults['local']))
@@ -82,7 +82,7 @@
                                     @if(count($beerResults['api']) > 0)
                                         @if(count($beerResults['local']) > 0)
                                             <div class="border-t border-gray-200 dark:border-gray-600 px-4 py-1.5">
-                                                <span class="text-[10px] font-medium uppercase tracking-wider text-gray-400 dark:text-gray-500">Search Results</span>
+                                                <span class="text-[10px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Search Results</span>
                                             </div>
                                         @endif
                                         @foreach($beerResults['api'] as $result)
@@ -100,7 +100,7 @@
                                                 </div>
                                                 <div class="flex items-center gap-2 flex-shrink-0">
                                                     @if($result['abv'] ?? null)
-                                                        <span class="text-xs text-gray-400 dark:text-gray-500">{{ $result['abv'] }}%</span>
+                                                        <span class="text-xs text-gray-500 dark:text-gray-400">{{ $result['abv'] }}%</span>
                                                     @endif
                                                     @if($result['_source'] ?? null)
                                                         <x-api-source-badge :source="$result['_source']" />

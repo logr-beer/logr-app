@@ -53,7 +53,7 @@ class PubBeerDb
 
         try {
             $http = Http::accept('application/json')->timeout(10);
-            if (app()->environment('local')) {
+            if (app()->environment('local', 'testing')) {
                 $http = $http->withoutVerifying();
             }
             $response = $http->post($endpoint, $payload);
@@ -209,7 +209,7 @@ class PubBeerDb
 
         try {
             $http = Http::withToken($userToken)->accept('application/json')->timeout(10);
-            if (app()->environment('local')) {
+            if (app()->environment('local', 'testing')) {
                 $http = $http->withoutVerifying();
             }
             $response = $http->post($url, $payload);
@@ -255,7 +255,7 @@ class PubBeerDb
 
         try {
             $http = Http::withToken($this->token)->accept('application/json')->timeout(10);
-            if (app()->environment('local')) {
+            if (app()->environment('local', 'testing')) {
                 $http = $http->withoutVerifying();
             }
             $response = $http->get($url, $query);

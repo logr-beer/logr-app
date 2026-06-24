@@ -8,7 +8,7 @@
 
 <div class="text-center py-16 {{ $card ? 'bg-white dark:bg-gray-800 rounded-xl shadow-sm' : '' }}">
     <div class="group inline-block mb-4">
-        <x-application-logo-filled class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto stroke-current" />
+        <x-application-logo-filled class="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto stroke-current" aria-hidden="true" />
     </div>
     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ $title }}</h3>
     @if($message)

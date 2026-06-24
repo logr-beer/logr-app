@@ -111,6 +111,20 @@ class User extends Authenticatable
     }
 
     /**
+     * Proxy isset() into the data column for known settings keys. Without this,
+     * empty() and isset() on those proxied properties always report empty
+     * (PHP consults __isset before __get).
+     */
+    public function __isset($key)
+    {
+        if (in_array($key, static::dataKeys())) {
+            return $this->getData($key) !== null;
+        }
+
+        return parent::__isset($key);
+    }
+
+    /**
      * Keys stored in the data JSON column.
      */
     public static function dataKeys(): array
