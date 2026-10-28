@@ -83,28 +83,41 @@ All state lives in a single Docker volume (`logr-data`): SQLite database at `/da
 
 ## Development
 
-### With DDEV (recommended)
+Requires PHP 8.4, Composer, Node.js 20+ and npm. The app uses SQLite at `database/database.sqlite`; no other services are needed.
 
 ```bash
 git clone https://github.com/logr-beer/logr-app.git && cd logr-app
+composer setup                                # Install deps, create .env, generate key, migrate, build assets
+php artisan db:seed --class=DemoSeeder        # Optional: demo account (demo / password) + sample data
+composer dev                                  # Dev server (http://127.0.0.1:8000), queue, log tailing, Vite HMR
+composer test                                 # PHPUnit
+```
+
+`.env.example` defaults to `SESSION_SECURE_COOKIE=false` so you can log in over plain `http://`. Set it to `true` when serving over HTTPS.
+
+### E2E tests (Playwright)
+
+The specs in `e2e/` log in as the demo account (`demo` / `password`), so seed it first with `php artisan db:seed --class=DemoSeeder`. The base URL comes from `PLAYWRIGHT_BASE_URL`, then `APP_URL`, then defaults to `https://logr.ddev.site`.
+
+```bash
+npm run test:e2e:install                                  # Once: install Chromium
+PLAYWRIGHT_BASE_URL=http://127.0.0.1:8000 npm run test:e2e
+composer test:all                                         # PHPUnit + Playwright
+```
+
+### With DDEV (optional)
+
+[DDEV](https://ddev.com) works too. Prefix the same commands with `ddev` (`ddev composer ...`, `ddev artisan ...`, `ddev npm ...`):
+
+```bash
 ddev start
 ddev composer setup
+ddev artisan db:seed --class=DemoSeeder
 ddev composer dev        # Dev server + queue + logs + Vite HMR
-ddev composer test       # Run tests
+ddev composer test
 ```
 
-Site available at **https://logr.ddev.site**.
-
-### Without DDEV
-
-Requires PHP 8.2+, Composer, Node.js 20+, npm.
-
-```bash
-git clone https://github.com/logr-beer/logr-app.git && cd logr-app
-composer setup           # Install deps, generate key, migrate, build assets
-composer dev             # Start dev server, queue, log tailing, Vite
-composer test            # Run tests
-```
+Site available at **https://logr.ddev.site** (the Playwright default). Under DDEV the SQLite file is symlinked to a shared `/data` volume, and `SESSION_SECURE_COOKIE=true` is fine since the site is HTTPS.
 
 ---
 
