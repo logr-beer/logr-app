@@ -1,0 +1,6 @@
+- Logr: a self-hosted beer logging app. Laravel 12, Livewire 3 + Volt, Blade + Vite + Tailwind v4, SQLite (`database/database.sqlite`; sessions, cache and queue use the database). Read `CLAUDE.md` if present before changing behavior.
+- CI and production run **PHP 8.4** and Node 20: don't use PHP 8.5-only syntax or functions. Composer and npm dependencies are installed and assets are built.
+- The app runs at {app_url}, migrated and seeded with the demo account (`demo` / `password`) from `DemoSeeder`. Queues run synchronously here.
+- Tests: `php artisan test`. Format PHP with `./vendor/bin/pint` (CI runs `pint --test` on the whole repo).
+- Playwright specs live in `e2e/` and log in as the demo account. `PLAYWRIGHT_BASE_URL` points them at this instance, so `npm run test:e2e` (or `npx playwright test e2e/beers.spec.ts`) runs here. DDEV isn't available and isn't needed: use `php artisan`, `composer` and `npm` directly.
+- External APIs (Catalog.beer, Untappd, the Discord bot) have no keys here: don't depend on live calls in tests; fake them.
