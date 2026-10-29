@@ -8,21 +8,22 @@ Logr is a self-hosted beer logging and collection management app. Built with Lar
 
 ## Commands
 
+Use `php artisan` / `composer` / `npm` directly. Prefix with `ddev` / `ddev exec` only when working inside DDEV (optional; see below).
+
 ```bash
-# Development (DDEV)
-ddev start
-ddev composer setup    # Full install (composer, env, key, migrate, npm)
-ddev composer dev      # Dev server with HMR (serve + queue + pail + vite)
-ddev composer test     # Run tests
+# Setup
+composer setup                               # Full install (composer, .env, key, migrate, npm build)
+php artisan db:seed --class=DemoSeeder       # Demo account demo / password (needed for E2E)
 
-# Development (manual)
-composer setup         # Full install
+# Development
 composer dev           # Dev server (artisan serve, queue:listen, pail, vite via concurrently)
-composer test          # Clear config cache + run PHPUnit
+php artisan serve      # Just the app, at http://127.0.0.1:8000
 
-# Single test
+# Tests
+composer test          # Clear config cache + run PHPUnit
 php artisan test --filter=TestClassName
 php artisan test tests/Feature/SomeTest.php
+PLAYWRIGHT_BASE_URL=http://127.0.0.1:8000 npm run test:e2e   # Playwright E2E
 
 # Lint (Laravel Pint - PSR-12 style)
 ./vendor/bin/pint
@@ -31,6 +32,10 @@ php artisan test tests/Feature/SomeTest.php
 php artisan migrate
 php artisan tinker
 ```
+
+**DDEV (optional)**: `ddev start`, then the same commands prefixed: `ddev composer setup`, `ddev composer dev`, `ddev composer test`, `ddev artisan ...`, `ddev exec ...`. The site is at `https://logr.ddev.site`; DDEV's post-start hook symlinks `database/database.sqlite` to a shared `/data` volume. Outside DDEV the app just uses `database/database.sqlite`.
+
+**Agent worker recipe**: `.agent/` holds the orchestrator's setup recipe (`job.sh`) and environment notes (`prompt.md`) for this repo. Update them in the same PR when setup changes.
 
 ## Architecture
 
@@ -67,10 +72,10 @@ Tests use in-memory SQLite (configured in `phpunit.xml`). Test suite is in `test
 
 ```bash
 composer test          # PHPUnit only
-npm run test:e2e       # Playwright E2E only (headless, requires DDEV running)
+npm run test:e2e       # Playwright E2E only (headless, requires a running app + demo user)
 composer test:all      # Both PHPUnit + Playwright (run before release)
 npm run test:e2e:headed  # Playwright with visible browser
 npm run test:e2e:ui    # Playwright interactive debugger
 ```
 
-Playwright tests require Chromium installed locally (`npm run test:e2e:install`) and DDEV running with a seeded demo user.
+Playwright tests require Chromium installed locally (`npm run test:e2e:install`), a running app, and the seeded demo user (`php artisan db:seed --class=DemoSeeder`; account `demo` / `password`). The base URL comes from `PLAYWRIGHT_BASE_URL`, then `APP_URL`, then defaults to `https://logr.ddev.site` (DDEV).
