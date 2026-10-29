@@ -6,8 +6,11 @@ use App\Models\Beer;
 use App\Models\Brewery;
 use App\Models\Checkin;
 use App\Models\User;
+use Carbon\Carbon;
+use Composer\InstalledVersions;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Component;
 
 class SystemInfo extends Component
@@ -35,7 +38,7 @@ class SystemInfo extends Component
             'Logr Version' => config('logr.version'),
             'PHP Version' => PHP_VERSION,
             'Laravel Version' => app()->version(),
-            'Livewire Version' => \Composer\InstalledVersions::getPrettyVersion('livewire/livewire'),
+            'Livewire Version' => InstalledVersions::getPrettyVersion('livewire/livewire'),
             'Database' => config('database.default'),
             'Cache Driver' => config('cache.default'),
             'Queue Driver' => config('queue.default'),
@@ -75,7 +78,7 @@ class SystemInfo extends Component
                     'name' => $short,
                     'queue' => $job->queue,
                     'attempts' => $job->attempts,
-                    'created_at' => \Carbon\Carbon::createFromTimestamp($job->created_at)->diffForHumans(),
+                    'created_at' => Carbon::createFromTimestamp($job->created_at)->diffForHumans(),
                 ];
             });
 
@@ -93,8 +96,8 @@ class SystemInfo extends Component
                     'uuid' => $job->uuid,
                     'name' => $short,
                     'queue' => $job->queue,
-                    'exception' => \Illuminate\Support\Str::limit($job->exception, 150),
-                    'failed_at' => \Carbon\Carbon::parse($job->failed_at)->diffForHumans(),
+                    'exception' => Str::limit($job->exception, 150),
+                    'failed_at' => Carbon::parse($job->failed_at)->diffForHumans(),
                 ];
             });
 

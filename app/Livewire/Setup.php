@@ -2,8 +2,14 @@
 
 namespace App\Livewire;
 
+use App\Jobs\ScrapeUntappdProfile;
+use App\Jobs\ScrapeUntappdVenues;
+use App\Jobs\SyncUntappdRss;
 use App\Models\User;
+use App\Rules\DiscordWebhookUrl;
 use App\Services\JsonImportService;
+use App\Services\PubBeerDb;
+use Database\Seeders\DemoSeeder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
@@ -162,7 +168,7 @@ class Setup extends Component
     public function addWebhook(): void
     {
         $this->validate([
-            'newWebhookUrl' => ['required', 'url', 'max:500', new \App\Rules\DiscordWebhookUrl],
+            'newWebhookUrl' => ['required', 'url', 'max:500', new DiscordWebhookUrl],
             'newWebhookLabel' => 'nullable|string|max:100',
         ]);
 
@@ -237,24 +243,24 @@ class Setup extends Component
 
         // Provision a LogrDB API key for beer database search
         if ($this->connectPub) {
-            \App\Services\PubBeerDb::provisionKey();
+            PubBeerDb::provisionKey();
         }
 
         if ($this->backupFile) {
             Auth::login($user);
             $this->importBackup($user);
         } elseif ($this->loadDemoData) {
-            $seeder = new \Database\Seeders\DemoSeeder;
+            $seeder = new DemoSeeder;
             $seeder->run();
         }
 
         // Dispatch import jobs if configured
         if ($user->getData('untappd_username')) {
-            \App\Jobs\ScrapeUntappdProfile::dispatch($user);
-            \App\Jobs\ScrapeUntappdVenues::dispatch($user);
+            ScrapeUntappdProfile::dispatch($user);
+            ScrapeUntappdVenues::dispatch($user);
         }
         if ($user->getData('untappd_rss_feeds')) {
-            \App\Jobs\SyncUntappdRss::dispatch($user);
+            SyncUntappdRss::dispatch($user);
         }
 
         if (! Auth::check()) {
