@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Setting;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -160,7 +161,7 @@ class PubBeerDb
             return;
         }
 
-        $user = \App\Models\User::find($userId);
+        $user = User::find($userId);
         if ($user) {
             $user->setData('pub_secret_key', null);
             $user->save();

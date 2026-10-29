@@ -7,14 +7,18 @@ use App\Events\CheckinCreated;
 use App\Models\Beer;
 use App\Models\Brewery;
 use App\Models\Checkin;
+use App\Models\CheckinPhoto;
 use App\Models\Inventory;
 use App\Models\Store;
 use App\Models\Venue;
 use App\Services\CatalogBeer;
+use App\Services\Discord;
 use App\Services\OpenBreweryDb;
 use App\Services\PubBeerDb;
+use App\Services\PubDiscord;
 use App\Services\Untappd;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -437,7 +441,7 @@ class BeerForm extends Component
         $this->beer->tags()->detach();
 
         if ($this->beer->photo_path) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($this->beer->photo_path);
+            Storage::disk('public')->delete($this->beer->photo_path);
         }
 
         $this->beer->delete();
@@ -504,8 +508,8 @@ class BeerForm extends Component
 
                 if (collect($this->inventoryShareTargets)->contains('enabled', true)) {
                     $currentUser = auth()->user();
-                    \App\Services\Discord::sendPurchase($inventory, $currentUser);
-                    \App\Services\PubDiscord::sendPurchase($inventory, $currentUser);
+                    Discord::sendPurchase($inventory, $currentUser);
+                    PubDiscord::sendPurchase($inventory, $currentUser);
                 }
             }
 
@@ -526,7 +530,7 @@ class BeerForm extends Component
                 if ($this->checkinPhotos) {
                     foreach ($this->checkinPhotos as $photo) {
                         $path = $photo->store('checkin-photos', 'public');
-                        \App\Models\CheckinPhoto::create([
+                        CheckinPhoto::create([
                             'checkin_id' => $checkin->id,
                             'photo_path' => $path,
                         ]);
@@ -534,11 +538,11 @@ class BeerForm extends Component
                 }
 
                 // Use beer photo if selected and no other photos added
-                if ($this->useBeerPhoto && empty($this->checkinPhotos) && $beer->photo_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($beer->photo_path)) {
+                if ($this->useBeerPhoto && empty($this->checkinPhotos) && $beer->photo_path && Storage::disk('public')->exists($beer->photo_path)) {
                     $ext = pathinfo($beer->photo_path, PATHINFO_EXTENSION);
                     $newPath = 'checkin-photos/'.uniqid().'.'.$ext;
-                    \Illuminate\Support\Facades\Storage::disk('public')->copy($beer->photo_path, $newPath);
-                    \App\Models\CheckinPhoto::create([
+                    Storage::disk('public')->copy($beer->photo_path, $newPath);
+                    CheckinPhoto::create([
                         'checkin_id' => $checkin->id,
                         'photo_path' => $newPath,
                     ]);

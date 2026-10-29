@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use Database\Factories\UserFactory;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Log;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
 
     /**
@@ -75,9 +78,9 @@ class User extends Authenticatable
     {
         try {
             return parent::__get('data') ?? [];
-        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+        } catch (DecryptException $e) {
             // If the APP_KEY changed, encrypted data is unreadable — reset in memory only
-            \Illuminate\Support\Facades\Log::warning('User data decryption failed (APP_KEY may have changed)', ['user_id' => $this->id]);
+            Log::warning('User data decryption failed (APP_KEY may have changed)', ['user_id' => $this->id]);
             $this->attributes['data'] = null;
 
             return [];
