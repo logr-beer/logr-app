@@ -30,6 +30,7 @@ RUN chown -R www-data:www-data /var/www/html \
 
 COPY docker/nginx.conf /etc/nginx/sites-available/default
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/php-uploads.ini /usr/local/etc/php/conf.d/zz-uploads.ini
 
 RUN mkdir -p /var/www/html/database && touch /var/www/html/database/database.sqlite \
     && chown www-data:www-data /var/www/html/database/database.sqlite
