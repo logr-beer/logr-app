@@ -28,3 +28,4 @@ Thumbs.db
 /playwright/.auth/
 /test-results/
 /playwright-report/
+/.pint.cache
