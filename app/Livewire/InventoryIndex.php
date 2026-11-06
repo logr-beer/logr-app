@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Beer;
 use App\Models\Inventory;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Title;
@@ -36,7 +37,7 @@ class InventoryIndex extends Component
 
     public function toggleFavorite(int $beerId): void
     {
-        $beer = \App\Models\Beer::findOrFail($beerId);
+        $beer = Beer::findOrFail($beerId);
         $beer->update(['is_favorite' => ! $beer->is_favorite]);
     }
 

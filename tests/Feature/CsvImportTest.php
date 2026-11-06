@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Services\GeocodingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -40,7 +41,7 @@ class CsvImportTest extends TestCase
         return UploadedFile::fake()->createWithContent($name, $content);
     }
 
-    private function uploadAndGetComponent(string $csv, string $importType = 'checkins'): \Livewire\Features\SupportTesting\Testable
+    private function uploadAndGetComponent(string $csv, string $importType = 'checkins'): Testable
     {
         $file = $this->makeCsvFile($csv);
 
@@ -50,7 +51,7 @@ class CsvImportTest extends TestCase
             ->set('csvFile', $file);
     }
 
-    private function runFullImport(string $csv, string $importType = 'checkins', array $mappingOverrides = []): \Livewire\Features\SupportTesting\Testable
+    private function runFullImport(string $csv, string $importType = 'checkins', array $mappingOverrides = []): Testable
     {
         $component = $this->uploadAndGetComponent($csv, $importType)
             ->assertSet('step', 'map');

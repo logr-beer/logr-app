@@ -7,6 +7,7 @@ use App\Models\Brewery;
 use App\Models\Inventory;
 use App\Models\Store;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -44,7 +45,7 @@ class StoreModelTest extends TestCase
     {
         $store = Store::create(['name' => 'Test Store']);
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $store->inventory());
+        $this->assertInstanceOf(HasMany::class, $store->inventory());
     }
 
     public function test_display_location_works_on_store(): void

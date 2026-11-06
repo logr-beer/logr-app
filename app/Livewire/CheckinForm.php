@@ -8,6 +8,7 @@ use App\Models\Beer;
 use App\Models\Brewery;
 use App\Models\Checkin;
 use App\Models\CheckinPhoto;
+use App\Models\Setting;
 use App\Models\Venue;
 use App\Services\CatalogBeer;
 use App\Services\PubBeerDb;
@@ -101,7 +102,7 @@ class CheckinForm extends Component
         }
 
         // Discord bots
-        $bots = \App\Models\Setting::get('discord_bots', []);
+        $bots = Setting::get('discord_bots', []);
         $prefs = $user->getData('discord_bot_prefs') ?? [];
         foreach ($bots as $i => $bot) {
             $guildId = $bot['guild_id'] ?? null;

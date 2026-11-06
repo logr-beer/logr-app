@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Setting;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -21,7 +22,7 @@ class SetupAlert extends Component
 
         $rssFeeds = $user->getData('untappd_rss_feeds') ?? [];
         $webhooks = $user->getData('discord_webhooks') ?? [];
-        $hasBot = ! empty(\App\Models\Setting::get('discord_bots', []));
+        $hasBot = ! empty(Setting::get('discord_bots', []));
 
         if (empty($rssFeeds)) {
             $this->missing[] = 'untappd';

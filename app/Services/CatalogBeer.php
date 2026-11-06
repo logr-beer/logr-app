@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Beer;
+use App\Models\Brewery;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 
@@ -418,7 +420,7 @@ class CatalogBeer
      * Submit a local brewery to catalog.beer if it doesn't already have a catalog_beer_brewer_id.
      * Returns the catalog.beer brewer ID on success, null on failure.
      */
-    public function submitBrewery(\App\Models\Brewery $brewery, ?string $apiKey = null): ?string
+    public function submitBrewery(Brewery $brewery, ?string $apiKey = null): ?string
     {
         if ($brewery->catalog_beer_brewer_id) {
             return $brewery->catalog_beer_brewer_id;
@@ -442,7 +444,7 @@ class CatalogBeer
      * Submit a local beer to catalog.beer. Will also submit the brewery if needed.
      * Returns the catalog.beer beer ID on success, null on failure.
      */
-    public function submitBeer(\App\Models\Beer $beer, ?string $apiKey = null): ?string
+    public function submitBeer(Beer $beer, ?string $apiKey = null): ?string
     {
         if ($beer->catalog_beer_id) {
             return $beer->catalog_beer_id;

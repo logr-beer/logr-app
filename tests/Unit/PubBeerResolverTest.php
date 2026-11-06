@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\Beer;
 use App\Models\Brewery;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\PubBeerDb;
 use App\Services\PubBeerResolver;
@@ -18,7 +19,7 @@ class PubBeerResolverTest extends TestCase
     private function setupPubInstance(): void
     {
         config(['services.logr.pub_url' => 'https://pub.test']);
-        \App\Models\Setting::set('pub_api_key', 'test-instance-key');
+        Setting::set('pub_api_key', 'test-instance-key');
     }
 
     public function test_make_returns_null_without_pub_configured(): void

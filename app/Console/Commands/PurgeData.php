@@ -10,6 +10,7 @@ use App\Models\Companion;
 use App\Models\Inventory;
 use App\Models\Tag;
 use App\Models\Venue;
+use Database\Seeders\DemoSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -38,7 +39,7 @@ class PurgeData extends Command
 
         if ($this->option('demo')) {
             $this->info('Seeding demo data...');
-            (new \Database\Seeders\DemoSeeder)->run();
+            (new DemoSeeder)->run();
             $this->info('Demo data loaded.');
         }
 

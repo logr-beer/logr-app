@@ -12,6 +12,7 @@ use App\Models\Store;
 use App\Models\Venue;
 use App\Services\Discord;
 use App\Services\PubDiscord;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -184,7 +185,7 @@ class BeerShow extends Component
         $this->beer->tags()->detach();
 
         if ($this->beer->photo_path) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($this->beer->photo_path);
+            Storage::disk('public')->delete($this->beer->photo_path);
         }
 
         $this->beer->delete();
