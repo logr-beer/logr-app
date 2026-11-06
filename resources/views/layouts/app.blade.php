@@ -100,6 +100,9 @@
                             </a>
                         </div>
                     </div>
+                    <p class="text-center text-xs text-gray-500 dark:text-gray-400 mt-3">
+                        &copy; {{ now()->year }} Logr. All Rights Reserved.
+                    </p>
                     @if(config('app.demo_mode'))
                         <p class="text-center text-[10px] text-gray-500 dark:text-gray-400 mt-3">
                             Demo images from <a href="https://unsplash.com" target="_blank" rel="noopener" class="underline hover:text-gray-500 dark:hover:text-gray-400">Unsplash</a>
