@@ -52,6 +52,7 @@ Create a `.env` file next to `docker-compose.yml`. All variables are optional â€
 
 ```env
 APP_URL=http://localhost:8337
+TRUSTED_PROXIES=*             # Reverse proxies to trust for X-Forwarded-* headers (default: *; or comma-separated IPs/CIDRs)
 
 # Beer database integrations
 CATALOG_BEER_API_KEY=          # catalog.beer API key for beer search
@@ -66,6 +67,8 @@ LOGR_PUB_URL=                  # Pub API URL for anonymous stats (default: https
 GOOGLE_ANALYTICS_ID=           # GA4 measurement ID (optional, no tracking if unset)
 DEMO_MODE=false                # Enable demo mode with scheduled resets and read-only settings
 ```
+
+Running behind an HTTPS reverse proxy? Make sure it sends `X-Forwarded-Proto`. Logr trusts any proxy by default so generated URLs (including file uploads) use `https`; set `TRUSTED_PROXIES` to your proxy's IP to restrict that.
 
 Per-user settings (Untappd credentials, Discord webhooks, geocoding) can also be configured through the in-app settings page.
 
