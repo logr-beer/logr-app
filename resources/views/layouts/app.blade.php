@@ -66,11 +66,13 @@
 
             <!-- Toast Notifications -->
             <x-toast />
+            {{-- Flash toasts: livewire:navigated fires on full loads and after wire:navigate redirects (DOMContentLoaded only on the former).
+                 The tag removes itself so a back-button snapshot of the page doesn't replay the toast. --}}
             @if(session('message'))
-                <script>window.addEventListener('DOMContentLoaded', () => window.dispatchEvent(new CustomEvent('toast', { detail: { message: @json(session('message')) } })));</script>
+                <script>document.currentScript.remove(); document.addEventListener('livewire:navigated', () => window.dispatchEvent(new CustomEvent('toast', { detail: { message: @json(session('message')) } })), { once: true });</script>
             @endif
             @if(session('error'))
-                <script>window.addEventListener('DOMContentLoaded', () => window.dispatchEvent(new CustomEvent('toast', { detail: { message: @json(session('error')), type: 'error' } })));</script>
+                <script>document.currentScript.remove(); document.addEventListener('livewire:navigated', () => window.dispatchEvent(new CustomEvent('toast', { detail: { message: @json(session('error')), type: 'error' } })), { once: true });</script>
             @endif
 
             <!-- Footer -->
