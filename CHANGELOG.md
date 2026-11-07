@@ -4,6 +4,12 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Fixed
+- Adding a beer right after typing its name no longer fails with "The name field is required." (the name was lost to the 400ms search debounce).
+- Flash toasts such as "Check-in recorded!" now appear after in-app (`wire:navigate`) redirects, not only on full page loads.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed
