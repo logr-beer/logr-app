@@ -4,6 +4,11 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Fixed
+- Docker Quick Start now passes the `.env` next to `docker-compose.yml` into the container (`env_file`), so documented settings like `CATALOG_BEER_API_KEY`, `UNTAPPD_*`, `GOOGLE_ANALYTICS_ID` and `DEMO_MODE` take effect.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed

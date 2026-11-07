@@ -34,6 +34,9 @@ services:
       - "8337:8337"
     volumes:
       - logr-data:/data
+    env_file:
+      - path: .env
+        required: false
     restart: unless-stopped
 
 volumes:
@@ -48,7 +51,7 @@ Open **http://localhost:8337**. The app auto-generates an `APP_KEY`, runs migrat
 
 ### Configuration
 
-Create a `.env` file next to `docker-compose.yml`. All variables are optional — the app works out of the box with sensible defaults.
+Create a `.env` file next to `docker-compose.yml`; the `env_file` entry in the Quick Start passes it into the container (requires Docker Compose 2.24+; on older versions use `env_file: .env` and make sure the file exists). Run `docker compose up -d` again after changing it. All variables are optional — the app works out of the box with sensible defaults.
 
 ```env
 APP_URL=http://localhost:8337
