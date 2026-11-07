@@ -95,6 +95,8 @@ composer test                                 # PHPUnit
 
 `.env.example` defaults to `SESSION_SECURE_COOKIE=false` so you can log in over plain `http://`. Set it to `true` when serving over HTTPS.
 
+Contributions are welcome — please open an issue first to discuss larger changes.
+
 ### E2E tests (Playwright)
 
 The specs in `e2e/` log in as the demo account (`demo` / `password`), so seed it first with `php artisan db:seed --class=DemoSeeder`. The base URL comes from `PLAYWRIGHT_BASE_URL`, then `APP_URL`, then defaults to `https://logr.ddev.site`.
