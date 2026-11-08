@@ -4,6 +4,11 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Changed
+- "Load example data" (dashboard and setup) and `logr:purge --demo` now seed the sample data into your own account; the separate `demo` account is only created by `DemoSeeder` in `DEMO_MODE` or local/testing environments, and no longer gets the instance's API keys copied into it.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed
