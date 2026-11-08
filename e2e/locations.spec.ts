@@ -692,3 +692,74 @@ test.describe('Location Autocomplete in Forms', () => {
         });
     });
 });
+
+// =========================================================================
+// Map popups
+// =========================================================================
+
+test.describe('Map popups', () => {
+    test('location names with markup render as plain text', async ({ page }) => {
+        const suffix = Date.now();
+        const name = `<b id="popup-markup-${suffix}">Markup</b> Taproom ${suffix}`;
+        const lat = 41.8;
+        const lng = -87.6;
+
+        await test.step('create a venue whose name contains markup', async () => {
+            await page.goto('/locations/venues');
+            await page.locator('button[wire\\:click="createNew"]').click();
+            await expect(page).toHaveURL(/locations\/venues\/\d+/);
+
+            // The name input is debounced; wait for it to sync before saving.
+            const nameSynced = page.waitForResponse(r => r.url().includes('/livewire') && r.request().postData()?.includes('popup-markup') === true);
+            await page.locator('input[placeholder*="Search for a place"]').fill(name);
+            await nameSynced;
+            await page.locator('input[placeholder="Latitude"]').fill(String(lat));
+            await page.locator('input[placeholder="Longitude"]').fill(String(lng));
+            await page.getByRole('button', { name: 'Save' }).click();
+            await expect(page.locator('button[title*="Edit"]')).toBeVisible();
+        });
+
+        await test.step('open the popup on the detail page mini map', async () => {
+            const miniMap = page.locator('#location-mini-map');
+            await miniMap.locator('.leaflet-marker-icon').click();
+            const popup = miniMap.locator('.leaflet-popup-content');
+            await expect(popup).toBeVisible();
+            expect(await popup.textContent()).toContain(name);
+            await expect(page.locator(`#popup-markup-${suffix}`)).toHaveCount(0);
+            await test.info().attach('open the popup on the detail page mini map', { body: await page.screenshot(), contentType: 'image/png' });
+        });
+
+        const detailUrl = page.url().split('?')[0];
+
+        await test.step('open the popup on the venues index map', async () => {
+            await page.goto('/locations/venues');
+            const indexMap = page.locator('#location-map');
+            await expect(indexMap.locator('.leaflet-marker-icon').first()).toBeVisible();
+
+            // Several venues may share the map; open this venue's marker directly.
+            await page.evaluate((name) => {
+                const el = document.querySelector('#location-map').parentElement;
+                const map = (window as any).Alpine.$data(el).map;
+                map.eachLayer((layer: any) => {
+                    if (layer.getPopup?.()?.getContent()?.textContent?.includes(name)) {
+                        layer.openPopup();
+                    }
+                });
+            }, name);
+
+            const popup = indexMap.locator('.leaflet-popup-content').filter({ hasText: name });
+            await expect(popup).toBeVisible();
+            expect(await popup.textContent()).toContain(name);
+            await expect(page.locator(`#popup-markup-${suffix}`)).toHaveCount(0);
+            await test.info().attach('open the popup on the venues index map', { body: await page.screenshot(), contentType: 'image/png' });
+        });
+
+        await test.step('delete the venue', async () => {
+            await page.goto(detailUrl);
+            await page.click('button[title*="Edit"]');
+            page.once('dialog', dialog => dialog.accept());
+            await page.locator('button').filter({ hasText: 'Delete' }).click();
+            await expect(page).toHaveURL(/locations\/venues$/);
+        });
+    });
+});

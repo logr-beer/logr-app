@@ -9,6 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 - Check-in and beer photos must be JPG, PNG, WebP or GIF images (also when checking in from the Add Beer form), and the Docker image only runs PHP through `index.php`.
 
+### Fixed
+- Location names in map popups (venues, breweries, stores and location pages) are now always shown as plain text.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed
