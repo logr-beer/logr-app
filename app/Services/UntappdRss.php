@@ -8,6 +8,7 @@ use App\Models\Checkin;
 use App\Models\CheckinPhoto;
 use App\Models\User;
 use App\Models\Venue;
+use App\Support\SafeUrl;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -51,9 +52,18 @@ class UntappdRss
             return ['imported' => 0, 'skipped' => 0, 'error' => 'No RSS URL configured.'];
         }
 
-        $response = Http::withHeaders(['User-Agent' => config('logr.user_agent')])
-            ->timeout(30)
-            ->get($url);
+        if (! SafeUrl::isPublicHttps($url)) {
+            return ['imported' => 0, 'skipped' => 0, 'error' => 'RSS URL must be a public https:// address.'];
+        }
+
+        try {
+            $response = Http::withHeaders(['User-Agent' => config('logr.user_agent')])
+                ->timeout(30)
+                ->withOptions(SafeUrl::redirectOptions(fn (string $next) => SafeUrl::isPublicHttps($next)))
+                ->get($url);
+        } catch (\Exception $e) {
+            return ['imported' => 0, 'skipped' => 0, 'error' => 'Failed to fetch RSS feed.'];
+        }
 
         if ($response->failed()) {
             return ['imported' => 0, 'skipped' => 0, 'error' => 'Failed to fetch RSS feed (HTTP '.$response->status().').'];
@@ -141,14 +151,11 @@ class UntappdRss
             // Download and save photo if present
             if ($parsed['photo_url']) {
                 try {
-                    $photoResponse = Http::withHeaders(['User-Agent' => config('logr.user_agent')])
-                        ->timeout(15)
-                        ->get($parsed['photo_url']);
+                    $image = SafeUrl::fetchImage($parsed['photo_url'], config('logr.user_agent'));
 
-                    if ($photoResponse->successful()) {
-                        $extension = 'jpg';
-                        $filename = 'checkin-photos/'.$checkin->id.'_'.uniqid().'.'.$extension;
-                        Storage::disk('public')->put($filename, $photoResponse->body());
+                    if ($image) {
+                        $filename = 'checkin-photos/'.$checkin->id.'_'.uniqid().'.'.$image['extension'];
+                        Storage::disk('public')->put($filename, $image['body']);
 
                         CheckinPhoto::create([
                             'checkin_id' => $checkin->id,

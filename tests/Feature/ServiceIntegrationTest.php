@@ -10,6 +10,7 @@ use App\Services\CatalogBeer;
 use App\Services\Discord;
 use App\Services\Untappd;
 use App\Services\UntappdRss;
+use App\Support\SafeUrl;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -104,6 +105,7 @@ XML;
         Http::fake([
             'https://untappd.test/rss/test' => Http::response($rssXml, 200),
         ]);
+        SafeUrl::resolveUsing(fn () => ['93.184.216.34']);
 
         $rss = new UntappdRss;
         $result = $rss->syncFeed($user, 'https://untappd.test/rss/test');
