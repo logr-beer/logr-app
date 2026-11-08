@@ -4,6 +4,11 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Fixed
+- Collections page no longer writes to the database on every re-render (e.g. while typing in search), and dynamic collection counts on the collections, beer and home pages are computed in a single query.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed

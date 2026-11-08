@@ -214,21 +214,21 @@ class CollectionIndex extends Component
         }
 
         // Clean up storage location collections where no beers remain in that location
-        Collection::where('user_id', $userId)
+        $storageCollections = Collection::where('user_id', $userId)
             ->where('is_dynamic', true)
             ->whereNotNull('rules->storage_location')
-            ->get()
-            ->each(function ($collection) {
-                if ($collection->resolveBeersCount() === 0) {
-                    $collection->delete();
-                }
-            });
+            ->get();
+        $counts = Collection::dynamicBeerCounts($storageCollections);
+        $storageCollections->filter(fn ($collection) => $counts[$collection->id] === 0)->each->delete();
+    }
+
+    public function mount(): void
+    {
+        $this->ensureBuiltInCollections();
     }
 
     public function render()
     {
-        $this->ensureBuiltInCollections();
-
         $query = Collection::where('user_id', auth()->id());
 
         if ($this->search) {
@@ -238,11 +238,9 @@ class CollectionIndex extends Component
         $collections = (clone $query)->where('is_dynamic', false)
             ->withCount('beers')->get();
 
-        $dynamicCollections = (clone $query)->where('is_dynamic', true)
-            ->get()
-            ->each(function ($collection) {
-                $collection->dynamic_count = $collection->resolveBeersCount();
-            });
+        $dynamicCollections = (clone $query)->where('is_dynamic', true)->get();
+        $counts = Collection::dynamicBeerCounts($dynamicCollections);
+        $dynamicCollections->each(fn ($collection) => $collection->dynamic_count = $counts[$collection->id]);
 
         // Apply sorting
         $asc = $this->sortDirection === 'asc';

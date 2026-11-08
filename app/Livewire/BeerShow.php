@@ -265,8 +265,9 @@ class BeerShow extends Component
 
         $dynamicCollections = Collection::where('user_id', auth()->id())
             ->where('is_dynamic', true)
-            ->get()
-            ->filter(fn ($c) => $c->dynamicBeers()->where('beers.id', $this->beer->id)->exists());
+            ->get();
+        $memberships = Collection::dynamicBeerCounts($dynamicCollections, $this->beer->id);
+        $dynamicCollections = $dynamicCollections->filter(fn ($c) => $memberships[$c->id] > 0);
 
         $beerCollections = $staticCollections->merge($dynamicCollections)->unique('id');
 

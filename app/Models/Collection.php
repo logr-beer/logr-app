@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 
 class Collection extends Model
 {
@@ -34,11 +35,9 @@ class Collection extends Model
         $rules = $this->rules ?? [];
 
         if (isset($rules['year'])) {
-            $beerIds = Checkin::where('user_id', $this->user_id)
+            $query->whereIn('id', Checkin::where('user_id', $this->user_id)
                 ->whereYear('created_at', $rules['year'])
-                ->distinct()
-                ->pluck('beer_id');
-            $query->whereIn('id', $beerIds);
+                ->select('beer_id'));
         }
 
         if (isset($rules['style'])) {
@@ -46,12 +45,10 @@ class Collection extends Model
         }
 
         if (isset($rules['min_rating'])) {
-            $beerIds = Checkin::where('user_id', $this->user_id)
+            $query->whereIn('id', Checkin::where('user_id', $this->user_id)
                 ->select('beer_id')
                 ->groupBy('beer_id')
-                ->havingRaw('AVG(rating) >= ?', [$rules['min_rating']])
-                ->pluck('beer_id');
-            $query->whereIn('id', $beerIds);
+                ->havingRaw('AVG(rating) >= ?', [$rules['min_rating']]));
         }
 
         if (isset($rules['favorites']) && $rules['favorites']) {
@@ -81,19 +78,15 @@ class Collection extends Model
         }
 
         if (isset($rules['serving_type'])) {
-            $beerIds = Checkin::where('user_id', $this->user_id)
+            $query->whereIn('id', Checkin::where('user_id', $this->user_id)
                 ->where('serving_type', $rules['serving_type'])
-                ->distinct()
-                ->pluck('beer_id');
-            $query->whereIn('id', $beerIds);
+                ->select('beer_id'));
         }
 
         if (isset($rules['venue'])) {
-            $beerIds = Checkin::where('user_id', $this->user_id)
+            $query->whereIn('id', Checkin::where('user_id', $this->user_id)
                 ->whereHas('venue', fn ($q) => $q->where('name', 'like', '%'.$rules['venue'].'%'))
-                ->distinct()
-                ->pluck('beer_id');
-            $query->whereIn('id', $beerIds);
+                ->select('beer_id'));
         }
 
         return $query;
@@ -115,5 +108,38 @@ class Collection extends Model
         }
 
         return $this->beers()->count();
+    }
+
+    /**
+     * Count the beers of several dynamic collections in a single query.
+     * With $beerId, each count is 0 or 1: whether that beer is in the collection.
+     *
+     * @param  iterable<Collection>  $collections
+     * @return array<int, int> collection id => count
+     */
+    public static function dynamicBeerCounts(iterable $collections, ?int $beerId = null): array
+    {
+        $query = DB::query();
+        $aliases = [];
+
+        foreach ($collections as $collection) {
+            $beers = $collection->dynamicBeers()->reorder();
+
+            if ($beerId !== null) {
+                $beers->where('beers.id', $beerId);
+            }
+
+            $alias = 'c'.$collection->id;
+            $aliases[$collection->id] = $alias;
+            $query->selectSub($beers->toBase()->selectRaw('count(*)'), $alias);
+        }
+
+        if (empty($aliases)) {
+            return [];
+        }
+
+        $row = (array) $query->first();
+
+        return array_map(fn ($alias) => (int) $row[$alias], $aliases);
     }
 }
