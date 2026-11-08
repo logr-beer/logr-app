@@ -47,6 +47,7 @@ class ProfileTest extends TestCase
 
     public function test_user_can_delete_their_account(): void
     {
+        User::factory()->create(); // first user becomes the admin
         $user = User::factory()->create();
 
         $this->actingAs($user);
@@ -61,6 +62,85 @@ class ProfileTest extends TestCase
 
         $this->assertGuest();
         $this->assertNull($user->fresh());
+    }
+
+    public function test_sole_admin_cannot_delete_their_account(): void
+    {
+        $admin = User::factory()->create();
+        User::factory()->create();
+        $this->assertTrue($admin->fresh()->is_admin);
+
+        $this->actingAs($admin);
+
+        Volt::test('profile.delete-user-form')
+            ->set('password', 'password')
+            ->call('deleteUser')
+            ->assertHasErrors('account')
+            ->assertNoRedirect();
+
+        $this->assertNotNull($admin->fresh());
+        $this->assertAuthenticatedAs($admin);
+    }
+
+    public function test_admin_can_delete_their_account_when_another_admin_exists(): void
+    {
+        $admin = User::factory()->create();
+        $other = User::factory()->create();
+        $other->forceFill(['is_admin' => true])->save();
+
+        $this->actingAs($admin);
+
+        Volt::test('profile.delete-user-form')
+            ->set('password', 'password')
+            ->call('deleteUser')
+            ->assertHasNoErrors()
+            ->assertRedirect('/');
+
+        $this->assertNull($admin->fresh());
+    }
+
+    public function test_last_user_cannot_delete_their_account(): void
+    {
+        $user = User::factory()->create();
+        $user->forceFill(['is_admin' => false])->save();
+
+        $this->actingAs($user);
+
+        Volt::test('profile.delete-user-form')
+            ->set('password', 'password')
+            ->call('deleteUser')
+            ->assertHasErrors('account')
+            ->assertNoRedirect();
+
+        $this->assertNotNull($user->fresh());
+    }
+
+    public function test_account_cannot_be_deleted_in_demo_mode(): void
+    {
+        User::factory()->create();
+        $user = User::factory()->create();
+        config(['app.demo_mode' => true]);
+
+        $this->actingAs($user);
+
+        Volt::test('profile.delete-user-form')
+            ->set('password', 'password')
+            ->call('deleteUser')
+            ->assertForbidden();
+
+        $this->assertNotNull($user->fresh());
+    }
+
+    public function test_make_admin_command_promotes_a_user(): void
+    {
+        User::factory()->create();
+        $user = User::factory()->create(['username' => 'second']);
+        $this->assertFalse($user->fresh()->is_admin);
+
+        $this->artisan('user:make-admin', ['username' => 'second'])->assertSuccessful();
+        $this->assertTrue($user->fresh()->is_admin);
+
+        $this->artisan('user:make-admin', ['username' => 'missing'])->assertFailed();
     }
 
     public function test_correct_password_must_be_provided_to_delete_account(): void
