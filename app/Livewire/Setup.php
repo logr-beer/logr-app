@@ -279,8 +279,10 @@ class Setup extends Component
             return;
         }
 
+        // Setup has no screen to report row errors on, so keep the valid rows
+        // rather than silently rolling back; a fatal error still rolls back.
         $service = new JsonImportService($user->id);
-        $service->import($data);
+        $service->import($data, validRowsOnly: true);
     }
 
     public function render()

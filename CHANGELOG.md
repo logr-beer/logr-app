@@ -4,6 +4,14 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Changed
+- Backup (JSON) import now runs in a single transaction: if any row fails, nothing is imported, unless you tick "Import valid rows only".
+
+### Fixed
+- Backup uploads between 12 MB and 50 MB no longer fail with a confusing error: Livewire's temporary-upload limit now matches the 50 MB import limit, and the README documents the PHP/nginx limits needed.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed

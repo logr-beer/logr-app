@@ -2,15 +2,21 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\JsonImport;
 use App\Models\Beer;
 use App\Models\Brewery;
 use App\Models\Checkin;
 use App\Models\Collection;
+use App\Models\Companion;
 use App\Models\Inventory;
+use App\Models\Store;
+use App\Models\Tag;
 use App\Models\User;
 use App\Models\Venue;
 use App\Services\JsonImportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class JsonImportTest extends TestCase
@@ -384,5 +390,133 @@ class JsonImportTest extends TestCase
 
         $this->assertDatabaseHas('beers', ['name' => 'Round Trip IPA']);
         $this->assertDatabaseHas('breweries', ['name' => 'Round Trip Brewing']);
+    }
+
+    private function makeDataWithMalformedCollection(): array
+    {
+        return $this->makeExportData([
+            'tags' => [['name' => 'hazy']],
+            'companions' => [['name' => 'Sam']],
+            'breweries' => [['name' => 'Rollback Brewing']],
+            'beers' => [['name' => 'Rollback IPA', 'brewery_name' => 'Rollback Brewing', 'tags' => ['hazy']]],
+            'venues' => [['name' => 'Rollback Taproom']],
+            'stores' => [['name' => 'Rollback Bottle Shop']],
+            'checkins' => [[
+                'beer_name' => 'Rollback IPA',
+                'brewery_name' => 'Rollback Brewing',
+                'venue_name' => 'Rollback Taproom',
+                'rating' => 4,
+                'created_at' => '2025-01-01T12:00:00Z',
+                'companions' => ['Sam'],
+            ]],
+            'inventory' => [['beer_name' => 'Rollback IPA', 'brewery_name' => 'Rollback Brewing', 'store_name' => 'Rollback Bottle Shop']],
+            'collections' => [
+                ['name' => 'Good Collection', 'is_dynamic' => false, 'beers' => []],
+                // Malformed: each beer entry must be an object, not a string.
+                ['name' => 'Broken Collection', 'is_dynamic' => false, 'beers' => ['Rollback IPA']],
+            ],
+        ]);
+    }
+
+    private function assertNothingImported(): void
+    {
+        foreach ([Tag::class, Companion::class, Brewery::class, Beer::class, Venue::class, Store::class, Checkin::class, Inventory::class, Collection::class] as $model) {
+            $this->assertSame(0, $model::count(), $model.' rows were left behind');
+        }
+    }
+
+    public function test_row_error_rolls_back_whole_import_in_transactional_mode(): void
+    {
+        $service = new JsonImportService($this->user->id);
+        $service->import($this->makeDataWithMalformedCollection());
+
+        $this->assertTrue($service->rolledBack);
+        $this->assertCount(1, $service->errors);
+        $this->assertStringContainsString('Broken Collection', $service->errors[0]);
+        $this->assertSame(0, array_sum(array_map('array_sum', $service->results)));
+        $this->assertNothingImported();
+    }
+
+    public function test_valid_rows_only_mode_keeps_rows_that_imported(): void
+    {
+        $service = new JsonImportService($this->user->id);
+        $service->import($this->makeDataWithMalformedCollection(), validRowsOnly: true);
+
+        $this->assertFalse($service->rolledBack);
+        $this->assertCount(1, $service->errors);
+        $this->assertDatabaseHas('beers', ['name' => 'Rollback IPA']);
+        $this->assertSame(1, Checkin::count());
+        $this->assertSame(1, Inventory::count());
+        $this->assertDatabaseHas('collections', ['name' => 'Good Collection']);
+        $this->assertEquals(1, $service->results['checkins']['created']);
+    }
+
+    public function test_fatal_error_rolls_back_and_rethrows_in_valid_rows_only_mode(): void
+    {
+        Beer::creating(fn () => throw new \RuntimeException('boom'));
+
+        $service = new JsonImportService($this->user->id);
+
+        try {
+            $service->import($this->makeDataWithMalformedCollection(), validRowsOnly: true);
+            $this->fail('Expected the fatal error to be rethrown.');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('boom', $e->getMessage());
+        }
+
+        $this->assertTrue($service->rolledBack);
+        $this->assertNothingImported();
+    }
+
+    public function test_component_reports_rolled_back_import(): void
+    {
+        $json = json_encode($this->makeDataWithMalformedCollection());
+
+        Livewire::actingAs($this->user)
+            ->test(JsonImport::class)
+            ->set('jsonFile', UploadedFile::fake()->createWithContent('backup.json', $json))
+            ->assertSet('step', 'preview')
+            ->call('runImport')
+            ->assertSet('step', 'results')
+            ->assertSet('rolledBack', true)
+            ->assertSee('Import Rolled Back');
+
+        $this->assertNothingImported();
+    }
+
+    public function test_component_valid_rows_only_option_keeps_valid_rows(): void
+    {
+        $json = json_encode($this->makeDataWithMalformedCollection());
+
+        Livewire::actingAs($this->user)
+            ->test(JsonImport::class)
+            ->set('jsonFile', UploadedFile::fake()->createWithContent('backup.json', $json))
+            ->set('validRowsOnly', true)
+            ->call('runImport')
+            ->assertSet('rolledBack', false)
+            ->assertSee('Import Complete');
+
+        $this->assertDatabaseHas('beers', ['name' => 'Rollback IPA']);
+    }
+
+    public function test_20mb_backup_upload_passes_validation(): void
+    {
+        // Valid JSON, padded to ~20 MB, above Livewire's default 12 MB upload cap.
+        $json = json_encode($this->makeExportData(['padding' => str_repeat('a', 20 * 1024 * 1024)]));
+
+        Livewire::actingAs($this->user)
+            ->test(JsonImport::class)
+            ->set('jsonFile', UploadedFile::fake()->createWithContent('backup.json', $json))
+            ->assertHasNoErrors('jsonFile')
+            ->assertSet('step', 'preview');
+    }
+
+    public function test_upload_over_50mb_is_rejected(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(JsonImport::class)
+            ->set('jsonFile', UploadedFile::fake()->create('backup.json', 51201))
+            ->assertHasErrors('jsonFile')
+            ->assertSet('step', 'upload');
     }
 }
