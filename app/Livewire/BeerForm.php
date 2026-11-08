@@ -467,6 +467,23 @@ class BeerForm extends Component
             'photo' => 'nullable|image|max:10240',
         ];
 
+        if (! $this->beer && $this->addToInventory) {
+            $rules += [
+                'addQuantity' => 'required|integer|min:1|max:999',
+                'storageLocation' => 'nullable|string|max:100',
+                'purchaseDate' => 'nullable|date|before_or_equal:today',
+                'isGift' => 'boolean',
+            ];
+        }
+
+        if (! $this->beer && $this->addCheckin) {
+            $rules += [
+                'checkinRating' => 'nullable|numeric|min:0|max:5',
+                'checkinServingType' => 'nullable|string|in:'.implode(',', config('logr.serving_types')),
+                'checkinNotes' => 'nullable|string|max:2000',
+            ];
+        }
+
         $validated = $this->validate($rules);
 
         $data = [

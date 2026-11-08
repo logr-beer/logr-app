@@ -77,6 +77,12 @@ class BeerShow extends Component
 
     public function addToFridge(): void
     {
+        $this->validate([
+            'addQuantity' => 'required|integer|min:1|max:999',
+            'storageLocation' => 'nullable|string|max:100',
+            'purchaseDate' => 'nullable|date|before_or_equal:today',
+        ]);
+
         $location = trim($this->storageLocation) ?: 'Fridge';
 
         Collection::firstOrCreate(
@@ -125,6 +131,8 @@ class BeerShow extends Component
 
         $this->reset(['storeQuery', 'selectedStoreId', 'selectedStoreName', 'purchaseDate', 'isGift']);
         $this->addQuantity = 1;
+
+        $this->dispatch('fridge-added');
     }
 
     public function removeFromFridge(int $inventoryId): void

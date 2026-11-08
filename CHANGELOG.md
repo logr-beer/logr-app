@@ -4,6 +4,11 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Fixed
+- Inventory quantity, storage location, acquired date and check-in rating/serving/notes are now validated when adding a beer, adding to the fridge, or bulk-adding to inventory, with inline errors instead of saving bad values or failing on invalid dates; the Stats page section sizes are limited to known sections and at most 100 rows.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed

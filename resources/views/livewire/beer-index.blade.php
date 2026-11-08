@@ -106,10 +106,12 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Storage Location</label>
                         <input type="text" wire:model="inventoryLocation" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-amber-500 focus:ring-amber-500" placeholder="e.g. Fridge, Cellar, Garage" />
+                        @error('inventoryLocation') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity (each)</label>
                         <input type="number" wire:model="inventoryQuantity" min="1" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                        @error('inventoryQuantity') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                     </div>
                 </div>
 
