@@ -169,7 +169,7 @@ new class extends Component
     public function addFeed(): void
     {
         $this->validate([
-            'newFeedUrl' => 'required|url|max:500',
+            'newFeedUrl' => 'required|url:https|max:500',
             'newFeedLabel' => 'nullable|string|max:100',
         ]);
 
