@@ -10,29 +10,46 @@ new class extends Component
     private const SECRET_KEYS = ['pub_secret_key', 'untappd_client_secret', 'catalog_beer_api_key'];
 
     public string $pub_secret_key = '';
+
     public string $untappd_username = '';
+
     public string $untappd_client_id = '';
+
     public string $untappd_client_secret = '';
+
     public string $catalog_beer_api_key = '';
+
     #[Locked]
     public array $secretHints = [];
+
     public array $rssFeeds = [];
+
     public string $newFeedLabel = '';
+
     public string $newFeedUrl = '';
 
     // Job status
     public string $syncStatus = '';
+
     public bool $syncing = false;
+
     public string $scrapeStatus = '';
+
     public bool $scraping = false;
+
     public string $venueScrapeStatus = '';
+
     public bool $scrapingVenues = false;
+
     public string $geocodeStatus = '';
+
     public bool $geocoding = false;
 
     // Test results (per-section)
     public string $testResult = '';
+
     public string $testStatus = '';
+
     public string $testSection = '';
 
     public function mount(): void
@@ -41,12 +58,12 @@ new class extends Component
 
         // Exchange claim code for secret key (server-to-server)
         $claimCode = request()->query('pub_claim_code');
-        if ($claimCode && !config('app.demo_mode')) {
+        if ($claimCode && ! config('app.demo_mode')) {
             $this->exchangeClaimCode($claimCode);
         }
 
         // Verify stored secret key is still valid
-        if (! empty($this->secretHints['pub_secret_key']) && !config('app.demo_mode')) {
+        if (! empty($this->secretHints['pub_secret_key']) && ! config('app.demo_mode')) {
             $this->verifyPubSecretKey();
         }
     }
@@ -54,7 +71,7 @@ new class extends Component
     private function verifyPubSecretKey(): void
     {
         $pubUrl = rtrim(config('services.logr.pub_url', ''), '/');
-        if (!$pubUrl) {
+        if (! $pubUrl) {
             return;
         }
 
@@ -67,7 +84,7 @@ new class extends Component
                 $http = $http->withoutVerifying();
             }
 
-            $response = $http->get($pubUrl . '/api/auth/user');
+            $response = $http->get($pubUrl.'/api/auth/user');
 
             if ($response->status() === 401) {
                 $user = Auth::user();
@@ -89,10 +106,11 @@ new class extends Component
         $pubUrl = rtrim(config('services.logr.pub_url', ''), '/');
         $apiKey = \App\Models\Setting::get('pub_api_key');
 
-        if (!$pubUrl || !$apiKey) {
+        if (! $pubUrl || ! $apiKey) {
             $this->testSection = 'pub';
             $this->testResult = 'No instance API key found.';
             $this->testStatus = 'error';
+
             return;
         }
 
@@ -105,7 +123,7 @@ new class extends Component
                 $http = $http->withoutVerifying();
             }
 
-            $response = $http->post($pubUrl . '/api/claim-exchange', [
+            $response = $http->post($pubUrl.'/api/claim-exchange', [
                 'code' => $code,
             ]);
 
@@ -120,6 +138,7 @@ new class extends Component
                     $this->testSection = 'pub';
                     $this->testResult = 'Account linked! Your secret key has been saved.';
                     $this->testStatus = 'success';
+
                     return;
                 }
             }
@@ -129,7 +148,7 @@ new class extends Component
             $this->testStatus = 'error';
         } catch (\Exception $e) {
             $this->testSection = 'pub';
-            $this->testResult = 'Could not exchange claim code: ' . $e->getMessage();
+            $this->testResult = 'Could not exchange claim code: '.$e->getMessage();
             $this->testStatus = 'error';
         }
     }
@@ -138,6 +157,7 @@ new class extends Component
     {
         if (config('app.demo_mode')) {
             $this->rssFeeds = [];
+
             return;
         }
 
@@ -154,7 +174,7 @@ new class extends Component
         $user = Auth::user();
         foreach (self::SECRET_KEYS as $key) {
             $value = (string) ($user->getData($key) ?? '');
-            $this->secretHints[$key] = $value === '' ? '' : '••••' . (strlen($value) > 8 ? substr($value, -4) : '');
+            $this->secretHints[$key] = $value === '' ? '' : '••••'.(strlen($value) > 8 ? substr($value, -4) : '');
             $this->{$key} = '';
         }
     }
@@ -224,6 +244,7 @@ new class extends Component
         $exists = collect($feeds)->contains('url', $this->newFeedUrl);
         if ($exists) {
             $this->addError('newFeedUrl', 'This feed URL has already been added.');
+
             return;
         }
 
@@ -273,7 +294,7 @@ new class extends Component
                 if (app()->environment('local')) {
                     $http = $http->withoutVerifying();
                 }
-                $http->delete($pubUrl . '/api/instances');
+                $http->delete($pubUrl.'/api/instances');
             } catch (\Exception $e) {
                 // Best-effort — don't block reset if pub is unreachable
             }
@@ -318,9 +339,10 @@ new class extends Component
         $pubUrl = rtrim(config('services.logr.pub_url', ''), '/');
         $apiKey = \App\Models\Setting::get('pub_api_key');
 
-        if (!$pubUrl || !$apiKey) {
+        if (! $pubUrl || ! $apiKey) {
             $this->testResult = 'No instance API key found. Get an API key first.';
             $this->testStatus = 'error';
+
             return;
         }
 
@@ -333,13 +355,14 @@ new class extends Component
                 $http = $http->withoutVerifying();
             }
 
-            $response = $http->post($pubUrl . '/api/claim-token', [
+            $response = $http->post($pubUrl.'/api/claim-token', [
                 'redirect_url' => route('admin.api'),
             ]);
 
             if ($response->status() === 409) {
                 $this->testResult = 'This API key has already been linked to a LogrDB account.';
                 $this->testStatus = 'success';
+
                 return;
             }
 
@@ -347,6 +370,7 @@ new class extends Component
                 $claimUrl = $response->json('claim_url');
                 if ($claimUrl) {
                     $this->redirect($claimUrl);
+
                     return;
                 }
             }
@@ -354,7 +378,7 @@ new class extends Component
             $this->testResult = 'Could not start claim flow. The service may be temporarily unavailable.';
             $this->testStatus = 'error';
         } catch (\Exception $e) {
-            $this->testResult = 'Connection error: ' . $e->getMessage();
+            $this->testResult = 'Connection error: '.$e->getMessage();
             $this->testStatus = 'error';
         }
     }
@@ -363,9 +387,10 @@ new class extends Component
     {
         $this->testSection = 'untappd';
         $clientSecret = $this->secretValue('untappd_client_secret');
-        if (!$this->untappd_client_id || !$clientSecret) {
+        if (! $this->untappd_client_id || ! $clientSecret) {
             $this->testResult = 'Missing Client ID or Secret.';
             $this->testStatus = 'error';
+
             return;
         }
 
@@ -385,7 +410,7 @@ new class extends Component
                 $this->testResult = "Connected! Rate limit remaining: {$remaining}.";
                 $this->testStatus = 'success';
             } else {
-                $this->testResult = "HTTP {$response->status()}: " . ($response->json('meta.error_detail') ?? $response->body());
+                $this->testResult = "HTTP {$response->status()}: ".($response->json('meta.error_detail') ?? $response->body());
                 $this->testStatus = 'error';
             }
         } catch (\Exception $e) {
@@ -398,9 +423,10 @@ new class extends Component
     {
         $this->testSection = 'catalog';
         $apiKey = $this->secretValue('catalog_beer_api_key');
-        if (!$apiKey) {
+        if (! $apiKey) {
             $this->testResult = 'Missing API key.';
             $this->testStatus = 'error';
+
             return;
         }
 
@@ -429,10 +455,11 @@ new class extends Component
         $feeds = $user->getData('untappd_rss_feeds') ?? [];
         if (empty($feeds)) {
             $this->syncStatus = 'No RSS feeds configured.';
+
             return;
         }
         $this->syncing = true;
-        $this->syncStatus = 'Syncing ' . count($feeds) . ' feed(s)...';
+        $this->syncStatus = 'Syncing '.count($feeds).' feed(s)...';
         \App\Jobs\SyncUntappdRss::dispatch($user);
     }
 
@@ -454,7 +481,7 @@ new class extends Component
             $this->syncStatus = $message;
             $this->dispatch('toast', message: $message);
         } catch (\Exception $e) {
-            $message = "{$label}: " . $e->getMessage();
+            $message = "{$label}: ".$e->getMessage();
             $this->syncStatus = $message;
             $this->dispatch('toast', message: $message, type: 'error');
         }
@@ -463,8 +490,9 @@ new class extends Component
     public function scrapeProfile(): void
     {
         $user = Auth::user();
-        if (!$user->untappd_username) {
+        if (! $user->untappd_username) {
             $this->scrapeStatus = 'No username configured.';
+
             return;
         }
         $this->scraping = true;
@@ -475,8 +503,9 @@ new class extends Component
     public function scrapeVenues(): void
     {
         $user = Auth::user();
-        if (!$user->untappd_username) {
+        if (! $user->untappd_username) {
             $this->venueScrapeStatus = 'No username configured.';
+
             return;
         }
         $this->scrapingVenues = true;
@@ -489,6 +518,7 @@ new class extends Component
         $pending = \App\Models\Venue::whereNull('latitude')->count();
         if ($pending === 0) {
             $this->geocodeStatus = 'All venues already have coordinates.';
+
             return;
         }
         $this->geocoding = true;
