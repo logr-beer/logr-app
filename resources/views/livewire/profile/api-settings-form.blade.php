@@ -29,6 +29,11 @@ new class extends Component
     public string $testStatus = '';
     public string $testSection = '';
 
+    public function boot(): void
+    {
+        abort_unless(auth()->user()?->is_admin, 403);
+    }
+
     public function mount(): void
     {
         $this->loadFromUser();

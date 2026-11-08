@@ -26,6 +26,11 @@ new class extends Component
     public string $testResult = '';
     public string $testStatus = '';
 
+    public function boot(): void
+    {
+        abort_unless(auth()->user()?->is_admin, 403);
+    }
+
     public function mount(): void
     {
         if (config('app.demo_mode')) {
