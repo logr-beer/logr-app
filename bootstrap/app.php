@@ -26,6 +26,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 Request::HEADER_X_FORWARDED_PROTO,
         );
 
+        $middleware->trustHosts(at: fn () => array_map(
+            fn (string $host) => '^'.preg_quote($host).'$',
+            array_filter(array_map('trim', explode(',', (string) config('app.trusted_hosts')))),
+        ), subdomains: false);
+
         $middleware->web(append: [
             EnsureAppInstalled::class,
         ]);

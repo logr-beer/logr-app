@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## Unreleased
 
+### Added
+- `TRUSTED_HOSTS` env var (comma-separated hostnames) to reject requests for any other Host header (off by default).
+
 ### Changed
 - Check-in and beer photos must be JPG, PNG, WebP or GIF images (also when checking in from the Add Beer form), and the Docker image only runs PHP through `index.php`.
 - "Load example data" (dashboard and setup) and `logr:purge --demo` now seed the sample data into your own account; the separate `demo` account is only created by `DemoSeeder` in `DEMO_MODE` or local/testing environments, and no longer gets the instance's API keys copied into it.
@@ -15,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Adding a beer right after typing its name no longer fails with "The name field is required." (the name was lost to the 400ms search debounce).
 - Flash toasts such as "Check-in recorded!" now appear after in-app (`wire:navigate`) redirects, not only on full page loads.
 - Deleting a beer, brewery, venue or store is now only allowed when no other user has check-ins or inventory that use it (admins can still delete), and the delete button is hidden otherwise.
+- Updated Symfony components and Laravel framework to their latest patch releases.
 
 ## [0.4.3] - 2026-05-22
 
