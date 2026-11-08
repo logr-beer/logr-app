@@ -203,7 +203,7 @@ class DemoSeeder extends Seeder
         // Favorite ~15% of beers randomly
         $beers = collect($beerCache)->values();
         $favorites = $beers->random((int) ceil($beers->count() * 0.15));
-        $favorites->each(fn (Beer $beer) => $beer->update(['is_favorite' => true]));
+        $user->favoriteBeers()->syncWithoutDetaching($favorites->pluck('id'));
         $this->command?->info("Favorited {$favorites->count()} beers.");
 
         $this->seedInventory($user, $beerCache);

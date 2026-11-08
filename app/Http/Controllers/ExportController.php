@@ -91,9 +91,11 @@ class ExportController extends Controller
     private function exportBeers(int $userId): array
     {
         return Beer::with(['brewery', 'tags'])
+            ->withFavorite($userId)
             ->where(function ($q) use ($userId) {
                 $q->whereHas('checkins', fn ($q2) => $q2->where('user_id', $userId))
-                    ->orWhereHas('inventory', fn ($q2) => $q2->where('user_id', $userId));
+                    ->orWhereHas('inventory', fn ($q2) => $q2->where('user_id', $userId))
+                    ->orWhereHas('favoritedBy', fn ($q2) => $q2->where('beer_user_favorites.user_id', $userId));
             })
             ->orderBy('name')
             ->get()

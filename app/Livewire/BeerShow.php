@@ -69,7 +69,7 @@ class BeerShow extends Component
 
     public function toggleFavorite(): void
     {
-        $this->beer->update(['is_favorite' => ! $this->beer->is_favorite]);
+        auth()->user()->favoriteBeers()->toggle($this->beer->id);
         $this->beer->refresh();
     }
 

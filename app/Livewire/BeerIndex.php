@@ -159,19 +159,18 @@ class BeerIndex extends Component
 
     public function toggleFavorite(int $beerId): void
     {
-        $beer = Beer::findOrFail($beerId);
-        $beer->update(['is_favorite' => ! $beer->is_favorite]);
+        auth()->user()->favoriteBeers()->toggle(Beer::findOrFail($beerId)->id);
     }
 
     public function favoriteSelected(): void
     {
-        Beer::whereIn('id', $this->selected)->update(['is_favorite' => true]);
+        auth()->user()->favoriteBeers()->syncWithoutDetaching(Beer::whereIn('id', $this->selected)->pluck('id'));
         $this->selected = [];
     }
 
     public function unfavoriteSelected(): void
     {
-        Beer::whereIn('id', $this->selected)->update(['is_favorite' => false]);
+        auth()->user()->favoriteBeers()->detach($this->selected);
         $this->selected = [];
     }
 
@@ -191,10 +190,10 @@ class BeerIndex extends Component
 
     protected function getCurrentQuery()
     {
-        $query = Beer::with('brewery');
+        $query = Beer::with('brewery')->withFavorite(auth()->id());
 
         if ($this->filter === 'favorites') {
-            $query->where('is_favorite', true);
+            $query->favoriteOf(auth()->id());
         }
 
         if ($this->search) {

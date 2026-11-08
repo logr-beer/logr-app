@@ -4,6 +4,11 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Fixed
+- Favorites are now per user (existing favorites move to the admin account), and dynamic "storage location" / "oldest in stock" collections only include your own inventory.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed

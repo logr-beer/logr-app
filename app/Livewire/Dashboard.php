@@ -21,8 +21,7 @@ class Dashboard extends Component
 
     public function toggleFavorite(int $beerId): void
     {
-        $beer = Beer::findOrFail($beerId);
-        $beer->update(['is_favorite' => ! $beer->is_favorite]);
+        auth()->user()->favoriteBeers()->toggle(Beer::findOrFail($beerId)->id);
     }
 
     public function render()
@@ -36,8 +35,9 @@ class Dashboard extends Component
                 'in_fridge' => Inventory::where('quantity', '>', 0)->sum('quantity'),
                 'avg_rating' => Checkin::whereNotNull('rating')->avg('rating'),
             ],
-            'recentBeers' => Beer::with('brewery')->latest()->take(12)->get(),
+            'recentBeers' => Beer::with('brewery')->withFavorite($user->id)->latest()->take(12)->get(),
             'recentCheckins' => Beer::with('brewery')
+                ->withFavorite($user->id)
                 ->whereHas('checkins')
                 ->addSelect(['last_checkin_at' => Checkin::select('created_at')
                     ->whereColumn('beer_id', 'beers.id')
@@ -48,7 +48,8 @@ class Dashboard extends Component
                 ->take(12)
                 ->get(),
             'favorites' => Beer::with('brewery')
-                ->where('is_favorite', true)
+                ->withFavorite($user->id)
+                ->favoriteOf($user->id)
                 ->latest()
                 ->take(12)
                 ->get(),
