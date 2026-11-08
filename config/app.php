@@ -60,6 +60,10 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    // Comma-separated hostnames the app answers to (e.g. "logr.example.com").
+    // Requests for any other Host are rejected. Unset: every host is accepted.
+    'trusted_hosts' => env('TRUSTED_HOSTS'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
