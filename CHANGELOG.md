@@ -4,6 +4,14 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+- `TRUSTED_HOSTS` env var (comma-separated hostnames) to reject requests for any other Host header (off by default).
+
+### Changed
+- Updated Symfony components and Laravel framework to their latest patch releases.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed
