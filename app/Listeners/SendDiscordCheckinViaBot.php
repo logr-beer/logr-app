@@ -10,16 +10,8 @@ class SendDiscordCheckinViaBot
 {
     public function handle(CheckinCreated $event): void
     {
-        if (! empty($event->shareTargets)) {
-            $hasBot = collect($event->shareTargets)
-                ->contains(fn ($t) => $t['type'] === 'discord_bot' && ! empty($t['enabled']));
-            if (! $hasBot) {
-                return;
-            }
-        }
-
         try {
-            PubDiscord::sendCheckin($event->checkin, $event->user);
+            PubDiscord::sendCheckin($event->checkin, $event->user, $event->shareTargets);
         } catch (\Throwable $e) {
             Log::warning('Failed to send checkin via bot: '.$e->getMessage());
         }

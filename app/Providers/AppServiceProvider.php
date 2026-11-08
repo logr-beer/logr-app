@@ -2,11 +2,6 @@
 
 namespace App\Providers;
 
-use App\Events\CheckinCreated;
-use App\Listeners\SendDiscordCheckinViaBot;
-use App\Listeners\SendDiscordCheckinViaWebhook;
-use App\Listeners\ShareCheckinWithPub;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,8 +19,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Event::listen(CheckinCreated::class, SendDiscordCheckinViaWebhook::class);
-        Event::listen(CheckinCreated::class, SendDiscordCheckinViaBot::class);
-        Event::listen(CheckinCreated::class, ShareCheckinWithPub::class);
+        // Listeners in app/Listeners are auto-discovered; registering them here too would run each one twice.
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Livewire;
 
 use App\Concerns\WithLocationAutocomplete;
+use App\Events\CheckinCreated;
+use App\Events\PurchaseCreated;
 use App\Models\Beer;
 use App\Models\Checkin;
 use App\Models\CheckinPhoto;
@@ -10,8 +12,6 @@ use App\Models\Collection;
 use App\Models\Inventory;
 use App\Models\Store;
 use App\Models\Venue;
-use App\Services\Discord;
-use App\Services\PubDiscord;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -117,10 +117,7 @@ class BeerShow extends Component
         }
 
         if (collect($this->inventoryShareTargets)->contains('enabled', true)) {
-            $freshInventory = $inventory->fresh();
-            $currentUser = auth()->user();
-            Discord::sendPurchase($freshInventory, $currentUser);
-            PubDiscord::sendPurchase($freshInventory, $currentUser);
+            PurchaseCreated::dispatch($inventory->fresh(), auth()->user(), $this->inventoryShareTargets);
         }
 
         $this->reset(['storeQuery', 'selectedStoreId', 'selectedStoreName', 'purchaseDate', 'isGift']);
@@ -238,9 +235,7 @@ class BeerShow extends Component
         }
 
         if (collect($this->checkinShareTargets)->contains('enabled', true)) {
-            $currentUser = auth()->user();
-            Discord::sendCheckin($checkin, $currentUser);
-            PubDiscord::sendCheckin($checkin, $currentUser);
+            CheckinCreated::dispatch($checkin, auth()->user(), $this->checkinShareTargets);
         }
 
         $this->reset(['rating', 'serving_type', 'venueQuery', 'selectedVenueId', 'selectedVenueName', 'notes', 'checkinPhotos']);

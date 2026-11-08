@@ -5,16 +5,19 @@ namespace App\Services;
 use App\Models\Checkin;
 use App\Models\Inventory;
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class Discord
 {
-    public static function sendCheckin(Checkin $checkin, User $user): bool
+    /**
+     * @param  array  $shareTargets  Targets from the form (see CheckinForm::buildTargetsForType); when empty, the stored publish flags apply.
+     */
+    public static function sendCheckin(Checkin $checkin, User $user, array $shareTargets = []): bool
     {
-        $webhooks = collect($user->getData('discord_webhooks') ?? [])
-            ->filter(fn ($w) => ! empty($w['url']));
+        $webhooks = static::webhooksFor($user, 'publish_checkins', $shareTargets);
 
         if ($webhooks->isEmpty()) {
             return false;
@@ -50,10 +53,12 @@ class Discord
         return $sent;
     }
 
-    public static function sendPurchase(Inventory $inventory, User $user): bool
+    /**
+     * @param  array  $shareTargets  Targets from the form (see CheckinForm::buildTargetsForType); when empty, the stored publish flags apply.
+     */
+    public static function sendPurchase(Inventory $inventory, User $user, array $shareTargets = []): bool
     {
-        $webhooks = collect($user->getData('discord_webhooks') ?? [])
-            ->filter(fn ($w) => ! empty($w['url']));
+        $webhooks = static::webhooksFor($user, 'publish_purchases', $shareTargets);
 
         if ($webhooks->isEmpty()) {
             return false;
@@ -87,6 +92,34 @@ class Discord
         }
 
         return $sent;
+    }
+
+    /**
+     * Keys (e.g. "webhook_0", "bot_1") of the share targets that are ticked.
+     */
+    public static function enabledTargetKeys(array $shareTargets): array
+    {
+        return collect($shareTargets)
+            ->filter(fn ($t) => ! empty($t['enabled']) && isset($t['key']))
+            ->pluck('key')
+            ->all();
+    }
+
+    /**
+     * Webhooks to post to: the ticked ones when a selection was made, otherwise those with the publish flag set.
+     */
+    protected static function webhooksFor(User $user, string $publishKey, array $shareTargets): Collection
+    {
+        $webhooks = collect($user->getData('discord_webhooks') ?? [])
+            ->filter(fn ($w) => ! empty($w['url']));
+
+        if (empty($shareTargets)) {
+            return $webhooks->filter(fn ($w) => ! empty($w[$publishKey]));
+        }
+
+        $selected = static::enabledTargetKeys($shareTargets);
+
+        return $webhooks->filter(fn ($w, $i) => in_array("webhook_{$i}", $selected, true));
     }
 
     /**

@@ -4,6 +4,11 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Fixed
+- Discord check-ins and purchases now go only to the webhooks and bots ticked on the form (or, without a selection, those with publishing enabled in settings), and are no longer posted twice per webhook.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed
