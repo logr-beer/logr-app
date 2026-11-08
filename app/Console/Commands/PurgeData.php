@@ -9,15 +9,16 @@ use App\Models\Collection;
 use App\Models\Companion;
 use App\Models\Inventory;
 use App\Models\Tag;
+use App\Models\User;
 use App\Models\Venue;
-use Database\Seeders\DemoSeeder;
+use Database\Seeders\DemoDataSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class PurgeData extends Command
 {
-    protected $signature = 'logr:purge {--demo : Re-seed demo data after purging} {--force : Skip confirmation}';
+    protected $signature = 'logr:purge {--demo : Re-seed demo data into the admin account after purging} {--force : Skip confirmation}';
 
     protected $description = 'Purge all beer data while keeping user accounts intact';
 
@@ -38,9 +39,15 @@ class PurgeData extends Command
         $this->purge();
 
         if ($this->option('demo')) {
-            $this->info('Seeding demo data...');
-            (new DemoSeeder)->run();
-            $this->info('Demo data loaded.');
+            $user = User::where('is_admin', true)->first() ?? User::first();
+
+            if ($user) {
+                $this->info("Seeding demo data into {$user->username}...");
+                (new DemoDataSeeder)->run($user);
+                $this->info('Demo data loaded.');
+            } else {
+                $this->warn('No user account to seed demo data into.');
+            }
         }
 
         $this->info('Purge complete.');

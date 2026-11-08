@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Rules\DiscordWebhookUrl;
 use App\Services\JsonImportService;
 use App\Services\PubBeerDb;
-use Database\Seeders\DemoSeeder;
+use Database\Seeders\DemoDataSeeder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
@@ -250,8 +250,7 @@ class Setup extends Component
             Auth::login($user);
             $this->importBackup($user);
         } elseif ($this->loadDemoData) {
-            $seeder = new DemoSeeder;
-            $seeder->run();
+            (new DemoDataSeeder)->run($user);
         }
 
         // Dispatch import jobs if configured

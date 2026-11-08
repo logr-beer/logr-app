@@ -6,8 +6,7 @@ use App\Models\Beer;
 use App\Models\Checkin;
 use App\Models\Collection;
 use App\Models\Inventory;
-use Database\Seeders\DemoSeeder;
-use Illuminate\Support\Facades\Artisan;
+use Database\Seeders\DemoDataSeeder;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -16,7 +15,12 @@ class Dashboard extends Component
 {
     public function loadDemoData(): void
     {
-        Artisan::call('db:seed', ['--class' => DemoSeeder::class, '--force' => true]);
+        // Only offered on an empty library (see the dashboard view)
+        if (Beer::exists()) {
+            return;
+        }
+
+        (new DemoDataSeeder)->run(auth()->user());
     }
 
     public function toggleFavorite(int $beerId): void

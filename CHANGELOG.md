@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 - Check-in and beer photos must be JPG, PNG, WebP or GIF images (also when checking in from the Add Beer form), and the Docker image only runs PHP through `index.php`.
+- "Load example data" (dashboard and setup) and `logr:purge --demo` now seed the sample data into your own account; the separate `demo` account is only created by `DemoSeeder` in `DEMO_MODE` or local/testing environments, and no longer gets the instance's API keys copied into it.
 
 ## [0.4.3] - 2026-05-22
 
