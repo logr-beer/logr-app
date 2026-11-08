@@ -4,6 +4,11 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Fixed
+- Location names in map popups (venues, breweries, stores and location pages) are now always shown as plain text.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed
