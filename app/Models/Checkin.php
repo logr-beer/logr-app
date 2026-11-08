@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Support\Facades\Storage;
 
 class Checkin extends Model
 {
@@ -19,8 +18,8 @@ class Checkin extends Model
     {
         static::deleting(function (Checkin $checkin) {
             $checkin->photos->each(function ($photo) {
-                Storage::disk('public')->delete($photo->photo_path);
                 $photo->delete();
+                CheckinPhoto::deleteFileIfUnused($photo->photo_path);
             });
         });
     }

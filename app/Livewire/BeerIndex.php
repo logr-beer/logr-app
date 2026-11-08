@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Beer;
 use App\Models\Checkin;
+use App\Models\CheckinPhoto;
 use App\Models\Collection;
 use App\Models\Inventory;
 use Livewire\Attributes\Title;
@@ -96,8 +97,10 @@ class BeerIndex extends Component
             ->whereDoesntHave('checkins', fn ($q) => $q->where('user_id', '!=', $userId))
             ->pluck('id');
 
-        Checkin::whereIn('beer_id', $safeToDelete)->where('user_id', $userId)->delete();
+        Checkin::whereIn('beer_id', $safeToDelete)->where('user_id', $userId)->get()->each->delete();
+        $photoPaths = Beer::whereIn('id', $safeToDelete)->whereNotNull('photo_path')->pluck('photo_path');
         Beer::whereIn('id', $safeToDelete)->delete();
+        $photoPaths->each(fn ($path) => CheckinPhoto::deleteFileIfUnused($path));
         $this->selected = [];
     }
 

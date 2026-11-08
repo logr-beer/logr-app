@@ -71,7 +71,8 @@ class CheckinIndex extends Component
 
         Checkin::where('user_id', auth()->id())
             ->whereIn('id', $this->selected)
-            ->delete();
+            ->get()
+            ->each->delete();
 
         $this->selected = [];
     }

@@ -4,6 +4,11 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Fixed
+- Photo files are now removed from disk when check-ins or beers are bulk-deleted, when a beer is deleted, when a beer photo is replaced, and when a brewery with a logo is deleted (files still used by another beer or check-in are kept).
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed

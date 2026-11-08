@@ -435,16 +435,13 @@ class BeerForm extends Component
             return;
         }
 
-        $this->beer->checkins()->delete();
+        $this->beer->checkins()->get()->each->delete();
         $this->beer->inventory()->delete();
         $this->beer->collections()->detach();
         $this->beer->tags()->detach();
 
-        if ($this->beer->photo_path) {
-            Storage::disk('public')->delete($this->beer->photo_path);
-        }
-
         $this->beer->delete();
+        CheckinPhoto::deleteFileIfUnused($this->beer->photo_path);
 
         session()->flash('message', 'Beer deleted successfully.');
         $this->redirect(route('beers.index'), navigate: true);
@@ -485,8 +482,13 @@ class BeerForm extends Component
         }
 
         if ($this->beer) {
+            $oldPhotoPath = $this->beer->photo_path;
             $this->beer->update($data);
             $beer = $this->beer;
+
+            if (isset($data['photo_path']) && $oldPhotoPath !== $data['photo_path']) {
+                CheckinPhoto::deleteFileIfUnused($oldPhotoPath);
+            }
         } else {
             $beer = Beer::create($data);
 
