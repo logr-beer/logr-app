@@ -269,23 +269,7 @@
         marker: null,
 
         init() {
-            if (!document.querySelector('link[href*="leaflet"]')) {
-                const link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-                link.crossOrigin = '';
-                document.head.appendChild(link);
-            }
-
-            if (!window.L) {
-                const script = document.createElement('script');
-                script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-                script.crossOrigin = '';
-                script.onload = () => this.renderMap();
-                document.head.appendChild(script);
-            } else {
-                this.renderMap();
-            }
+            this.renderMap();
         },
 
         renderMap() {

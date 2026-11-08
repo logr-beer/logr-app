@@ -4,6 +4,12 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Changed
+- Leaflet maps are now bundled with the app instead of loaded from unpkg at runtime.
+- Responses now send `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy` and a report-only Content Security Policy; uploaded files in the Docker image are served with `nosniff`.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed
