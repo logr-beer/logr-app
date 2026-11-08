@@ -53,7 +53,7 @@
                         >
                             <x-icon name="pencil" size="6" />
                         </a>
-                        @unless(config('app.demo_mode'))
+                        @if(! config('app.demo_mode') && auth()->user()->can('delete', $beer))
                             <button
                                 wire:click="deleteBeer"
                                 wire:confirm="Delete this beer? This will also remove all check-ins, inventory, and collection associations."
@@ -62,7 +62,7 @@
                             >
                                 <x-icon name="trash" size="6" />
                             </button>
-                        @endunless
+                        @endif
                     </div>
                 </div>
 

@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Location names in map popups (venues, breweries, stores and location pages) are now always shown as plain text.
 - Adding a beer right after typing its name no longer fails with "The name field is required." (the name was lost to the 400ms search debounce).
 - Flash toasts such as "Check-in recorded!" now appear after in-app (`wire:navigate`) redirects, not only on full page loads.
+- Deleting a beer, brewery, venue or store is now only allowed when no other user has check-ins or inventory that use it (admins can still delete), and the delete button is hidden otherwise.
 
 ## [0.4.3] - 2026-05-22
 
