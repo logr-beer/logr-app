@@ -435,8 +435,12 @@ class BeerForm extends Component
             return;
         }
 
-        $this->beer->checkins()->delete();
-        $this->beer->inventory()->delete();
+        $this->authorize('delete', $this->beer);
+
+        // Non-admins may only get here when no other user has check-ins or inventory for this beer
+        $user = auth()->user();
+        $this->beer->checkins()->when(! $user->is_admin, fn ($q) => $q->where('user_id', $user->id))->delete();
+        $this->beer->inventory()->when(! $user->is_admin, fn ($q) => $q->where('user_id', $user->id))->delete();
         $this->beer->collections()->detach();
         $this->beer->tags()->detach();
 

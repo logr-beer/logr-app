@@ -4,6 +4,11 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Fixed
+- Deleting a beer, brewery, venue or store is now only allowed when no other user has check-ins or inventory that use it (admins can still delete), and the delete button is hidden otherwise.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed

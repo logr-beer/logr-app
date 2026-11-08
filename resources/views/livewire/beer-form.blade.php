@@ -529,7 +529,7 @@
 
             {{-- Actions --}}
             <div class="flex items-center gap-3 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                @if($isEditing && !config('app.demo_mode'))
+                @if($isEditing && !config('app.demo_mode') && auth()->user()->can('delete', $beer))
                     <button
                         type="button"
                         wire:click="deleteBeer"
