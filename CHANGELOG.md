@@ -4,6 +4,11 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Changed
+- Admin API and notification settings no longer send saved API secrets, bot keys or webhook tokens to the browser: saved secrets show as a masked placeholder (e.g. `••••1234`), a blank field keeps the saved value, and a new "Clear" link removes it.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed

@@ -2,21 +2,27 @@
 
 use App\Models\Setting;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Locked;
 use Livewire\Volt\Component;
 
 new class extends Component
 {
-    // Discord Webhooks
+    // Toggleable per-webhook and per-bot settings
+    private const TOGGLES = ['publish_checkins', 'publish_purchases'];
+
+    // Discord Webhooks (display fields only; the stored list stays server-side)
     public array $discordWebhooks = [];
     public string $newWebhookLabel = '';
     public string $newWebhookUrl = '';
     public bool $newWebhookCheckins = false;
     public bool $newWebhookPurchases = false;
 
-    // Discord Bots (global config, multiple servers)
+    // Discord Bots (global config, multiple servers; display fields only)
     public array $discordBots = [];
     public array $botPrefs = [];
+    #[Locked]
     public array $botChannels = [];
+    #[Locked]
     public ?int $loadingChannelsFor = null;
 
     // Discord identity
@@ -35,11 +41,57 @@ new class extends Component
             $this->discordUsername = null;
         } else {
             $user = Auth::user();
-            $this->discordBots = Setting::get('discord_bots', []);
             $this->botPrefs = $user->getData('discord_bot_prefs') ?? [];
-            $this->discordWebhooks = $user->getData('discord_webhooks') ?? [];
             $this->discordUsername = $user->getData('discord_username');
+            $this->refreshBots();
+            $this->refreshWebhooks();
         }
+    }
+
+    private function storedBots(): array
+    {
+        return config('app.demo_mode') ? [] : array_values(Setting::get('discord_bots', []));
+    }
+
+    private function storedWebhooks(): array
+    {
+        return config('app.demo_mode') ? [] : array_values(Auth::user()->getData('discord_webhooks') ?? []);
+    }
+
+    private function refreshBots(): void
+    {
+        $this->discordBots = array_map(fn ($bot) => [
+            'guild_id' => $bot['guild_id'] ?? null,
+            'guild_name' => $bot['guild_name'] ?? null,
+            'channel_name' => $bot['channel_name'] ?? null,
+        ], $this->storedBots());
+    }
+
+    private function refreshWebhooks(): void
+    {
+        $this->discordWebhooks = array_map(fn ($webhook) => [
+            'label' => $webhook['label'] ?? null,
+            'url_hint' => self::maskWebhookUrl($webhook['url'] ?? ''),
+            'channel_id' => $webhook['channel_id'] ?? null,
+            'guild_id' => $webhook['guild_id'] ?? null,
+            'publish_checkins' => ! empty($webhook['publish_checkins']),
+            'publish_purchases' => ! empty($webhook['publish_purchases']),
+        ], $this->storedWebhooks());
+    }
+
+    private static function maskWebhookUrl(string $url): string
+    {
+        // Drop the token segment: https://discord.com/api/webhooks/{id}/{token}
+        return preg_replace('#^(https://discord\.com/api/webhooks/\d+)/.*$#', '$1/••••', $url) ?? '';
+    }
+
+    private function saveWebhooks(array $webhooks): void
+    {
+        $user = Auth::user();
+        $user->setData('discord_webhooks', array_values($webhooks) ?: null);
+        $user->save();
+
+        $this->refreshWebhooks();
     }
 
     // -- Webhooks --
@@ -54,7 +106,8 @@ new class extends Component
             'newWebhookUrl' => ['required', 'url', 'max:500', new \App\Rules\DiscordWebhookUrl],
         ]);
 
-        $exists = collect($this->discordWebhooks)->contains('url', $this->newWebhookUrl);
+        $webhooks = $this->storedWebhooks();
+        $exists = collect($webhooks)->contains('url', $this->newWebhookUrl);
         if ($exists) {
             $this->addError('newWebhookUrl', 'This webhook URL has already been added.');
             return;
@@ -76,7 +129,7 @@ new class extends Component
             // Non-fatal — just save without metadata
         }
 
-        $this->discordWebhooks[] = [
+        $webhooks[] = [
             'label' => trim($this->newWebhookLabel) ?: $label,
             'url' => $this->newWebhookUrl,
             'channel_id' => $channelId,
@@ -85,9 +138,7 @@ new class extends Component
             'publish_purchases' => $this->newWebhookPurchases,
         ];
 
-        $user = Auth::user();
-        $user->setData('discord_webhooks', $this->discordWebhooks);
-        $user->save();
+        $this->saveWebhooks($webhooks);
 
         $this->newWebhookLabel = '';
         $this->newWebhookUrl = '';
@@ -101,12 +152,10 @@ new class extends Component
             return;
         }
 
-        unset($this->discordWebhooks[$index]);
-        $this->discordWebhooks = array_values($this->discordWebhooks);
+        $webhooks = $this->storedWebhooks();
+        unset($webhooks[$index]);
 
-        $user = Auth::user();
-        $user->setData('discord_webhooks', $this->discordWebhooks ?: null);
-        $user->save();
+        $this->saveWebhooks($webhooks);
     }
 
     public function toggleWebhookSetting(int $index, string $setting): void
@@ -115,13 +164,14 @@ new class extends Component
             return;
         }
 
-        if (isset($this->discordWebhooks[$index])) {
-            $this->discordWebhooks[$index][$setting] = !($this->discordWebhooks[$index][$setting] ?? false);
-
-            $user = Auth::user();
-            $user->setData('discord_webhooks', $this->discordWebhooks);
-            $user->save();
+        $webhooks = $this->storedWebhooks();
+        if (! in_array($setting, self::TOGGLES, true) || ! isset($webhooks[$index])) {
+            return;
         }
+
+        $webhooks[$index][$setting] = ! ($webhooks[$index][$setting] ?? false);
+
+        $this->saveWebhooks($webhooks);
     }
 
     public function testCheckin(int $index): void
@@ -130,7 +180,7 @@ new class extends Component
             return;
         }
 
-        $webhook = $this->discordWebhooks[$index] ?? null;
+        $webhook = $this->storedWebhooks()[$index] ?? null;
         if (!$webhook || empty($webhook['url'])) {
             $this->testResult = 'No webhook URL configured.';
             $this->testStatus = 'error';
@@ -174,7 +224,7 @@ new class extends Component
             return;
         }
 
-        $webhook = $this->discordWebhooks[$index] ?? null;
+        $webhook = $this->storedWebhooks()[$index] ?? null;
         if (!$webhook || empty($webhook['url'])) {
             $this->testResult = 'No webhook URL configured.';
             $this->testStatus = 'error';
@@ -220,16 +270,22 @@ new class extends Component
             return;
         }
 
-        $this->botPrefs[$guildId][$setting] = ! ($this->botPrefs[$guildId][$setting] ?? false);
+        if (! in_array($setting, self::TOGGLES, true) || ! collect($this->storedBots())->contains('guild_id', $guildId)) {
+            return;
+        }
 
         $user = Auth::user();
-        $user->setData('discord_bot_prefs', $this->botPrefs);
+        $prefs = $user->getData('discord_bot_prefs') ?? [];
+        $prefs[$guildId][$setting] = ! ($prefs[$guildId][$setting] ?? false);
+        $user->setData('discord_bot_prefs', $prefs);
         $user->save();
+
+        $this->botPrefs = $prefs;
     }
 
     public function loadChannels(int $index): void
     {
-        $bot = $this->discordBots[$index] ?? null;
+        $bot = $this->storedBots()[$index] ?? null;
         if (config('app.demo_mode') || ! Auth::user()->is_admin || ! $bot) {
             return;
         }
@@ -242,17 +298,19 @@ new class extends Component
 
     public function changeBotChannel(int $index, string $channelId): void
     {
-        $bot = $this->discordBots[$index] ?? null;
-        if (config('app.demo_mode') || ! Auth::user()->is_admin || ! $bot) {
+        $bots = $this->storedBots();
+        $bot = $bots[$index] ?? null;
+        $channel = collect($this->botChannels)->firstWhere('id', $channelId);
+        if (config('app.demo_mode') || ! Auth::user()->is_admin || ! $bot || $this->loadingChannelsFor !== $index || ! $channel) {
             return;
         }
 
         $success = \App\Services\PubDiscord::updateChannel($bot['hub_url'], $bot['hub_api_key'], $bot['guild_id'], $channelId);
 
         if ($success) {
-            $channel = collect($this->botChannels)->firstWhere('id', $channelId);
-            $this->discordBots[$index]['channel_name'] = $channel['name'] ?? null;
-            Setting::set('discord_bots', $this->discordBots);
+            $bots[$index]['channel_name'] = $channel['name'] ?? null;
+            Setting::set('discord_bots', $bots);
+            $this->refreshBots();
 
             $this->testResult = 'Channel updated to #' . ($channel['name'] ?? 'unknown');
             $this->testStatus = 'success';
@@ -277,9 +335,10 @@ new class extends Component
             return;
         }
 
-        unset($this->discordBots[$index]);
-        $this->discordBots = array_values($this->discordBots);
-        Setting::set('discord_bots', $this->discordBots ?: []);
+        $bots = $this->storedBots();
+        unset($bots[$index]);
+        Setting::set('discord_bots', array_values($bots));
+        $this->refreshBots();
     }
 
     public function testBotCheckin(int $index): void
@@ -288,7 +347,7 @@ new class extends Component
             return;
         }
 
-        $bot = $this->discordBots[$index] ?? null;
+        $bot = $this->storedBots()[$index] ?? null;
         if (! $bot) {
             $this->testResult = 'Bot not configured.';
             $this->testStatus = 'error';
@@ -333,7 +392,7 @@ new class extends Component
             return;
         }
 
-        $bot = $this->discordBots[$index] ?? null;
+        $bot = $this->storedBots()[$index] ?? null;
         if (! $bot) {
             $this->testResult = 'Bot not configured.';
             $this->testStatus = 'error';

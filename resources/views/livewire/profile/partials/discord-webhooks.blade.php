@@ -30,7 +30,7 @@
                     @elseif(!empty($webhook['channel_id']))
                         <p class="text-xs text-gray-500 dark:text-gray-400">Channel: {{ $webhook['channel_id'] }}</p>
                     @else
-                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $webhook['url'] }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $webhook['url_hint'] }}</p>
                     @endif
                 </div>
                 @unless($demoMode)

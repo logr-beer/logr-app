@@ -42,4 +42,29 @@ test.describe('API Settings', () => {
         const field = page.locator('#catalog_beer_api_key');
         await expect(field).toHaveAttribute('type', 'password');
     });
+
+    test('saved catalog beer api key is masked and can be cleared', async ({ page }) => {
+        const field = page.locator('#catalog_beer_api_key');
+
+        await test.step('Save a Catalog.beer API key', async () => {
+            await page.goto('/admin/api');
+            await field.fill('e2e-catalog-key-4321');
+            await page.locator('form button[type="submit"]:has-text("Save")').click();
+            await expect(page.locator('text=Saved.')).toBeVisible();
+        });
+
+        await test.step('Reload: the key is masked, not prefilled', async () => {
+            await page.reload();
+            await expect(field).toHaveValue('');
+            await expect(field).toHaveAttribute('placeholder', '••••4321');
+            expect(await page.content()).not.toContain('e2e-catalog-key-4321');
+            await test.info().attach('Reload: the key is masked, not prefilled', { body: await page.screenshot(), contentType: 'image/png' });
+        });
+
+        await test.step('Clear the saved key', async () => {
+            page.once('dialog', dialog => dialog.accept());
+            await page.locator('button:has-text("Clear")').first().click();
+            await expect(field).toHaveAttribute('placeholder', '');
+        });
+    });
 });

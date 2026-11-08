@@ -1,15 +1,21 @@
 <?php
 
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Locked;
 use Livewire\Volt\Component;
 
 new class extends Component
 {
+    // Secrets are write-only: inputs start empty and only a masked hint is sent to the browser
+    private const SECRET_KEYS = ['pub_secret_key', 'untappd_client_secret', 'catalog_beer_api_key'];
+
     public string $pub_secret_key = '';
     public string $untappd_username = '';
     public string $untappd_client_id = '';
     public string $untappd_client_secret = '';
     public string $catalog_beer_api_key = '';
+    #[Locked]
+    public array $secretHints = [];
     public array $rssFeeds = [];
     public string $newFeedLabel = '';
     public string $newFeedUrl = '';
@@ -40,7 +46,7 @@ new class extends Component
         }
 
         // Verify stored secret key is still valid
-        if ($this->pub_secret_key && !config('app.demo_mode')) {
+        if (! empty($this->secretHints['pub_secret_key']) && !config('app.demo_mode')) {
             $this->verifyPubSecretKey();
         }
     }
@@ -53,7 +59,7 @@ new class extends Component
         }
 
         try {
-            $http = \Illuminate\Support\Facades\Http::withToken($this->pub_secret_key)
+            $http = \Illuminate\Support\Facades\Http::withToken(Auth::user()->getData('pub_secret_key'))
                 ->accept('application/json')
                 ->timeout(5);
 
@@ -67,7 +73,7 @@ new class extends Component
                 $user = Auth::user();
                 $user->setData('pub_secret_key', null);
                 $user->save();
-                $this->pub_secret_key = '';
+                $this->refreshSecretHints();
 
                 $this->testSection = 'pub';
                 $this->testResult = 'Your LogrDB secret key was revoked or expired. Click "Link to LogrDB Account" to reconnect.';
@@ -109,7 +115,7 @@ new class extends Component
                     $user = Auth::user();
                     $user->setData('pub_secret_key', $token);
                     $user->save();
-                    $this->pub_secret_key = $token;
+                    $this->refreshSecretHints();
 
                     $this->testSection = 'pub';
                     $this->testResult = 'Account linked! Your secret key has been saved.';
@@ -136,14 +142,40 @@ new class extends Component
         }
 
         $user = Auth::user();
-        $keys = [
-            'pub_secret_key', 'untappd_username', 'untappd_client_id', 'untappd_client_secret',
-            'catalog_beer_api_key',
-        ];
-        foreach ($keys as $key) {
+        foreach (['untappd_username', 'untappd_client_id'] as $key) {
             $this->{$key} = (string) ($user->getData($key) ?? '');
         }
-        $this->rssFeeds = $user->getData('untappd_rss_feeds') ?? [];
+        $this->rssFeeds = $this->storedFeeds();
+        $this->refreshSecretHints();
+    }
+
+    private function refreshSecretHints(): void
+    {
+        $user = Auth::user();
+        foreach (self::SECRET_KEYS as $key) {
+            $value = (string) ($user->getData($key) ?? '');
+            $this->secretHints[$key] = $value === '' ? '' : '••••' . (strlen($value) > 8 ? substr($value, -4) : '');
+            $this->{$key} = '';
+        }
+    }
+
+    private function storedFeeds(): array
+    {
+        return config('app.demo_mode') ? [] : array_values(Auth::user()->getData('untappd_rss_feeds') ?? []);
+    }
+
+    private function saveFeeds(array $feeds): void
+    {
+        $user = Auth::user();
+        $user->setData('untappd_rss_feeds', array_values($feeds) ?: null);
+        $user->save();
+
+        $this->rssFeeds = $this->storedFeeds();
+    }
+
+    private function secretValue(string $key): string
+    {
+        return trim($this->{$key}) ?: (string) (Auth::user()->getData($key) ?? '');
     }
 
     public function save(): void
@@ -154,16 +186,31 @@ new class extends Component
 
         $user = Auth::user();
 
-        $strings = [
-            'pub_secret_key', 'untappd_username', 'untappd_client_id', 'untappd_client_secret',
-            'catalog_beer_api_key',
-        ];
-        foreach ($strings as $key) {
+        foreach (['untappd_username', 'untappd_client_id'] as $key) {
             $user->setData($key, trim($this->{$key}) ?: null);
         }
+        // Blank secret fields mean "keep the stored value"
+        foreach (self::SECRET_KEYS as $key) {
+            if (trim($this->{$key}) !== '') {
+                $user->setData($key, trim($this->{$key}));
+            }
+        }
         $user->save();
+        $this->refreshSecretHints();
 
         $this->dispatch('api-settings-updated');
+    }
+
+    public function clearSecret(string $key): void
+    {
+        if (config('app.demo_mode') || ! in_array($key, self::SECRET_KEYS, true)) {
+            return;
+        }
+
+        $user = Auth::user();
+        $user->setData($key, null);
+        $user->save();
+        $this->refreshSecretHints();
     }
 
     public function addFeed(): void
@@ -173,20 +220,19 @@ new class extends Component
             'newFeedLabel' => 'nullable|string|max:100',
         ]);
 
-        $exists = collect($this->rssFeeds)->contains('url', $this->newFeedUrl);
+        $feeds = $this->storedFeeds();
+        $exists = collect($feeds)->contains('url', $this->newFeedUrl);
         if ($exists) {
             $this->addError('newFeedUrl', 'This feed URL has already been added.');
             return;
         }
 
-        $this->rssFeeds[] = [
+        $feeds[] = [
             'label' => $this->newFeedLabel ?: null,
             'url' => $this->newFeedUrl,
         ];
 
-        $user = Auth::user();
-        $user->setData('untappd_rss_feeds', $this->rssFeeds);
-        $user->save();
+        $this->saveFeeds($feeds);
 
         $this->newFeedLabel = '';
         $this->newFeedUrl = '';
@@ -194,25 +240,22 @@ new class extends Component
 
     public function removeFeed(int $index): void
     {
-        unset($this->rssFeeds[$index]);
-        $this->rssFeeds = array_values($this->rssFeeds);
+        $feeds = $this->storedFeeds();
+        unset($feeds[$index]);
 
-        $user = Auth::user();
-        $user->setData('untappd_rss_feeds', $this->rssFeeds ?: null);
-        $user->save();
+        $this->saveFeeds($feeds);
     }
 
     public function toggleFeedSubmit(int $index): void
     {
-        if (! isset($this->rssFeeds[$index])) {
+        $feeds = $this->storedFeeds();
+        if (! isset($feeds[$index])) {
             return;
         }
 
-        $this->rssFeeds[$index]['submit_to_logrdb'] = ! ($this->rssFeeds[$index]['submit_to_logrdb'] ?? false);
+        $feeds[$index]['submit_to_logrdb'] = ! ($feeds[$index]['submit_to_logrdb'] ?? false);
 
-        $user = Auth::user();
-        $user->setData('untappd_rss_feeds', $this->rssFeeds);
-        $user->save();
+        $this->saveFeeds($feeds);
     }
 
     public function resetPubConnection(): void
@@ -241,7 +284,7 @@ new class extends Component
         $user = Auth::user();
         $user->setData('pub_secret_key', null);
         $user->save();
-        $this->pub_secret_key = '';
+        $this->refreshSecretHints();
 
         // Provision a fresh instance key
         $token = \App\Services\PubBeerDb::provisionKey();
@@ -319,7 +362,8 @@ new class extends Component
     public function testUntappd(): void
     {
         $this->testSection = 'untappd';
-        if (!$this->untappd_client_id || !$this->untappd_client_secret) {
+        $clientSecret = $this->secretValue('untappd_client_secret');
+        if (!$this->untappd_client_id || !$clientSecret) {
             $this->testResult = 'Missing Client ID or Secret.';
             $this->testStatus = 'error';
             return;
@@ -331,7 +375,7 @@ new class extends Component
                 ->timeout(10)
                 ->get('https://api.untappd.com/v4/search/beer', [
                     'client_id' => $this->untappd_client_id,
-                    'client_secret' => $this->untappd_client_secret,
+                    'client_secret' => $clientSecret,
                     'q' => 'test',
                     'limit' => 1,
                 ]);
@@ -353,14 +397,15 @@ new class extends Component
     public function testCatalogBeer(): void
     {
         $this->testSection = 'catalog';
-        if (!$this->catalog_beer_api_key) {
+        $apiKey = $this->secretValue('catalog_beer_api_key');
+        if (!$apiKey) {
             $this->testResult = 'Missing API key.';
             $this->testStatus = 'error';
             return;
         }
 
         try {
-            $response = \Illuminate\Support\Facades\Http::withBasicAuth($this->catalog_beer_api_key, '')
+            $response = \Illuminate\Support\Facades\Http::withBasicAuth($apiKey, '')
                 ->accept('application/json')
                 ->timeout(10)
                 ->get('https://api.catalog.beer/beer/search', ['q' => 'test', 'count' => 1]);
@@ -545,7 +590,7 @@ new class extends Component
                     <x-input-label for="pub_secret_key" value="Secret Key (write access)" />
                     <div x-data="{ show: false }" class="mt-1">
                         <div class="flex items-center gap-2">
-                            <input :type="show ? 'text' : 'password'" wire:model.live="pub_secret_key" id="pub_secret_key" autocomplete="off" {{ $demoMode ? 'disabled' : '' }}
+                            <input :type="show ? 'text' : 'password'" wire:model.live="pub_secret_key" id="pub_secret_key" autocomplete="off" placeholder="{{ $secretHints['pub_secret_key'] ?? '' }}" {{ $demoMode ? 'disabled' : '' }}
                                 class="flex-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm font-mono text-sm {{ $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
                             <button type="button" @click="show = !show" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Toggle visibility">
                                 <svg x-show="!show" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
@@ -590,8 +635,13 @@ new class extends Component
         <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
             <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Catalog.beer</h3>
             <div>
-                <x-input-label for="catalog_beer_api_key" value="API Key" />
-                <input wire:model.live="catalog_beer_api_key" id="catalog_beer_api_key" type="password" autocomplete="off" {{ $demoMode ? 'disabled' : '' }}
+                <div class="flex items-center justify-between">
+                    <x-input-label for="catalog_beer_api_key" value="API Key" />
+                    @if(!empty($secretHints['catalog_beer_api_key']) && !$demoMode)
+                        <button type="button" wire:click="clearSecret('catalog_beer_api_key')" wire:confirm="Remove the saved Catalog.beer API key?" class="text-xs text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">Clear</button>
+                    @endif
+                </div>
+                <input wire:model.live="catalog_beer_api_key" id="catalog_beer_api_key" type="password" autocomplete="off" placeholder="{{ $secretHints['catalog_beer_api_key'] ?? '' }}" {{ $demoMode ? 'disabled' : '' }}
                     class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm font-mono text-sm {{ $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     An additional beer database for search and auto-submission of new beers. Get a free API key at <a href="https://catalog.beer" target="_blank" rel="noopener" class="font-medium underline hover:text-amber-500">catalog.beer</a>.
@@ -716,7 +766,7 @@ new class extends Component
             <details {{ $untappd_client_id || config('services.untappd.api_key') ? 'open' : '' }}>
                 <summary class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
                     API Credentials
-                    @if(!$untappd_client_id && !$untappd_client_secret && !config('services.untappd.api_key'))
+                    @if(!$untappd_client_id && empty($secretHints['untappd_client_secret']) && !config('services.untappd.api_key'))
                         <span class="text-gray-500 dark:text-gray-400 normal-case font-normal">&mdash; optional</span>
                     @endif
                 </summary>
@@ -738,9 +788,11 @@ new class extends Component
                             <x-input-label for="untappd_client_secret" value="Client Secret" />
                             @if(config('services.untappd.api_secret'))
                                 <x-env-badge name="UNTAPPD_API_SECRET" />
+                            @elseif(!empty($secretHints['untappd_client_secret']) && !$demoMode)
+                                <button type="button" wire:click="clearSecret('untappd_client_secret')" wire:confirm="Remove the saved Untappd client secret?" class="text-xs text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">Clear</button>
                             @endif
                         </div>
-                        <input wire:model.live="untappd_client_secret" id="untappd_client_secret" type="password" autocomplete="off"
+                        <input wire:model.live="untappd_client_secret" id="untappd_client_secret" type="password" autocomplete="off" placeholder="{{ $secretHints['untappd_client_secret'] ?? '' }}"
                             {{ config('services.untappd.api_secret') || $demoMode ? 'disabled' : '' }}
                             class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm font-mono text-sm {{ config('services.untappd.api_secret') || $demoMode ? 'opacity-60 cursor-not-allowed' : '' }}" />
                     </div>
