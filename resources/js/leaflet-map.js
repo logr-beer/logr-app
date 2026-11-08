@@ -1,27 +1,28 @@
 /**
  * Shared Leaflet map helpers.
  *
+ * Leaflet is bundled by Vite and exposed as window.L for inline Alpine components.
  * Provides loadLeaflet() and fitMapBounds() utilities for Alpine map components.
  */
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+// Leaflet derives default marker paths from its CSS, which breaks with hashed asset names.
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconUrl: markerIcon,
+    iconRetinaUrl: markerIcon2x,
+    shadowUrl: markerShadow,
+});
+
+window.L = L;
+
 window.LeafletMap = {
     loadLeaflet(callback) {
-        if (!document.querySelector('link[href*="leaflet"]')) {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-            link.crossOrigin = '';
-            document.head.appendChild(link);
-        }
-
-        if (!window.L) {
-            const script = document.createElement('script');
-            script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-            script.crossOrigin = '';
-            script.onload = callback;
-            document.head.appendChild(script);
-        } else {
-            callback();
-        }
+        callback();
     },
 
     createMap(elementId, options = {}) {
