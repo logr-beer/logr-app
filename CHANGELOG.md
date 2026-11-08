@@ -4,6 +4,11 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Changed
+- Admin screens (API settings, notifications, system info) now re-check admin access on every action, and the purge/reset actions are disabled in demo mode on their own.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed
