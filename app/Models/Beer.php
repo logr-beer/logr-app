@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -13,13 +14,12 @@ use Illuminate\Support\Facades\Storage;
 class Beer extends Model
 {
     protected $fillable = [
-        'name', 'brewery_id', 'style', 'abv', 'ibu', 'release_year', 'brewer_master', 'description', 'photo_path', 'is_favorite',
+        'name', 'brewery_id', 'style', 'abv', 'ibu', 'release_year', 'brewer_master', 'description', 'photo_path',
         'catalog_beer_id', 'pub_uuid', 'data',
     ];
 
     protected $casts = [
         'style' => 'array',
-        'is_favorite' => 'boolean',
         'data' => 'array',
     ];
 
@@ -41,6 +41,43 @@ class Beer extends Model
     public function collections(): BelongsToMany
     {
         return $this->belongsToMany(Collection::class)->withPivot('sort_order')->withTimestamps();
+    }
+
+    public function favoritedBy(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'beer_user_favorites')->withTimestamps();
+    }
+
+    /**
+     * Only beers the given user has favorited.
+     */
+    public function scopeFavoriteOf(Builder $query, ?int $userId): Builder
+    {
+        return $query->whereHas('favoritedBy', fn ($q) => $q->where('beer_user_favorites.user_id', $userId));
+    }
+
+    /**
+     * Load the given user's favorite flag as `is_favorite` (avoids a query per beer).
+     */
+    public function scopeWithFavorite(Builder $query, ?int $userId): Builder
+    {
+        return $query->withExists(['favoritedBy as is_favorite' => fn ($q) => $q->where('beer_user_favorites.user_id', $userId)]);
+    }
+
+    /**
+     * Whether the signed-in user has favorited this beer.
+     */
+    protected function isFavorite(): Attribute
+    {
+        return Attribute::get(function ($value) {
+            if ($value !== null) {
+                return (bool) $value;
+            }
+
+            $userId = auth()->id();
+
+            return $userId !== null && $this->favoritedBy()->where('beer_user_favorites.user_id', $userId)->exists();
+        });
     }
 
     public function tags(): MorphToMany

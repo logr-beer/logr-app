@@ -37,8 +37,7 @@ class InventoryIndex extends Component
 
     public function toggleFavorite(int $beerId): void
     {
-        $beer = Beer::findOrFail($beerId);
-        $beer->update(['is_favorite' => ! $beer->is_favorite]);
+        auth()->user()->favoriteBeers()->toggle(Beer::findOrFail($beerId)->id);
     }
 
     public function deleteItem(int $inventoryId)
@@ -62,7 +61,7 @@ class InventoryIndex extends Component
             ->values();
 
         $query = Inventory::where('user_id', $userId)
-            ->with('beer.brewery')
+            ->with(['beer' => fn ($q) => $q->withFavorite($userId), 'beer.brewery'])
             ->where('quantity', '>', 0);
 
         if ($this->search) {

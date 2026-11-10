@@ -77,8 +77,8 @@ class ExportTest extends TestCase
             'brewery_id' => $brewery->id,
             'style' => ['IPA'],
             'abv' => 7.0,
-            'is_favorite' => true,
         ]);
+        $this->user->favoriteBeers()->attach($beer);
         Checkin::create(['user_id' => $this->user->id, 'beer_id' => $beer->id, 'rating' => 4.5]);
 
         $data = json_decode($this->actingAs($this->user)->get('/export')->streamedContent(), true);

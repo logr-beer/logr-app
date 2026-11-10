@@ -194,9 +194,12 @@ class JsonImportService
                     'release_year' => $data['release_year'] ?? null,
                     'brewer_master' => $data['brewer_master'] ?? null,
                     'description' => $data['description'] ?? null,
-                    'is_favorite' => $data['is_favorite'] ?? false,
                 ], fn ($v) => $v !== null));
                 $this->results['beers']['created']++;
+            }
+
+            if (! empty($data['is_favorite'])) {
+                $beer->favoritedBy()->syncWithoutDetaching([$this->userId]);
             }
 
             if (! empty($data['tags'])) {
@@ -472,9 +475,6 @@ class JsonImportService
         }
         if (! $beer->ibu && ! empty($data['ibu'])) {
             $updates['ibu'] = $data['ibu'];
-        }
-        if (! empty($data['is_favorite']) && ! $beer->is_favorite) {
-            $updates['is_favorite'] = true;
         }
         if ($updates) {
             $beer->update($updates);

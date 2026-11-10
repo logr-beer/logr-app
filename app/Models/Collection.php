@@ -55,16 +55,17 @@ class Collection extends Model
         }
 
         if (isset($rules['favorites']) && $rules['favorites']) {
-            $query->where('is_favorite', true);
+            $query->favoriteOf($this->user_id);
         }
 
         if (isset($rules['oldest_in_stock']) && $rules['oldest_in_stock']) {
-            $query->whereHas('inventory', fn ($q) => $q->where('quantity', '>', 0))
+            $query->whereHas('inventory', fn ($q) => $q->where('user_id', $this->user_id)->where('quantity', '>', 0))
                 ->oldest();
         }
 
         if (isset($rules['storage_location'])) {
-            $query->whereHas('inventory', fn ($q) => $q->where('quantity', '>', 0)
+            $query->whereHas('inventory', fn ($q) => $q->where('user_id', $this->user_id)
+                ->where('quantity', '>', 0)
                 ->where('storage_location', $rules['storage_location']));
         }
 

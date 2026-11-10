@@ -148,6 +148,35 @@ test.describe('Beer Detail', () => {
         await page.waitForTimeout(500);
     });
 
+    test('favorited beer shows under the Favorites tab', async ({ page }) => {
+        if (!(await goToFirstBeer(page))) return;
+
+        const favButton = page.locator('button[wire\\:click="toggleFavorite"]');
+        const name = (await page.locator('h1').textContent())!.trim();
+        const beerUrl = page.url();
+        const wasFavorite = (await favButton.getAttribute('class'))?.includes('bg-red-50');
+
+        await test.step('Favorite the beer', async () => {
+            if (!wasFavorite) {
+                await favButton.click();
+            }
+            await expect(favButton).toHaveClass(/bg-red-50/);
+            await test.info().attach('Favorite the beer', { body: await page.screenshot(), contentType: 'image/png' });
+        });
+
+        await test.step('Open the Favorites tab', async () => {
+            await page.goto(`/beers?filter=favorites&search=${encodeURIComponent(name)}`);
+            await expect(page.getByText(name).first()).toBeVisible();
+            await test.info().attach('Open the Favorites tab', { body: await page.screenshot(), contentType: 'image/png' });
+        });
+
+        if (!wasFavorite) {
+            await page.goto(beerUrl);
+            await favButton.click();
+            await expect(favButton).not.toHaveClass(/bg-red-50/);
+        }
+    });
+
     test('edit link navigates to edit form', async ({ page }) => {
         if (!(await goToFirstBeer(page))) return;
         const editLink = page.locator('a[title="Edit beer"]');
