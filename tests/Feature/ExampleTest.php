@@ -17,6 +17,14 @@ class ExampleTest extends TestCase
         $response->assertRedirect('/setup');
     }
 
+    public function test_setup_redirect_keeps_the_host_port_from_the_request(): void
+    {
+        // Docker publishes the app on arbitrary host ports; redirects must not drop them.
+        $response = $this->get('http://127.0.0.1:18337/login');
+
+        $response->assertRedirect('http://127.0.0.1:18337/setup');
+    }
+
     public function test_the_application_returns_a_successful_response(): void
     {
         $user = User::factory()->create();
