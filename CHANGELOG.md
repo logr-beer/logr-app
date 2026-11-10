@@ -4,6 +4,11 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Changed
+- Untappd RSS feeds must use a public `https://` URL, and check-in photos and beer labels are only downloaded from Untappd's image hosts when the response is a real image under 10 MB.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed
