@@ -8,15 +8,22 @@ new class extends Component
 {
     // Discord Webhooks
     public array $discordWebhooks = [];
+
     public string $newWebhookLabel = '';
+
     public string $newWebhookUrl = '';
+
     public bool $newWebhookCheckins = false;
+
     public bool $newWebhookPurchases = false;
 
     // Discord Bots (global config, multiple servers)
     public array $discordBots = [];
+
     public array $botPrefs = [];
+
     public array $botChannels = [];
+
     public ?int $loadingChannelsFor = null;
 
     // Discord identity
@@ -24,7 +31,13 @@ new class extends Component
 
     // Test results
     public string $testResult = '';
+
     public string $testStatus = '';
+
+    public function boot(): void
+    {
+        abort_unless(auth()->user()?->is_admin, 403);
+    }
 
     public function mount(): void
     {
@@ -57,6 +70,7 @@ new class extends Component
         $exists = collect($this->discordWebhooks)->contains('url', $this->newWebhookUrl);
         if ($exists) {
             $this->addError('newWebhookUrl', 'This webhook URL has already been added.');
+
             return;
         }
 
@@ -116,7 +130,7 @@ new class extends Component
         }
 
         if (isset($this->discordWebhooks[$index])) {
-            $this->discordWebhooks[$index][$setting] = !($this->discordWebhooks[$index][$setting] ?? false);
+            $this->discordWebhooks[$index][$setting] = ! ($this->discordWebhooks[$index][$setting] ?? false);
 
             $user = Auth::user();
             $user->setData('discord_webhooks', $this->discordWebhooks);
@@ -131,9 +145,10 @@ new class extends Component
         }
 
         $webhook = $this->discordWebhooks[$index] ?? null;
-        if (!$webhook || empty($webhook['url'])) {
+        if (! $webhook || empty($webhook['url'])) {
             $this->testResult = 'No webhook URL configured.';
             $this->testStatus = 'error';
+
             return;
         }
 
@@ -148,7 +163,7 @@ new class extends Component
                 'style' => 'Double IPA, IPA, Pale Ale',
                 'abv' => 8.0,
                 'ibu' => 100,
-                'user' => '[TEST] ' . Auth::user()->name,
+                'user' => '[TEST] '.Auth::user()->name,
                 'beer_image' => 'https://images.unsplash.com/photo-1643307282439-08cb542c6edf?w=400&h=500&fit=crop',
             ]);
 
@@ -175,9 +190,10 @@ new class extends Component
         }
 
         $webhook = $this->discordWebhooks[$index] ?? null;
-        if (!$webhook || empty($webhook['url'])) {
+        if (! $webhook || empty($webhook['url'])) {
             $this->testResult = 'No webhook URL configured.';
             $this->testStatus = 'error';
+
             return;
         }
 
@@ -192,7 +208,7 @@ new class extends Component
                 'style' => 'American IPA',
                 'abv' => 7.0,
                 'ibu' => 55,
-                'user' => '[TEST] ' . Auth::user()->name,
+                'user' => '[TEST] '.Auth::user()->name,
                 'beer_image' => 'https://images.unsplash.com/photo-1627627045944-a6171e94783a?w=400&h=500&fit=crop',
             ]);
 
@@ -254,7 +270,7 @@ new class extends Component
             $this->discordBots[$index]['channel_name'] = $channel['name'] ?? null;
             Setting::set('discord_bots', $this->discordBots);
 
-            $this->testResult = 'Channel updated to #' . ($channel['name'] ?? 'unknown');
+            $this->testResult = 'Channel updated to #'.($channel['name'] ?? 'unknown');
             $this->testStatus = 'success';
         } else {
             $this->testResult = 'Failed to update channel.';
@@ -292,6 +308,7 @@ new class extends Component
         if (! $bot) {
             $this->testResult = 'Bot not configured.';
             $this->testStatus = 'error';
+
             return;
         }
 
@@ -299,7 +316,7 @@ new class extends Component
             $response = \Illuminate\Support\Facades\Http::withToken($bot['hub_api_key'])
                 ->accept('application/json')
                 ->timeout(15)
-                ->post(rtrim($bot['hub_url'], '/') . '/api/discord/post', [
+                ->post(rtrim($bot['hub_url'], '/').'/api/discord/post', [
                     'guild_id' => $bot['guild_id'],
                     'type' => 'checkin',
                     'payload' => [
@@ -337,6 +354,7 @@ new class extends Component
         if (! $bot) {
             $this->testResult = 'Bot not configured.';
             $this->testStatus = 'error';
+
             return;
         }
 
@@ -344,7 +362,7 @@ new class extends Component
             $response = \Illuminate\Support\Facades\Http::withToken($bot['hub_api_key'])
                 ->accept('application/json')
                 ->timeout(15)
-                ->post(rtrim($bot['hub_url'], '/') . '/api/discord/post', [
+                ->post(rtrim($bot['hub_url'], '/').'/api/discord/post', [
                     'guild_id' => $bot['guild_id'],
                     'type' => 'purchase',
                     'payload' => [
