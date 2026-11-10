@@ -59,17 +59,24 @@ class Dashboard extends Component
                 ->filter(fn ($c) => isset($c->rules['year']))
                 ->sortByDesc(fn ($c) => $c->rules['year'])
                 ->take(6)
-                ->each(fn ($c) => $c->resolved_count = $c->resolveBeersCount())
+                ->pipe(fn ($items) => $this->withResolvedCounts($items))
                 ->values(),
             'locationCollections' => Collection::where('user_id', $user->id)
                 ->where('is_dynamic', true)
                 ->whereNotNull('rules')
                 ->get()
                 ->filter(fn ($c) => isset($c->rules['storage_location']))
-                ->each(fn ($c) => $c->resolved_count = $c->resolveBeersCount())
+                ->pipe(fn ($items) => $this->withResolvedCounts($items))
                 ->sortByDesc('resolved_count')
                 ->take(6)
                 ->values(),
         ]);
+    }
+
+    protected function withResolvedCounts($collections)
+    {
+        $counts = Collection::dynamicBeerCounts($collections);
+
+        return $collections->each(fn ($c) => $c->resolved_count = $counts[$c->id]);
     }
 }
