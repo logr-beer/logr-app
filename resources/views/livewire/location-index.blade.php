@@ -112,7 +112,11 @@
             if (!this.map) return;
 
             points.forEach(p => {
-                const popup = `<strong>${p.name}</strong>${p.location ? '<br><span style="color:#666;font-size:12px">' + p.location + '</span>' : ''}<br><span style="color:#999;font-size:11px">${p.count} ${p.count === 1 ? countLabel : countLabel + 's'}</span>`;
+                const popup = [
+                    { text: p.name },
+                    { text: p.location, style: 'color:#666;font-size:12px' },
+                    { text: `${p.count} ${p.count === 1 ? countLabel : countLabel + 's'}`, style: 'color:#999;font-size:11px' },
+                ];
                 LeafletMap.createMarker(this.map, p, { color: '#f59e0b', size: 12, popup });
             });
 

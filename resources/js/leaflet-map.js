@@ -73,17 +73,49 @@ window.LeafletMap = {
         map.fitBounds(bounds.pad(0.1), { maxZoom: 12 });
     },
 
-    createMarker(map, point, { color = '#f59e0b', size = 12, label = '', popup = '' }) {
+    escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    },
+
+    /**
+     * Build popup content as DOM nodes so names render as plain text.
+     * Each line is { text, style? }; the first line is shown in bold.
+     */
+    createPopup(lines) {
+        const el = document.createElement('div');
+        lines.filter(line => line && line.text).forEach((line, i) => {
+            if (i > 0) el.appendChild(document.createElement('br'));
+            const node = document.createElement(i === 0 ? 'strong' : 'span');
+            node.textContent = String(line.text);
+            if (line.style) node.style.cssText = line.style;
+            el.appendChild(node);
+        });
+        return el;
+    },
+
+    createMarker(map, point, { color = '#f59e0b', size = 12, label = '', popup = null }) {
+        const safeColor = /^#[0-9a-f]{3,8}$/i.test(color) ? color : '#f59e0b';
+        const safeSize = Number(size) || 12;
+
         const icon = L.divIcon({
             className: '',
-            html: `<div style="background:${color};width:${size}px;height:${size}px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:${size > 14 ? '9' : '0'}px;font-weight:700">${label}</div>`,
-            iconSize: [size, size],
-            iconAnchor: [size / 2, size / 2],
-            popupAnchor: [0, -(size / 2 + 2)],
+            html: `<div style="background:${safeColor};width:${safeSize}px;height:${safeSize}px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:${safeSize > 14 ? '9' : '0'}px;font-weight:700">${this.escapeHtml(label)}</div>`,
+            iconSize: [safeSize, safeSize],
+            iconAnchor: [safeSize / 2, safeSize / 2],
+            popupAnchor: [0, -(safeSize / 2 + 2)],
         });
 
-        return L.marker([point.lat, point.lng], { icon })
-            .addTo(map)
-            .bindPopup(popup);
+        const marker = L.marker([point.lat, point.lng], { icon }).addTo(map);
+
+        if (Array.isArray(popup) && popup.length) {
+            marker.bindPopup(this.createPopup(popup));
+        }
+
+        return marker;
     },
 };
