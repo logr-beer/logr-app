@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Actions\Logout;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Component;
 
@@ -13,9 +14,27 @@ new class extends Component
      */
     public function deleteUser(Logout $logout): void
     {
+        abort_if(config('app.demo_mode'), 403);
+
         $this->validate([
             'password' => ['required', 'string', 'current_password'],
         ]);
+
+        $user = Auth::user();
+
+        // Deleting the last user would reopen first-run setup, and deleting the
+        // last admin would leave nobody able to reach the admin screens.
+        if (User::whereKeyNot($user->getKey())->doesntExist()) {
+            $this->addError('account', __('This is the only account, so it cannot be deleted.'));
+
+            return;
+        }
+
+        if ($user->is_admin && User::whereKeyNot($user->getKey())->where('is_admin', true)->doesntExist()) {
+            $this->addError('account', __('You are the only admin. Make another user an admin (php artisan user:make-admin <username>) before deleting your account.'));
+
+            return;
+        }
 
         tap(Auth::user(), $logout(...))->delete();
 
@@ -63,6 +82,7 @@ new class extends Component
                 />
 
                 <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                <x-input-error :messages="$errors->get('account')" class="mt-2" />
             </div>
 
             <div class="mt-6 flex justify-end">

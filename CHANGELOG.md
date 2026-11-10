@@ -4,6 +4,14 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+- `php artisan user:make-admin <username>` command to give an existing user admin access.
+
+### Changed
+- The only admin (or the last remaining user) can no longer delete their own account; account deletion is also refused in demo mode.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed
