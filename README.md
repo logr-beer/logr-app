@@ -79,6 +79,17 @@ docker compose pull && docker compose up -d
 
 All state lives in a single Docker volume (`logr-data`): SQLite database at `/data/database/` and uploaded photos at `/data/storage/`.
 
+### Upload Limits
+
+Backup (JSON) imports accept files up to 50 MB; the Livewire temporary-upload limit in `config/livewire.php` matches that. PHP and the web server must allow at least as much, otherwise large uploads fail before Logr sees them. PHP's defaults (`upload_max_filesize = 2M`, `post_max_size = 8M`) are too low; add a `zz-uploads.ini` to PHP's `conf.d` directory (e.g. `/usr/local/etc/php/conf.d/` in the official image):
+
+```ini
+upload_max_filesize = 50M
+post_max_size = 55M
+```
+
+Behind nginx, also set `client_max_body_size 55M;` (the bundled `docker/nginx.conf` currently allows 20M).
+
 ---
 
 ## Development

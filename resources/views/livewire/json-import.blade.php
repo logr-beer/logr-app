@@ -61,6 +61,14 @@
                 </p>
             </div>
 
+            <label class="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <input type="checkbox" wire:model="validRowsOnly" class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 dark:bg-gray-700" />
+                <span>
+                    Import valid rows only
+                    <span class="block text-gray-500 dark:text-gray-400">By default nothing is saved if any row fails. Tick this to skip the failing rows and keep the rest.</span>
+                </span>
+            </label>
+
             <div class="flex justify-end gap-3">
                 <button wire:click="backToUpload" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 font-medium rounded-md transition">
                     Go Back
@@ -81,7 +89,12 @@
     {{-- Step 4: Results --}}
     @if ($step === 'results')
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
-            <h3 class="text-lg font-semibold text-green-600 dark:text-green-400">Import Complete</h3>
+            @if ($rolledBack)
+                <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">Import Rolled Back</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Nothing was imported because of the errors below. Fix the file, or import again with &ldquo;Import valid rows only&rdquo; to skip the failing rows.</p>
+            @else
+                <h3 class="text-lg font-semibold text-green-600 dark:text-green-400">Import Complete</h3>
+            @endif
 
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 @foreach ($results as $section => $counts)

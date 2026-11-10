@@ -25,6 +25,10 @@ class JsonImport extends Component
 
     public array $importErrors = [];
 
+    public bool $validRowsOnly = false;
+
+    public bool $rolledBack = false;
+
     public function updatedJsonFile(): void
     {
         $this->validate([
@@ -59,15 +63,19 @@ class JsonImport extends Component
         }
 
         $this->importErrors = [];
+        $this->rolledBack = false;
+
+        $service = new JsonImportService(auth()->id());
 
         try {
-            $service = new JsonImportService(auth()->id());
-            $service->import($data);
-            $this->results = $service->results;
+            $service->import($data, $this->validRowsOnly);
             $this->importErrors = $service->errors;
         } catch (\Throwable $e) {
-            $this->importErrors[] = 'Fatal error: '.$e->getMessage();
+            $this->importErrors = [...$service->errors, 'Fatal error: '.$e->getMessage()];
         }
+
+        $this->results = $service->results;
+        $this->rolledBack = $service->rolledBack;
 
         $this->step = 'results';
     }
@@ -75,7 +83,7 @@ class JsonImport extends Component
     public function backToUpload(): void
     {
         $this->step = 'upload';
-        $this->reset(['jsonFile', 'summary', 'results', 'importErrors']);
+        $this->reset(['jsonFile', 'summary', 'results', 'importErrors', 'rolledBack']);
     }
 
     public function resetImport(): void

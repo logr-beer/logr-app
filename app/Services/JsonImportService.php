@@ -12,6 +12,7 @@ use App\Models\Store;
 use App\Models\Tag;
 use App\Models\Venue;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class JsonImportService
 {
@@ -19,11 +20,18 @@ class JsonImportService
 
     public array $errors = [];
 
+    public bool $rolledBack = false;
+
     private int $userId;
 
     public function __construct(int $userId)
     {
         $this->userId = $userId;
+        $this->resetResults();
+    }
+
+    private function resetResults(): void
+    {
         $this->results = [
             'tags' => ['created' => 0, 'existing' => 0],
             'companions' => ['created' => 0, 'existing' => 0],
@@ -54,17 +62,42 @@ class JsonImportService
         ];
     }
 
-    public function import(array $data): void
+    /**
+     * Import a backup in a single transaction. By default any row error rolls
+     * the whole import back; with $validRowsOnly the rows that failed are
+     * skipped and the rest is kept. An uncaught error always rolls back.
+     */
+    public function import(array $data, bool $validRowsOnly = false): void
     {
-        $tagMap = $this->importTags($data['tags'] ?? []);
-        $companionMap = $this->importCompanions($data['companions'] ?? []);
-        $breweryMap = $this->importBreweries($data['breweries'] ?? []);
-        $beerMap = $this->importBeers($data['beers'] ?? [], $breweryMap, $tagMap);
-        $venueMap = $this->importVenues($data['venues'] ?? []);
-        $storeMap = $this->importStores($data['stores'] ?? []);
-        $this->importCheckins($data['checkins'] ?? [], $beerMap, $venueMap, $tagMap, $companionMap);
-        $this->importInventory($data['inventory'] ?? [], $beerMap, $storeMap);
-        $this->importCollections($data['collections'] ?? [], $beerMap);
+        try {
+            DB::transaction(function () use ($data, $validRowsOnly) {
+                $tagMap = $this->importTags($data['tags'] ?? []);
+                $companionMap = $this->importCompanions($data['companions'] ?? []);
+                $breweryMap = $this->importBreweries($data['breweries'] ?? []);
+                $beerMap = $this->importBeers($data['beers'] ?? [], $breweryMap, $tagMap);
+                $venueMap = $this->importVenues($data['venues'] ?? []);
+                $storeMap = $this->importStores($data['stores'] ?? []);
+                $this->importCheckins($data['checkins'] ?? [], $beerMap, $venueMap, $tagMap, $companionMap);
+                $this->importInventory($data['inventory'] ?? [], $beerMap, $storeMap);
+                $this->importCollections($data['collections'] ?? [], $beerMap);
+
+                if (! $validRowsOnly && $this->errors) {
+                    throw new ImportRolledBackException;
+                }
+            });
+        } catch (ImportRolledBackException) {
+            $this->markRolledBack();
+        } catch (\Throwable $e) {
+            $this->markRolledBack();
+
+            throw $e;
+        }
+    }
+
+    private function markRolledBack(): void
+    {
+        $this->rolledBack = true;
+        $this->resetResults();
     }
 
     private function importTags(array $tags): array
