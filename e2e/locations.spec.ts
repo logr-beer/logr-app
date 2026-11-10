@@ -68,9 +68,10 @@ test.describe('Location Index Pages', () => {
             test('pill tabs show all three types with correct one active', async ({ page }) => {
                 await page.goto(`/locations/${loc.slug}`);
                 // All three pills visible
-                await expect(page.getByText('Breweries')).toBeVisible();
-                await expect(page.getByText('Venues')).toBeVisible();
-                await expect(page.getByText('Stores')).toBeVisible();
+                // exact: the empty state ("No stores yet") also mentions the type name
+                await expect(page.getByText('Breweries', { exact: true })).toBeVisible();
+                await expect(page.getByText('Venues', { exact: true })).toBeVisible();
+                await expect(page.getByText('Stores', { exact: true })).toBeVisible();
                 // The active tab should not be a link (it's a plain string, not an <a>)
                 // while the other two should be links
                 const otherSlugs = LOCATION_TYPES.filter((l) => l.slug !== loc.slug);

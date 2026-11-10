@@ -431,11 +431,11 @@ test.describe('Beer Create', () => {
         await page.locator('#name').fill(uniqueName);
         await page.locator('#abv').fill('5.5');
 
+        // Submit immediately after typing: the name must not be lost to the search debounce.
         await page.getByRole('button', { name: 'Add Beer' }).click();
-        await page.waitForTimeout(1000);
 
         // Should redirect to beer detail page
-        await expect(page).toHaveURL(/beers\/\d+/);
+        await expect(page).toHaveURL(/beers\/\d+/, { timeout: 10_000 });
         await expect(page.locator('h1')).toContainText(uniqueName);
     });
 });
