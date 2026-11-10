@@ -12,7 +12,6 @@ use App\Models\Store;
 use App\Models\Venue;
 use App\Services\Discord;
 use App\Services\PubDiscord;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -179,16 +178,13 @@ class BeerShow extends Component
             return;
         }
 
-        $this->beer->checkins()->delete();
+        $this->beer->checkins()->get()->each->delete();
         $this->beer->inventory()->delete();
         $this->beer->collections()->detach();
         $this->beer->tags()->detach();
 
-        if ($this->beer->photo_path) {
-            Storage::disk('public')->delete($this->beer->photo_path);
-        }
-
         $this->beer->delete();
+        CheckinPhoto::deleteFileIfUnused($this->beer->photo_path);
 
         session()->flash('message', 'Beer deleted successfully.');
         $this->redirect(route('beers.index'), navigate: true);

@@ -10,6 +10,7 @@ use App\Models\Store;
 use App\Models\Venue;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
 class LocationShow extends Component
@@ -323,6 +324,10 @@ class LocationShow extends Component
         }
 
         $this->location->delete();
+
+        if ($this->type === 'brewery' && $this->location->logo_path && ! str_starts_with($this->location->logo_path, 'http')) {
+            Storage::disk('public')->delete($this->location->logo_path);
+        }
 
         $this->redirect(match ($this->type) {
             'venue' => route('locations.venues'),
