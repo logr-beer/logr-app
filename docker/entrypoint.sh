@@ -36,7 +36,10 @@ if [ ! -f /data/.app_key ]; then
 fi
 export APP_KEY=$(cat /data/.app_key)
 
-# Build .env from environment variables so Laravel (php-fpm) can read them.
+# Persist the defaults above to .env so `docker exec ... php artisan` sees them too.
+# php-fpm, the queue worker and the scheduler inherit the container environment
+# directly (the php:fpm base image sets clear_env = no), so integration vars like
+# CATALOG_BEER_API_KEY or GOOGLE_ANALYTICS_ID need no entry here.
 env | grep -E '^(APP_|DB_|QUEUE_|CACHE_|SESSION_)' | grep -v -E '^[^=]+=$' > .env 2>/dev/null || true
 
 # Create storage symlink
