@@ -4,6 +4,11 @@ All notable changes to Logr will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+- About Logr section on the Profile page linking to the GitHub repo, with the running version (linked to its release notes). The System Info page also shows the version next to its GitHub link.
+
 ## [0.4.3] - 2026-05-22
 
 ### Changed
