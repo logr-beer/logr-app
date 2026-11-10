@@ -182,7 +182,7 @@
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Catalog.beer API Key</label>
                                     <x-env-badge name="CATALOG_BEER_API_KEY" />
                                 </div>
-                                <input type="text" value="{{ Str::mask($catalog_beer_api_key, '*', 4) }}" disabled
+                                <input type="text" value="Set via environment" disabled
                                     class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-500 dark:text-gray-400 cursor-not-allowed font-mono" />
                             </div>
                         @endif
@@ -193,7 +193,7 @@
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Untappd API Key</label>
                                     <x-env-badge name="UNTAPPD_API_KEY" />
                                 </div>
-                                <input type="text" value="{{ Str::mask($untappd_api_key, '*', 4) }}" disabled
+                                <input type="text" value="Set via environment" disabled
                                     class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-500 dark:text-gray-400 cursor-not-allowed font-mono" />
                             </div>
                         @endif
@@ -204,7 +204,7 @@
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Untappd API Secret</label>
                                     <x-env-badge name="UNTAPPD_API_SECRET" />
                                 </div>
-                                <input type="text" value="{{ Str::mask($untappd_api_secret, '*', 4) }}" disabled
+                                <input type="text" value="Set via environment" disabled
                                     class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-500 dark:text-gray-400 cursor-not-allowed font-mono" />
                             </div>
                         @endif

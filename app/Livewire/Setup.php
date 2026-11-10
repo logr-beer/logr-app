@@ -12,12 +12,20 @@ use App\Services\PubBeerDb;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
 class Setup extends Component
 {
     use WithFileUploads;
+
+    // Integration fields that can be set via env, mapped to their config keys
+    private const ENV_SECRETS = [
+        'catalog_beer_api_key' => 'services.catalog_beer.key',
+        'untappd_api_key' => 'services.untappd.api_key',
+        'untappd_api_secret' => 'services.untappd.api_secret',
+    ];
 
     public function boot(): void
     {
@@ -68,7 +76,8 @@ class Setup extends Component
 
     public array $discordWebhooks = [];
 
-    // Track which fields are locked by env
+    // Track which fields are locked by env (their values stay server-side)
+    #[Locked]
     public array $envLocked = [];
 
     public function mount(): void
@@ -78,21 +87,16 @@ class Setup extends Component
 
     private function detectEnvVars(): void
     {
-        if ($value = config('services.catalog_beer.key')) {
-            $this->catalog_beer_api_key = $value;
-            $this->envLocked[] = 'catalog_beer_api_key';
+        foreach (self::ENV_SECRETS as $key => $configKey) {
+            if (config($configKey)) {
+                $this->envLocked[] = $key;
+            }
         }
+    }
 
-        if ($value = config('services.untappd.api_key')) {
-            $this->untappd_api_key = $value;
-            $this->envLocked[] = 'untappd_api_key';
-        }
-
-        if ($value = config('services.untappd.api_secret')) {
-            $this->untappd_api_secret = $value;
-            $this->envLocked[] = 'untappd_api_secret';
-        }
-
+    private function integrationValue(string $key): string
+    {
+        return trim($this->isLocked($key) ? (string) config(self::ENV_SECRETS[$key]) : $this->{$key});
     }
 
     public function isLocked(string $key): bool
@@ -223,14 +227,14 @@ class Setup extends Component
         if (trim($this->untappd_username)) {
             $user->setData('untappd_username', trim($this->untappd_username));
         }
-        if (trim($this->catalog_beer_api_key)) {
-            $user->setData('catalog_beer_api_key', trim($this->catalog_beer_api_key));
+        if ($value = $this->integrationValue('catalog_beer_api_key')) {
+            $user->setData('catalog_beer_api_key', $value);
         }
-        if (trim($this->untappd_api_key)) {
-            $user->setData('untappd_client_id', trim($this->untappd_api_key));
+        if ($value = $this->integrationValue('untappd_api_key')) {
+            $user->setData('untappd_client_id', $value);
         }
-        if (trim($this->untappd_api_secret)) {
-            $user->setData('untappd_client_secret', trim($this->untappd_api_secret));
+        if ($value = $this->integrationValue('untappd_api_secret')) {
+            $user->setData('untappd_client_secret', $value);
         }
         if (! empty($this->rssFeeds)) {
             $user->setData('untappd_rss_feeds', $this->rssFeeds);
