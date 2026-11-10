@@ -12,9 +12,12 @@ use Illuminate\Support\Facades\Storage;
 
 class PubDiscord
 {
-    public static function sendCheckin(Checkin $checkin, User $user): bool
+    /**
+     * @param  array  $shareTargets  Targets from the form (see CheckinForm::buildTargetsForType); when empty, the stored bot prefs apply.
+     */
+    public static function sendCheckin(Checkin $checkin, User $user, array $shareTargets = []): bool
     {
-        $bots = static::allBots();
+        $bots = static::botsFor($user, 'publish_checkins', $shareTargets);
 
         if (empty($bots)) {
             return false;
@@ -51,9 +54,12 @@ class PubDiscord
         return $sent;
     }
 
-    public static function sendPurchase(Inventory $inventory, User $user): bool
+    /**
+     * @param  array  $shareTargets  Targets from the form (see CheckinForm::buildTargetsForType); when empty, the stored bot prefs apply.
+     */
+    public static function sendPurchase(Inventory $inventory, User $user, array $shareTargets = []): bool
     {
-        $bots = static::allBots();
+        $bots = static::botsFor($user, 'publish_purchases', $shareTargets);
 
         if (empty($bots)) {
             return false;
@@ -88,7 +94,7 @@ class PubDiscord
     }
 
     /**
-     * Get all configured bots.
+     * Get all configured bots, keyed by their index in the discord_bots setting.
      */
     protected static function allBots(): array
     {
@@ -100,8 +106,26 @@ class PubDiscord
 
         return collect($allBots)
             ->filter(fn ($bot) => ! empty($bot['hub_url']) && ! empty($bot['hub_api_key']) && ! empty($bot['guild_id']))
-            ->values()
             ->all();
+    }
+
+    /**
+     * Bots to post to: the ticked ones when a selection was made, otherwise those the user enabled in their bot prefs.
+     * Keys of allBots() are the indexes used for "bot_{i}" share targets.
+     */
+    protected static function botsFor(User $user, string $publishKey, array $shareTargets): array
+    {
+        $bots = collect(static::allBots());
+
+        if (empty($shareTargets)) {
+            $prefs = $user->getData('discord_bot_prefs') ?? [];
+
+            return $bots->filter(fn ($bot) => ! empty($prefs[$bot['guild_id']][$publishKey]))->all();
+        }
+
+        $selected = Discord::enabledTargetKeys($shareTargets);
+
+        return $bots->filter(fn ($bot, $i) => in_array("bot_{$i}", $selected, true))->all();
     }
 
     /**

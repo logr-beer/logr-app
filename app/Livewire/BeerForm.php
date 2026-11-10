@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Concerns\WithLocationAutocomplete;
 use App\Events\CheckinCreated;
+use App\Events\PurchaseCreated;
 use App\Models\Beer;
 use App\Models\Brewery;
 use App\Models\Checkin;
@@ -12,10 +13,8 @@ use App\Models\Inventory;
 use App\Models\Store;
 use App\Models\Venue;
 use App\Services\CatalogBeer;
-use App\Services\Discord;
 use App\Services\OpenBreweryDb;
 use App\Services\PubBeerDb;
-use App\Services\PubDiscord;
 use App\Services\Untappd;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -507,9 +506,7 @@ class BeerForm extends Component
                 ]);
 
                 if (collect($this->inventoryShareTargets)->contains('enabled', true)) {
-                    $currentUser = auth()->user();
-                    Discord::sendPurchase($inventory, $currentUser);
-                    PubDiscord::sendPurchase($inventory, $currentUser);
+                    PurchaseCreated::dispatch($inventory, auth()->user(), $this->inventoryShareTargets);
                 }
             }
 
