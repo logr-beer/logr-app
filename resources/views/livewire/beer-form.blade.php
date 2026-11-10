@@ -385,6 +385,7 @@
                                 placeholder="0 - 5 (optional)"
                                 class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
                             />
+                            @error('checkinRating') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Serving</label>
@@ -394,6 +395,7 @@
                                 size="lg"
                                 :options="['' => '—', 'draft' => 'Draft', 'bottle' => 'Bottle', 'can' => 'Can', 'crowler' => 'Crowler', 'growler' => 'Growler', 'cask' => 'Cask']"
                             />
+                            @error('checkinServingType') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                         </div>
                     </div>
 
@@ -406,6 +408,7 @@
                             placeholder="Tasting notes..."
                             class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
                         ></textarea>
+                        @error('checkinNotes') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                     </div>
 
                     {{-- Photos --}}
@@ -480,6 +483,7 @@
                             placeholder="e.g. Fridge, Garage Fridge, Cellar..."
                             class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
                         />
+                        @error('storageLocation') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label for="addQuantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Qty</label>
@@ -490,6 +494,7 @@
                             id="addQuantity"
                             class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500"
                         />
+                        @error('addQuantity') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                     </div>
                     <x-location-autocomplete label="Store" prefix="store" model="App\\Models\\Store" :selectedId="$selectedStoreId" :selectedName="$selectedStoreName" :suggestions="$storeSuggestions" :apiResults="$storeApiResults" icon="building" placeholder="e.g. Total Wine Chicago IL..." />
                     <div>
@@ -500,6 +505,7 @@
                             id="purchaseDate"
                             class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500 dark:[color-scheme:dark]"
                         />
+                        @error('purchaseDate') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                     </div>
                     <div class="md:col-span-2">
                         <label class="inline-flex items-center gap-2 cursor-pointer">

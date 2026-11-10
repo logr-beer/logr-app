@@ -132,6 +132,11 @@ class BeerIndex extends Component
 
     public function addSelectedToInventory(): void
     {
+        $this->validate([
+            'inventoryQuantity' => 'required|integer|min:1|max:999',
+            'inventoryLocation' => 'nullable|string|max:100',
+        ]);
+
         $userId = auth()->id();
 
         foreach ($this->selected as $beerId) {

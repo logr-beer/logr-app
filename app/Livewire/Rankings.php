@@ -21,9 +21,17 @@ class Rankings extends Component
 
     public int $highestAbvLimit = 5;
 
+    private const SECTIONS = ['topRated', 'mostCheckedIn', 'topBreweries', 'highestAbv'];
+
+    private const MAX_LIMIT = 100;
+
     public function expandSection(string $section, int $limit): void
     {
-        $this->{$section.'Limit'} = $limit;
+        if (! in_array($section, self::SECTIONS, true)) {
+            return;
+        }
+
+        $this->{$section.'Limit'} = max(1, min($limit, self::MAX_LIMIT));
     }
 
     public function render()

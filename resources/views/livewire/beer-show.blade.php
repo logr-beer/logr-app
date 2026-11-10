@@ -123,7 +123,7 @@
             {{-- Inventory & Collections --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {{-- Inventory --}}
-                <div x-data="{ open: false }" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+                <div x-data="{ open: false }" @fridge-added.window="open = false" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                             <x-icon name="list" size="5" class="inline-block mr-1 text-amber-500" />
@@ -195,15 +195,18 @@
                                         @endforeach
                                     </div>
                                 @endif
+                                @error('storageLocation') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label for="addQuantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Qty</label>
                                     <input wire:model="addQuantity" type="number" min="1" id="addQuantity" class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500" />
+                                    @error('addQuantity') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
                                     <label for="purchaseDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date Acquired</label>
                                     <input wire:model="purchaseDate" type="date" id="purchaseDate" class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-amber-500 focus:border-amber-500 dark:[color-scheme:dark]" />
+                                    @error('purchaseDate') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                                 </div>
                             </div>
                             <x-location-autocomplete
@@ -225,7 +228,7 @@
                             </div>
                         </div>
                         <div class="mt-3 flex items-center justify-between">
-                            <x-primary-button type="button" wire:click="addToFridge" @click="open = false">Add to Inventory</x-primary-button>
+                            <x-primary-button type="button" wire:click="addToFridge">Add to Inventory</x-primary-button>
                             @if(count($inventoryShareTargets) > 0)
                                 <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
                                     <span class="text-xs text-gray-500 dark:text-gray-400">Share:</span>

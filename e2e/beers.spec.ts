@@ -219,6 +219,24 @@ test.describe('Beer Detail', () => {
         await expect(page.locator('#addQuantity')).toHaveValue('2');
     });
 
+    test('inventory form: invalid quantity and date show errors', async ({ page }) => {
+        if (!(await goToFirstBeer(page))) return;
+
+        await test.step('Open the inventory form', async () => {
+            await page.locator('button:has-text("+ Add")').click();
+            await expect(page.locator('#addQuantity')).toBeVisible();
+        });
+
+        await test.step('Submit a zero quantity and a future date', async () => {
+            await page.locator('#addQuantity').fill('0');
+            await page.locator('#purchaseDate').fill('2999-01-01');
+            await page.getByRole('button', { name: 'Add to Inventory' }).click();
+            await expect(page.getByText('The add quantity field must be at least 1.')).toBeVisible();
+            await expect(page.getByText(/purchase date field must be a date before or equal to today/)).toBeVisible();
+            await test.info().attach('Submit a zero quantity and a future date', { body: await page.screenshot(), contentType: 'image/png' });
+        });
+    });
+
     test('inventory form: gift checkbox toggles', async ({ page }) => {
         if (!(await goToFirstBeer(page))) return;
 
