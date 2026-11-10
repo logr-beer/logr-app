@@ -10,12 +10,14 @@ use App\Models\Store;
 use App\Models\Venue;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 class LocationShow extends Component
 {
     public Model $location;
 
+    #[Locked]
     public string $type; // 'venue', 'brewery', 'store'
 
     public bool $editing = false;
@@ -317,10 +319,7 @@ class LocationShow extends Component
             return;
         }
 
-        // Venue: only allow deletion if no other users have checkins
-        if ($this->type === 'venue' && $this->location->checkins()->where('user_id', '!=', auth()->id())->exists()) {
-            abort(403);
-        }
+        $this->authorize('delete', $this->location);
 
         $this->location->delete();
 

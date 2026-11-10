@@ -294,6 +294,21 @@ test.describe('Beer Detail', () => {
         const count = await deleteBtn.count();
         expect(count).toBeGreaterThanOrEqual(0);
     });
+
+    test('admin sees the delete button on beer detail', async ({ page }) => {
+        // The demo account is the first user, so it is the admin and may delete shared beers.
+        await test.step('Open a beer', async () => {
+            expect(await goToFirstBeer(page)).toBe(true);
+            await expect(page.getByText('History')).toBeVisible();
+        });
+
+        await test.step('Delete button is offered', async () => {
+            const deleteBtn = page.locator('button[wire\\:click="deleteBeer"]');
+            await expect(deleteBtn).toBeVisible();
+            await expect(deleteBtn).toHaveAttribute('wire:confirm', /Delete this beer/);
+            await test.info().attach('Delete button is offered', { body: await page.screenshot(), contentType: 'image/png' });
+        });
+    });
 });
 
 // ---------------------------------------------------------------------------

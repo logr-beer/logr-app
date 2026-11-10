@@ -94,7 +94,7 @@
                 </div>
                 <div class="flex items-center justify-between pt-2">
                     <div class="flex items-center gap-3">
-                        @unless(config('app.demo_mode'))
+                        @if(! config('app.demo_mode') && auth()->user()->can('delete', $location))
                             <button
                                 type="button"
                                 wire:click="delete"
@@ -104,7 +104,7 @@
                                 <x-icon name="trash" size="4" />
                                 Delete
                             </button>
-                        @endunless
+                        @endif
                     </div>
                     <div class="flex items-center gap-3">
                         <button type="button" wire:click="cancel" class="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">Cancel</button>
