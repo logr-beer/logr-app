@@ -7,6 +7,7 @@ use App\Models\Brewery;
 use App\Models\Checkin;
 use App\Models\User;
 use App\Models\Venue;
+use App\Support\SafeUrl;
 use DOMDocument;
 use DOMXPath;
 use Illuminate\Support\Facades\Http;
@@ -712,24 +713,14 @@ class UntappdScraper
         }
 
         try {
-            $response = Http::withHeaders(['User-Agent' => $this->userAgent])
-                ->timeout(15)
-                ->get($url);
+            $image = SafeUrl::fetchImage($url, $this->userAgent);
 
-            if ($response->failed()) {
+            if (! $image) {
                 return;
             }
 
-            $extension = 'jpg';
-            $contentType = $response->header('Content-Type');
-            if (str_contains($contentType, 'png')) {
-                $extension = 'png';
-            } elseif (str_contains($contentType, 'webp')) {
-                $extension = 'webp';
-            }
-
-            $path = 'beer-photos/'.$beer->id.'_'.uniqid().'.'.$extension;
-            Storage::disk('public')->put($path, $response->body());
+            $path = 'beer-photos/'.$beer->id.'_'.uniqid().'.'.$image['extension'];
+            Storage::disk('public')->put($path, $image['body']);
 
             $beer->update(['photo_path' => $path]);
         } catch (\Exception $e) {
