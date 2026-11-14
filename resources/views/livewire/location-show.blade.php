@@ -347,7 +347,7 @@
             LeafletMap.loadLeaflet(() => {
                 const map = LeafletMap.createMap('location-mini-map', { center: [lat, lng], zoom: 14 });
                 if (!map) return;
-                LeafletMap.createMarker(map, { lat, lng }, { color: '#f59e0b', size: 12, popup: `<strong>${name}</strong>` });
+                LeafletMap.createMarker(map, { lat, lng }, { color: '#f59e0b', size: 12, popup: [{ text: name }] });
             });
         }
     }));
