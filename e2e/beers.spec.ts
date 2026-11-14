@@ -438,6 +438,46 @@ test.describe('Beer Create', () => {
         await expect(page).toHaveURL(/beers\/\d+/);
         await expect(page.locator('h1')).toContainText(uniqueName);
     });
+
+    test('check-in photos must be images', async ({ page }) => {
+        // 1x1 transparent PNG
+        const png = Buffer.from(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+            'base64',
+        );
+        const uniqueName = `E2E Photo Beer ${Date.now()}`;
+        const photoInput = page.locator('input[type="file"][wire\\:model="checkinPhotos"]');
+
+        await test.step('Upload a non-image as a check-in photo', async () => {
+            await page.goto('/beers/create');
+            await page.locator('#name').fill(uniqueName);
+            await page.getByText('Check in this beer').click();
+            // Wait for the upload and the component update that attaches it
+            const uploaded = page.waitForResponse((r) => r.url().includes('/livewire/upload-file'))
+                .then(() => page.waitForResponse((r) => r.url().includes('/livewire/update')));
+            await photoInput.setInputFiles({ name: 'notes.jpg', mimeType: 'image/jpeg', buffer: Buffer.from('not a photo') });
+            await uploaded;
+        });
+
+        await test.step('Saving shows a validation error', async () => {
+            await page.getByRole('button', { name: 'Add Beer' }).click();
+            await expect(page.getByText(/must be an image/)).toBeVisible();
+            await expect(page).toHaveURL(/beers\/create/);
+            await test.info().attach('Saving shows a validation error', { body: await page.screenshot(), contentType: 'image/png' });
+        });
+
+        await test.step('A real image saves the beer and check-in', async () => {
+            await page.goto('/beers/create');
+            await page.locator('#name').fill(uniqueName);
+            await page.getByText('Check in this beer').click();
+            await photoInput.setInputFiles({ name: 'pour.png', mimeType: 'image/png', buffer: png });
+            await expect(page.locator('img[alt="Preview"]')).toBeVisible();
+            await page.getByRole('button', { name: 'Add Beer' }).click();
+            await expect(page).toHaveURL(/beers\/\d+$/);
+            await expect(page.locator('h1')).toContainText(uniqueName);
+            await test.info().attach('A real image saves the beer and check-in', { body: await page.screenshot(), contentType: 'image/png' });
+        });
+    });
 });
 
 // ---------------------------------------------------------------------------

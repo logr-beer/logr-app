@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Concerns\StoresPhotos;
 use App\Concerns\WithLocationAutocomplete;
 use App\Events\CheckinCreated;
 use App\Models\Beer;
@@ -24,6 +25,7 @@ use Livewire\WithFileUploads;
 
 class BeerForm extends Component
 {
+    use StoresPhotos;
     use WithFileUploads;
     use WithLocationAutocomplete;
 
@@ -464,10 +466,18 @@ class BeerForm extends Component
             'release_year' => 'nullable|integer|min:1800|max:'.(date('Y') + 1),
             'brewer_master' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:5000',
-            'photo' => 'nullable|image|max:10240',
+            'photo' => 'nullable|'.$this->photoRule(),
         ];
 
-        $validated = $this->validate($rules);
+        if (! $this->beer && $this->addCheckin) {
+            $rules['checkinPhotos'] = 'array|max:10';
+            $rules['checkinPhotos.*'] = $this->photoRule();
+        }
+
+        $validated = $this->validate($rules, [], [
+            'checkinPhotos' => 'check-in photos',
+            'checkinPhotos.*' => 'check-in photo',
+        ]);
 
         $data = [
             'name' => $validated['name'],
@@ -481,7 +491,7 @@ class BeerForm extends Component
         ];
 
         if ($this->photo) {
-            $data['photo_path'] = $this->photo->store('beers', 'public');
+            $data['photo_path'] = $this->storePhoto($this->photo, 'beers');
         }
 
         if ($this->beer) {
@@ -529,7 +539,7 @@ class BeerForm extends Component
                 // Store checkin photos
                 if ($this->checkinPhotos) {
                     foreach ($this->checkinPhotos as $photo) {
-                        $path = $photo->store('checkin-photos', 'public');
+                        $path = $this->storePhoto($photo, 'checkin-photos');
                         CheckinPhoto::create([
                             'checkin_id' => $checkin->id,
                             'photo_path' => $path,

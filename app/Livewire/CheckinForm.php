@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Concerns\StoresPhotos;
 use App\Concerns\WithLocationAutocomplete;
 use App\Events\CheckinCreated;
 use App\Models\Beer;
@@ -21,6 +22,7 @@ use Livewire\WithFileUploads;
 
 class CheckinForm extends Component
 {
+    use StoresPhotos;
     use WithFileUploads;
     use WithLocationAutocomplete;
 
@@ -329,7 +331,7 @@ class CheckinForm extends Component
             'serving_type' => 'nullable|string|in:'.implode(',', config('logr.serving_types')),
             'venueQuery' => 'nullable|string|max:255',
             'notes' => 'nullable|string|max:2000',
-            'photos.*' => 'nullable|image|max:10240',
+            'photos.*' => 'nullable|'.$this->photoRule(),
             'checkin_date' => 'nullable|date',
         ], [
             'selectedBeerId.required' => 'Please select a beer.',
@@ -376,7 +378,7 @@ class CheckinForm extends Component
             // Save new photos
             if ($this->photos) {
                 foreach ($this->photos as $photo) {
-                    $path = $photo->store('checkin-photos', 'public');
+                    $path = $this->storePhoto($photo, 'checkin-photos');
                     CheckinPhoto::create([
                         'checkin_id' => $checkin->id,
                         'photo_path' => $path,

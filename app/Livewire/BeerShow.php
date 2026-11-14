@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Concerns\StoresPhotos;
 use App\Concerns\WithLocationAutocomplete;
 use App\Models\Beer;
 use App\Models\Checkin;
@@ -18,6 +19,7 @@ use Livewire\WithFileUploads;
 
 class BeerShow extends Component
 {
+    use StoresPhotos;
     use WithFileUploads;
     use WithLocationAutocomplete;
 
@@ -210,7 +212,7 @@ class BeerShow extends Component
             'serving_type' => 'nullable|string|in:'.implode(',', config('logr.serving_types')),
             'venueQuery' => 'nullable|string|max:255',
             'notes' => 'nullable|string|max:2000',
-            'checkinPhotos.*' => 'nullable|image|max:10240',
+            'checkinPhotos.*' => 'nullable|'.$this->photoRule(),
         ]);
 
         $venueId = $this->resolveLocationId('venue', Venue::class);
@@ -229,7 +231,7 @@ class BeerShow extends Component
         // Save photos
         if ($this->checkinPhotos) {
             foreach ($this->checkinPhotos as $photo) {
-                $path = $photo->store('checkin-photos', 'public');
+                $path = $this->storePhoto($photo, 'checkin-photos');
                 CheckinPhoto::create([
                     'checkin_id' => $checkin->id,
                     'photo_path' => $path,

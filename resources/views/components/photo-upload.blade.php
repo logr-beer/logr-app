@@ -17,7 +17,13 @@
             @if($previews && count($previews))
                 @foreach($previews as $index => $photo)
                     <div class="relative group">
-                        <img src="{{ $photo->temporaryUrl() }}" alt="Preview" class="w-20 h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-600" />
+                        @if($photo->isPreviewable())
+                            <img src="{{ $photo->temporaryUrl() }}" alt="Preview" class="w-20 h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-600" />
+                        @else
+                            <div class="w-20 h-24 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                                <x-icon name="image" size="8" class="text-gray-400" />
+                            </div>
+                        @endif
                         @if($removeAction)
                             <button
                                 type="button"
