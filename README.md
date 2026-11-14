@@ -52,6 +52,7 @@ Create a `.env` file next to `docker-compose.yml`. All variables are optional â€
 
 ```env
 APP_URL=http://localhost:8337
+TRUSTED_HOSTS=                 # Comma-separated hostnames to accept, e.g. logr.example.com (default: any)
 
 # Beer database integrations
 CATALOG_BEER_API_KEY=          # catalog.beer API key for beer search
