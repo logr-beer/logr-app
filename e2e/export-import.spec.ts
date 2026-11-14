@@ -9,9 +9,12 @@ test.describe('Export', () => {
     });
 
     test('export downloads a JSON file', async ({ page }) => {
+        // Navigating straight to /export aborts page.goto ("Download is starting"),
+        // so trigger the download the way a user does: via the profile page button.
+        await page.goto('/profile');
         const [download] = await Promise.all([
             page.waitForEvent('download'),
-            page.goto('/export'),
+            page.locator('a[href*="export"]').click(),
         ]);
         expect(download.suggestedFilename()).toMatch(/logr-export-.*\.json/);
     });

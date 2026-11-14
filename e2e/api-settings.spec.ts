@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('API Settings', () => {
-    test('page renders with Logr Pub section', async ({ page }) => {
+    test('page renders with LogrDB section', async ({ page }) => {
         await page.goto('/admin/api');
         await expect(page.locator('h2')).toContainText('API Settings');
-        await expect(page.locator('text=Logr Pub')).toBeVisible();
+        await expect(page.locator('h3:has-text("LogrDB")')).toBeVisible();
     });
 
     test('shows instance API key when provisioned', async ({ page }) => {
@@ -21,7 +21,7 @@ test.describe('API Settings', () => {
 
     test('Catalog.beer section is visible', async ({ page }) => {
         await page.goto('/admin/api');
-        await expect(page.locator('text=Catalog.beer')).toBeVisible();
+        await expect(page.locator('h3:has-text("Catalog.beer")')).toBeVisible();
     });
 
     test('Untappd section is visible', async ({ page }) => {

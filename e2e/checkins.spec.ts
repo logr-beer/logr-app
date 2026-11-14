@@ -283,13 +283,12 @@ test.describe('Checkin Create', () => {
         // Select a beer
         const beerInput = page.locator('input[placeholder*="Search for a beer"]');
         await beerInput.fill('IP');
-        await page.waitForTimeout(400);
 
+        // The demo library always has IPAs, so wait for the search results instead of a fixed delay
         const firstSuggestion = page.locator('button:has-text("In Library")').first();
-        if (await firstSuggestion.count() === 0) return;
-
+        await expect(firstSuggestion).toBeVisible();
         await firstSuggestion.click();
-        await page.waitForTimeout(300);
+        await expect(firstSuggestion).toBeHidden();
 
         // Set rating
         await page.locator('#rating').fill('4');
@@ -297,9 +296,9 @@ test.describe('Checkin Create', () => {
         // Set serving type
         const selectButton = page.locator('label:has-text("Serving Type")').locator('..').locator('button').first();
         await selectButton.click();
-        await page.waitForTimeout(200);
-        await page.locator('button:has-text("Can")').first().click();
-        await page.waitForTimeout(200);
+        const canOption = page.locator('button:has-text("Can")').first();
+        await expect(canOption).toBeVisible();
+        await canOption.click();
 
         // Add notes
         await page.locator('#notes').fill('E2E test checkin');

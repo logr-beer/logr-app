@@ -14,8 +14,11 @@
                         <div class="flex-1">
                             <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Beer Name <span class="text-red-500">*</span></label>
                             @if(!$isEditing)
+                                {{-- Sync name to $wire on every keystroke so a fast submit never sends a stale value;
+                                     only the search round-trip (updatedName) is debounced. --}}
                                 <input
-                                    wire:model.live.debounce.400ms="name"
+                                    wire:model="name"
+                                    x-on:input.debounce.400ms="$wire.$commit()"
                                     @focus="if ($wire.name.length >= 2) open = true"
                                     type="text"
                                     id="name"
