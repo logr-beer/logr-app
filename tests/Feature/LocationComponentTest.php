@@ -265,6 +265,7 @@ class LocationComponentTest extends TestCase
 
     public function test_delete_venue_blocked_when_other_users_have_checkins(): void
     {
+        User::factory()->create(); // first user = admin
         $user = User::factory()->create();
         $otherUser = User::factory()->create();
         $brewery = Brewery::create(['name' => 'Test Brewery']);
