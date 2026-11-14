@@ -5,6 +5,7 @@
 export PLAYWRIGHT_BASE_URL=http://127.0.0.1:$APP_PORT
 
 prepare() {
+  local db="${SHARED_DIR:-$PWD/database}/${DB_NAME:-database}.sqlite"
   cp .env.example .env
   cat >> .env <<ENV
 
@@ -16,8 +17,11 @@ APP_URL=http://$WORKER_IP:$APP_PORT
 SESSION_SECURE_COOKIE=false
 QUEUE_CONNECTION=sync
 MAIL_MAILER=log
+# Staging and PR previews set SHARED_DIR (kept across deploys) and DB_NAME (pr<N> for previews),
+# so each environment keeps its own SQLite file; jobs set neither and use database/database.sqlite.
+DB_DATABASE=$db
 ENV
-  mkdir -p database && touch database/database.sqlite
+  mkdir -p "$(dirname "$db")" && touch "$db"
 }
 
 setup() {
@@ -29,6 +33,20 @@ setup() {
 
 \`php artisan db:seed --class=DemoSeeder\` failed, so the database has no demo user. Error: \`$(plain "$JOBDIR/seed.log" | grep -m1 -E 'Exception|ERROR')\`"
   step npm bash -c 'npm ci && npm run build'
+}
+
+# Staging and PR previews (instead of setup): keep the existing database across deploys.
+staging_deploy() {
+  composer install --no-interaction --prefer-dist || return 1
+  if [ "${FIRST_DEPLOY:-}" = 1 ]; then
+    php artisan key:generate --force || return 1
+    php artisan migrate:fresh --force --seed || return 1
+    # The demo account (demo / password) and sample data. Best-effort.
+    php artisan db:seed --class=DemoSeeder --force || echo "DemoSeeder failed; the database has no demo user."
+  else
+    php artisan migrate --force || return 1
+  fi
+  npm ci && npm run build
 }
 
 serve_cmd() { echo "php artisan serve --host 0.0.0.0 --port $APP_PORT"; }
