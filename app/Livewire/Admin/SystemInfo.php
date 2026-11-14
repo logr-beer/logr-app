@@ -150,6 +150,10 @@ class SystemInfo extends Component
 
     public function purgeData(): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         if ($this->purgeConfirmation !== 'PURGE') {
             $this->addError('purgeConfirmation', 'Please type PURGE to confirm.');
 
@@ -182,6 +186,10 @@ class SystemInfo extends Component
 
     public function purgeSettings(): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         if ($this->purgeSettingsConfirmation !== 'PURGE') {
             $this->addError('purgeSettingsConfirmation', 'Please type PURGE to confirm.');
 
@@ -209,6 +217,10 @@ class SystemInfo extends Component
 
     public function resetApp(): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         Artisan::call('app:reset', ['--force' => true]);
 
         auth()->logout();

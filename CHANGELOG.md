@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Flash toasts such as "Check-in recorded!" now appear after in-app (`wire:navigate`) redirects, not only on full page loads.
 - Deleting a beer, brewery, venue or store is now only allowed when no other user has check-ins or inventory that use it (admins can still delete), and the delete button is hidden otherwise.
 - Updated Symfony components and Laravel framework to their latest patch releases.
+- Admin screens (API settings, notifications, system info) now re-check admin access on every action, and the purge/reset actions are disabled in demo mode on their own.
 
 ## [0.4.3] - 2026-05-22
 
